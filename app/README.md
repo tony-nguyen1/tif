@@ -38,3 +38,14 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
 npm run db:push
+
+curl -sSfL https://get.tur.so/install.sh | bash
+turso auth signup
+turso db shell your-database .dump > dump.sql
+cat dump.sql | sqlite3 local.db
+
+
+For a migration of the database's schema, the Drizzle ORM will write compare schema.ts and the effective schema of our DB. It will search the link to the DB in .env file. .env and .env.development is supposed to be the same, for npm or svelte. Drizzle want the default file to be name .env specifically. 
+npm run db:push
+
+https://www.chartjs.org/

@@ -5,6 +5,7 @@ declare global {
 		interface Locals {
 			user: import('$lib/server/auth').SessionValidationResult['user'];
 			session: import('$lib/server/auth').SessionValidationResult['session'];
+			trainingSessionId: number | null;
 		}
 	} // interface Error {}
 	// interface Locals {}
@@ -12,4 +13,4 @@ declare global {
 // interface PageState {}
 
 // interface Platform {}
-export {};
+export { };

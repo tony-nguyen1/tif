@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -15,12 +15,17 @@ export const session = sqliteTable('session', {
 });
 
 export const gymExercise = sqliteTable('gym_exercise', {
-	id: text('id').primaryKey(),
-	name: text('name').notNull().unique(),
-});
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	name: text('name').notNull(),
+}, (table) => [
+	unique('unique_name_per_user').on(table.userId, table.name)
+]);
 
 export const trainingSession = sqliteTable('training_session', {
-	id: text('id').primaryKey(),
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
 	date: integer('date', { mode: 'timestamp' }).notNull(),
 	duration: integer('duration').notNull(), // in minutes
 	place: text('place'),
@@ -30,11 +35,11 @@ export const trainingSession = sqliteTable('training_session', {
 })
 
 export const gymSet = sqliteTable('gym_set', {
-	id: text('id').primaryKey(),
-	session: text('session')
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	session: integer('session')
 		.notNull()
 		.references(() => trainingSession.id),
-	exercise: text('exercise')
+	exercise: integer('exercise')
 		.notNull()
 		.references(() => gymExercise.id),
 	repNumber: integer('repetition_number').notNull(),
@@ -42,6 +47,10 @@ export const gymSet = sqliteTable('gym_set', {
 	repInReserve: integer('rip').notNull(),
 	remark: text('remark')
 });
+
+export type GymExercise = typeof gymExercise.$inferSelect;
+export type TrainingSession = typeof trainingSession.$inferSelect;
+export type GymSet = typeof gymSet.$inferSelect;
 
 export type Session = typeof session.$inferSelect;
 

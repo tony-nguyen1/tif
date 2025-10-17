@@ -9,4 +9,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<p>Coucou</p>
+
 {@render children?.()}
