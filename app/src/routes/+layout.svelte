@@ -9,6 +9,8 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<p>Coucou</p>
+<a href={'/'}>Home</a>
+<a href={'/login'}>Login</a>
+<a href={'/profile'}>Profile</a>
 
 {@render children?.()}

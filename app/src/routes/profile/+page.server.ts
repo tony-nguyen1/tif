@@ -7,9 +7,9 @@ import { and, eq, gte, lt } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const user = requireLogin();
+	const user = _requireLogin();
 	const trainingSessionData: table.TrainingSession[] = await getAllTrainingSession(user.id);
-	const userExercise = await loadAllExercises(user.id);
+	const userExercise = await _loadAllExercises(user.id);
 	return { user, trainingSessionData, userExercise };
 };
 
@@ -23,17 +23,24 @@ export const actions: Actions = {
 
 		return redirect(302, '/login');
 	},
-	// change: async ({ request, locals }) => {
-	// 	const formData = await request.formData();
+	createNewTrainingSession: async ({ request }) => {
+		const data = await request.formData();
+		const a = await db
+			.insert(table.trainingSession)
+			.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
+			.returning({ insertedId: table.trainingSession.id });
+		console.log(`res=${a}`);
 
-	// 	locals.trainingSessionId = Number(formData.get('aTrainingSessionId')); // store hidden data
-
-	// 	console.log('before');
-	// 	console.log(locals);
-
-
-	// 	return redirect(303, '/session');
-	// },
+		return redirect(302, '/session/' + a[0].insertedId);
+	},
+	exercise: async ({ request }) => {
+		const data = await request.formData();
+		const a = await db
+			.insert(table.gymExercise)
+			.values({ userId: data.get('userId')!.toString(), name: data.get('name')!.toString() })
+			.returning({ insertedId: table.gymExercise.id });
+		console.log(`res=${a}`);
+	},
 	foo: async ({ cookies, request }) => {
 		const data = await request.formData();
 		console.log(data);
@@ -81,8 +88,10 @@ export const actions: Actions = {
 	}
 };
 
-function requireLogin() {
+export function _requireLogin() {
 	const { locals } = getRequestEvent();
+	console.log('locals=');
+	console.log(locals);
 
 	if (!locals.user) {
 		return redirect(302, '/login');
@@ -96,7 +105,7 @@ async function getAllTrainingSession(userId: string): Promise<table.TrainingSess
 	return res;
 }
 
-async function loadAllExercises(userId: string): Promise<table.GymExercise[]> {
+export async function _loadAllExercises(userId: string): Promise<table.GymExercise[]> {
 	console.log('exercise : ');
 	const res = await db.select().from(table.gymExercise).where(eq(table.gymExercise.userId, userId));
 	console.log(res);

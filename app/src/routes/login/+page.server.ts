@@ -17,6 +17,7 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
 	login: async (event) => {
 		const formData = await event.request.formData();
+		console.log(formData);
 		const username = formData.get('username');
 		const password = formData.get('password');
 
@@ -30,6 +31,7 @@ export const actions: Actions = {
 		}
 
 		const results = await db.select().from(table.user).where(eq(table.user.username, username));
+		console.log(results);
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -50,6 +52,7 @@ export const actions: Actions = {
 		const session = await auth.createSession(sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
+		console.log("here");
 		return redirect(302, '/profile');
 	},
 	register: async (event) => {

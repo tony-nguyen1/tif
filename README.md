@@ -6,9 +6,9 @@ Built with Svelte, Go and Turso
 
 # Features
 - [x] Authentication
-- [ ] User Profile
+- [x] User Profile
 - [ ] Gym workout
 - [ ] Weight tracker
-- [ ] Journal
-- [ ] Date of meal
+- [ ] Sleep tracker (calendar)
+- [ ] Meal tracker
 

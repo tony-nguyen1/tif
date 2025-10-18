@@ -1,0 +1,21 @@
+import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
+import { _loadAllExercises, _requireLogin } from '../../profile/+page.server.js';
+import type { Actions } from './$types.js';
+
+export async function load({ params }) {
+	const user = _requireLogin();
+	const userExercise = await _loadAllExercises(user.id);
+
+	const exerciseMap: Map<Number, String> = new Map();
+	userExercise.forEach((value) => {
+		exerciseMap.set(value.id, value.name);
+	});
+
+	return {
+		exerciseMap
+	};
+}
+
+export const actions: Actions = {};
