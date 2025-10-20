@@ -13,22 +13,11 @@
 	<input name="userId" value={data.user.id} hidden />
 	<button>Begin new training session</button>
 </form>
-<form method="POST" action="?/exercise">
-	<label>
-		Name of the exercise
-		<input name="name" autocomplete="off" type="text" />
-	</label>
 
-	<input name="userId" value={data.user.id} hidden />
-
-	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Create</button
-	>
-</form>
 <br />
 <p>Training session:</p>
 {#each data.trainingSessionData as aTrainingSession, i}
-	<p>{aTrainingSession.id}</p>
+	<!-- <p>{aTrainingSession.id}</p> -->
 	<p>{aTrainingSession.place}</p>
 	<p>{aTrainingSession.date}</p>
 	<p>{aTrainingSession.duration}</p>
@@ -37,6 +26,13 @@
 		<button>Go to another page</button>
 	</form> -->
 	<a href={'/session/' + aTrainingSession.id}>Details</a>
+	<form method="post" action="?/deleteTrainingSession">
+		<input name="trainingSessionId" value={aTrainingSession.id} hidden />
+		<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
+			>Delete</button
+		>
+	</form>
+	<br />
 	<br />
 {/each}
 <br />

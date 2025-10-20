@@ -14,8 +14,17 @@ export async function load({ params }) {
 	});
 
 	return {
+		user,
 		exerciseMap
 	};
 }
 
-export const actions: Actions = {};
+export const actions: Actions = {
+	exercise: async ({ request }) => {
+		const data = await request.formData();
+		const a = await db
+			.insert(table.gymExercise)
+			.values({ userId: data.get('userId')!.toString(), name: data.get('name')!.toString() })
+			.returning({ insertedId: table.gymExercise.id });
+	}
+};

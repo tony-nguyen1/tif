@@ -1,12 +1,42 @@
 <script lang="ts">
-	import type { PageServerData } from './$types';
+	// import type { PageServerData } from './$types';
+	import type { PageServerData } from '../../session/[slug]/$types';
 
 	let { data }: { data: PageServerData } = $props();
-	console.log(data);
+	// console.log(data);
+	// console.log(data.userExercise);
 </script>
 
+<br />
+Details ({data.trainingSessionId})
+<!-- <p>{data.trainingSessionInfo.date}</p> -->
+<form method="POST" action="?/modifyDuration">
+	<label>
+		Update duration :
+		<input name="newDuration" autocomplete="off" type="number" />
+	</label>
+
+	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+		>Change</button
+	>
+</form>
+<p>{data.trainingSessionInfo.duration}</p>
+<form method="POST" action="?/modifyPlace">
+	<label>
+		Change place :
+		<input name="newPlace" autocomplete="off" type="text" />
+	</label>
+
+	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+		>Change</button
+	>
+</form>
+<p>{data.trainingSessionInfo.place}</p>
+
+<p>{data.test}</p>
+
 <form method="POST" action="?/addASet">
-	<label for="exerciseId">Choose an exercise :</label>
+	<label for="exerciseId">The exercise : </label>
 	<select name="exerciseId" id="exercise">
 		{#each data.userExercise as anExercise, i}
 			<option value={anExercise.id}>{anExercise.name}</option>
@@ -41,14 +71,22 @@
 	>
 </form>
 
-Details
-{data.trainingSessionId}
-{#each data.sets as aSet, i}
+<br /> <br />
+{#each data.cleanMap.keys() as exerciseName, i}
 	<p>
-		<!-- fix ugly condition -->
-		{data.exerciseMap.get(aSet?.exercise ? aSet?.exercise : -1)} <br />
-		{aSet?.repNumber}x{aSet?.weight}kg <br />
-		{aSet?.repInReserve} <br />
-		Rq: {aSet?.remark}
+		{exerciseName}
+		<br />
+		{#each data.cleanMap.get(exerciseName) as aze, i}
+			{aze.repNumber}x{aze.weight}kg, ({aze.repInReserve})
+			{aze.remark}
+			<br />
+		{/each}
+		<br />
 	</p>
 {/each}
+
+<form method="POST" action="?/modifyPlace">
+	<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
+		>Delete</button
+	>
+</form>

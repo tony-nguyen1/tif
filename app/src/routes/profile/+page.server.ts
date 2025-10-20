@@ -33,13 +33,17 @@ export const actions: Actions = {
 
 		return redirect(302, '/session/' + a[0].insertedId);
 	},
-	exercise: async ({ request }) => {
+	deleteTrainingSession: async ({ request }) => {
 		const data = await request.formData();
+		const b = await db
+			.delete(table.gymSet)
+			.where(eq(table.gymSet.session, Number(data.get('trainingSessionId')?.toString())));
+		console.log(b);
+
 		const a = await db
-			.insert(table.gymExercise)
-			.values({ userId: data.get('userId')!.toString(), name: data.get('name')!.toString() })
-			.returning({ insertedId: table.gymExercise.id });
-		console.log(`res=${a}`);
+			.delete(table.trainingSession)
+			.where(eq(table.trainingSession.id, Number(data.get('trainingSessionId')?.toString())));
+		console.log(a);
 	},
 	foo: async ({ cookies, request }) => {
 		const data = await request.formData();
@@ -90,8 +94,8 @@ export const actions: Actions = {
 
 export function _requireLogin() {
 	const { locals } = getRequestEvent();
-	console.log('locals=');
-	console.log(locals);
+	// console.log('locals=');
+	// console.log(locals);
 
 	if (!locals.user) {
 		return redirect(302, '/login');
@@ -106,8 +110,8 @@ async function getAllTrainingSession(userId: string): Promise<table.TrainingSess
 }
 
 export async function _loadAllExercises(userId: string): Promise<table.GymExercise[]> {
-	console.log('exercise : ');
+	// console.log('exercise : ');
 	const res = await db.select().from(table.gymExercise).where(eq(table.gymExercise.userId, userId));
-	console.log(res);
+	// console.log(res);
 	return res;
 }
