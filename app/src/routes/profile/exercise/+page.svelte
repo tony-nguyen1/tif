@@ -2,7 +2,6 @@
 	import type { PageServerData } from '../../profile/exercise/$types';
 
 	let { data }: { data: PageServerData } = $props();
-	console.log(data);
 </script>
 
 <form method="POST" action="?/exercise">
@@ -21,7 +20,7 @@
 <ul>
 	{#each data.exerciseMap as [i, anExercise]}
 		<li>
-			{anExercise}
+			<a href={`exercise/${i}`}>{anExercise}</a>
 		</li>
 	{/each}
 </ul>

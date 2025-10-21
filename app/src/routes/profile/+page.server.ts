@@ -5,11 +5,12 @@ import * as table from '$lib/server/db/schema';
 import { fail, redirect } from '@sveltejs/kit';
 import { and, eq, gte, lt } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
+import { getAllExercises } from '$lib/server/db/repo';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
 	const trainingSessionData: table.TrainingSession[] = await getAllTrainingSession(user.id);
-	const userExercise = await _loadAllExercises(user.id);
+	const userExercise = await getAllExercises(user.id);
 	return { user, trainingSessionData, userExercise };
 };
 
@@ -29,7 +30,7 @@ export const actions: Actions = {
 			.insert(table.trainingSession)
 			.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
 			.returning({ insertedId: table.trainingSession.id });
-		console.log(`res=${a}`);
+
 
 		return redirect(302, '/session/' + a[0].insertedId);
 	},
@@ -38,16 +39,16 @@ export const actions: Actions = {
 		const b = await db
 			.delete(table.gymSet)
 			.where(eq(table.gymSet.session, Number(data.get('trainingSessionId')?.toString())));
-		console.log(b);
+
 
 		const a = await db
 			.delete(table.trainingSession)
 			.where(eq(table.trainingSession.id, Number(data.get('trainingSessionId')?.toString())));
-		console.log(a);
+
 	},
 	foo: async ({ cookies, request }) => {
 		const data = await request.formData();
-		console.log(data);
+
 		if (data.get('userId') !== null) {
 			const todayBOD: Date = new Date();
 			todayBOD.setHours(0, 0, 0, 0);
@@ -73,7 +74,7 @@ export const actions: Actions = {
 					.insert(table.trainingSession)
 					.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
 					.returning({ insertedId: table.trainingSession.id });
-				console.log(`res=${a}`);
+
 				aTrainingSessionId = a[0].insertedId;
 			}
 
@@ -94,8 +95,8 @@ export const actions: Actions = {
 
 export function _requireLogin() {
 	const { locals } = getRequestEvent();
-	// console.log('locals=');
-	// console.log(locals);
+
+
 
 	if (!locals.user) {
 		return redirect(302, '/login');
@@ -106,12 +107,5 @@ export function _requireLogin() {
 
 async function getAllTrainingSession(userId: string): Promise<table.TrainingSession[]> {
 	const res = await db.select().from(table.trainingSession).where(eq(table.trainingSession.userId, userId));
-	return res;
-}
-
-export async function _loadAllExercises(userId: string): Promise<table.GymExercise[]> {
-	// console.log('exercise : ');
-	const res = await db.select().from(table.gymExercise).where(eq(table.gymExercise.userId, userId));
-	// console.log(res);
 	return res;
 }

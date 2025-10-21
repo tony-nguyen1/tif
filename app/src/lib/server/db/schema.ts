@@ -1,3 +1,4 @@
+import { sql, type SQL } from 'drizzle-orm';
 import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
@@ -45,7 +46,9 @@ export const gymSet = sqliteTable('gym_set', {
 	repNumber: integer('repetition_number').notNull(),
 	weight: integer('weight').notNull(),
 	repInReserve: integer('rip').notNull(),
-	remark: text('remark')
+	remark: text('remark'),
+	volume: integer('volume')
+		.generatedAlwaysAs((): SQL => sql`${gymSet.repNumber}*${gymSet.weight}`.mapWith(Number), { mode: "stored" })
 });
 
 export type GymExercise = typeof gymExercise.$inferSelect;

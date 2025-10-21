@@ -1,45 +1,27 @@
 <script lang="ts">
-	// import type { PageServerData } from './$types';
 	import type { PageServerData } from '../../session/[slug]/$types';
 
 	let { data }: { data: PageServerData } = $props();
-	// console.log(data);
-	// console.log(data.userExercise);
+	console.log(data);
 </script>
 
 <br />
-Details ({data.trainingSessionId})
-<!-- <p>{data.trainingSessionInfo.date}</p> -->
-<form method="POST" action="?/modifyDuration">
-	<label>
-		Update duration :
-		<input name="newDuration" autocomplete="off" type="number" />
-	</label>
+Details ({data.trainingSessionInfo.id})
 
-	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Change</button
-	>
-</form>
 <p>{data.trainingSessionInfo.duration}</p>
-<form method="POST" action="?/modifyPlace">
-	<label>
-		Change place :
-		<input name="newPlace" autocomplete="off" type="text" />
-	</label>
 
-	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Change</button
-	>
-</form>
 <p>{data.trainingSessionInfo.place}</p>
 
-<p>{data.test}</p>
+<p>{data.trainingSessionInfo.formattedDateFromNow}</p>
 
 <form method="POST" action="?/addASet">
 	<label for="exerciseId">The exercise : </label>
-	<select name="exerciseId" id="exercise">
+	<select name="exerciseId" id="exercise" required>
+		<option></option>
 		{#each data.userExercise as anExercise, i}
-			<option value={anExercise.id}>{anExercise.name}</option>
+			<option value={anExercise.id} selected={anExercise.id === data.lastExercise}
+				>{anExercise.name}</option
+			>
 		{/each}
 	</select>
 
@@ -64,7 +46,7 @@ Details ({data.trainingSessionId})
 	</label>
 
 	<input name="userId" value={data.user.id} hidden />
-	<input name="trainingSessionId" value={data.trainingSessionId} hidden />
+	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
 
 	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
 		>Send</button
@@ -72,21 +54,28 @@ Details ({data.trainingSessionId})
 </form>
 
 <br /> <br />
-{#each data.cleanMap.keys() as exerciseName, i}
-	<p>
-		{exerciseName}
+{#each data.cleanMap.keys() as exerciseId}
+	{data.exerciseIdToNameMap.get(exerciseId)} Vtotal={data.volumeMap.get(exerciseId)!}
+	<br />
+	{#each data.cleanMap.get(exerciseId) as aSet, i}
+		{aSet.repNumber}x{aSet.weight}kg, ({aSet.repInReserve})
+		{aSet.remark}
+		<form method="POST" action="?/deleteSet">
+			<input name="gymSetId" value={aSet.id} hidden />
+			<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
+				>Delete this set</button
+			>
+		</form>
 		<br />
-		{#each data.cleanMap.get(exerciseName) as aze, i}
-			{aze.repNumber}x{aze.weight}kg, ({aze.repInReserve})
-			{aze.remark}
-			<br />
-		{/each}
-		<br />
-	</p>
+	{/each}
+	<br />
 {/each}
 
-<form method="POST" action="?/modifyPlace">
+<form method="POST" action="?/delete">
+	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
 	<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
-		>Delete</button
+		>Delete this training session</button
 	>
 </form>
+
+<br />

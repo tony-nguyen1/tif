@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import dayjs from 'dayjs';
 	import type { PageServerData } from './$types';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+
+	dayjs.extend(relativeTime);
 
 	let { data }: { data: PageServerData } = $props();
 </script>
@@ -18,9 +22,8 @@
 <p>Training session:</p>
 {#each data.trainingSessionData as aTrainingSession, i}
 	<!-- <p>{aTrainingSession.id}</p> -->
-	<p>{aTrainingSession.place}</p>
-	<p>{aTrainingSession.date}</p>
-	<p>{aTrainingSession.duration}</p>
+	<p>At {aTrainingSession.place}</p>
+	<p>{dayjs(aTrainingSession.date).fromNow()} during {aTrainingSession.duration} minutes</p>
 	<!-- <form method="post" action="?/change">
 		<input name="aTrainingSessionId" type="number" value={aTrainingSession.id} hidden />
 		<button>Go to another page</button>
