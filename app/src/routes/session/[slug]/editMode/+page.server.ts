@@ -15,39 +15,39 @@ export async function load({ params }) {
 	const userExercise = await getAllExercises(user.id);
 
 	const res2: {
-		training_session: table.TrainingSession | null,
-		gym_set: table.GymSet | null,
-		// gym_exercise: table.GymExercise | null
+		workout: table.Workout | null,
+		set: table.Set | null,
+		// exercise: table.Exercise | null
 	}[] = await db
 		.select()
-		.from(table.trainingSession)
-		.rightJoin(table.gymSet, eq(table.trainingSession.id, table.gymSet.session))
-		// .leftJoin(table.gymExercise, eq(table.gymSet.exercise, table.gymExercise.id))
-		.where(eq(table.trainingSession.id, Number(params.slug)));
+		.from(table.workout)
+		.rightJoin(table.set, eq(table.workout.id, table.set.session))
+		// .leftJoin(table.exercise, eq(table.set.exercise, table.exercise.id))
+		.where(eq(table.workout.id, Number(params.slug)));
 	const exerciseMap: Map<Number, String> = new Map();
 	userExercise.forEach((value) => {
 		exerciseMap.set(value.id, value.name);
 	});
 
-	// : Map<String, table.GymSet> 
-	let cleanMap: Map<String, Array<table.GymSet>> = new Map();
+	// : Map<String, table.Set> 
+	let cleanMap: Map<String, Array<table.Set>> = new Map();
 	const volumeMap: Map<String, number> = new Map();
 	res2.forEach((aSet) => {
-		let exerciseName: String = exerciseMap.get(Number(aSet.gym_set!.exercise))!
+		let exerciseName: String = exerciseMap.get(Number(aSet.set!.exercise))!
 
-		let exerciseDoneList: Array<table.GymSet> = cleanMap.get(exerciseName!)!;
+		let exerciseDoneList: Array<table.Set> = cleanMap.get(exerciseName!)!;
 		if (!exerciseDoneList) {
 			exerciseDoneList = new Array();
 			cleanMap.set(exerciseName, exerciseDoneList);
-			exerciseDoneList.push(aSet.gym_set!);
+			exerciseDoneList.push(aSet.set!);
 		} else {
-			exerciseDoneList.push(aSet.gym_set!);
+			exerciseDoneList.push(aSet.set!);
 		}
 
 		if (!volumeMap.get(exerciseName)) {
 			volumeMap.set(exerciseName, 0);
 		}
-		volumeMap.set(exerciseName, volumeMap.get(exerciseName)! + Number(aSet.gym_set!.repNumber) * Number(aSet.gym_set!.weight));
+		volumeMap.set(exerciseName, volumeMap.get(exerciseName)! + Number(aSet.set!.repNumber) * Number(aSet.set!.weight));
 	});
 
 	dayjs.extend(relativeTime);
@@ -74,41 +74,41 @@ export const actions: Actions = {
 	addASet: async ({ request }) => {
 		const data = await request.formData();
 		await db
-			.insert(table.gymSet)
+			.insert(table.set)
 			.values({
 				session: Number(data.get('trainingSessionId')!.toString()),
 				exercise: Number(data.get('exerciseId')!.toString()),
 				repNumber: Number(data.get('rep')!.toString()),
 				weight: Number(data.get('weight')!.toString()),
 				repInReserve: Number(data.get('rir')!.toString()),
-				remark: data.get('remark')!.toString()
+				comment: data.get('comment')!.toString()
 			})
-			.returning({ insertedId: table.trainingSession.id });
+			.returning({ insertedId: table.workout.id });
 	},
 	modifyPlace: async ({ params, request }) => {
 		const data = await request.formData();
 		const result = await db
-			.update(table.trainingSession)
+			.update(table.workout)
 			.set({ place: data.get('newPlace')?.toString() })
-			.where(eq(table.trainingSession.id, Number(params.slug)));
+			.where(eq(table.workout.id, Number(params.slug)));
 	},
 	modifyDuration: async ({ params, request }) => {
 		const data = await request.formData();
 		const result = await db
-			.update(table.trainingSession)
+			.update(table.workout)
 			.set({ duration: Number(data.get('newDuration')?.toString()) })
-			.where(eq(table.trainingSession.id, Number(params.slug)));
+			.where(eq(table.workout.id, Number(params.slug)));
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
 		const b = await db
-			.delete(table.gymSet)
-			.where(eq(table.gymSet.session, Number(data.get('trainingSessionId')?.toString())));
+			.delete(table.set)
+			.where(eq(table.set.session, Number(data.get('trainingSessionId')?.toString())));
 
 
 		const a = await db
-			.delete(table.trainingSession)
-			.where(eq(table.trainingSession.id, Number(data.get('trainingSessionId')?.toString())));
+			.delete(table.workout)
+			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
 
 
 
@@ -117,20 +117,20 @@ export const actions: Actions = {
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
 		await db
-			.delete(table.gymSet)
-			.where(eq(table.gymSet.id, Number(data.get('gymSetId')!.toString())));
+			.delete(table.set)
+			.where(eq(table.set.id, Number(data.get('gymSetId')!.toString())));
 	},
 	updateSet: async ({ params, request }) => {
 		const data = await request.formData();
 		const result = await db
-			.update(table.gymSet)
+			.update(table.set)
 			.set({
 				id: Number(data.get('exerciseId')!.toString()),
 				repNumber: Number(data.get('rep')!.toString()),
 				weight: Number(data.get('weight')!.toString()),
 				repInReserve: Number(data.get('rir')!.toString()),
-				remark: data.get('remark')!.toString()
+				comment: data.get('comment')!.toString()
 			})
-			.where(eq(table.gymSet.id, Number(data.get('gymSetId'))));
+			.where(eq(table.set.id, Number(data.get('gymSetId'))));
 	},
 };

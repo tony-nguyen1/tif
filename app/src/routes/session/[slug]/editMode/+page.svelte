@@ -40,7 +40,7 @@ Details ({data.trainingSessionId})
 	<br />
 	{#each data.cleanMap.get(exerciseName) as aze, i}
 		{aze.repNumber}x{aze.weight}kg, ({aze.repInReserve})
-		{aze.remark}
+		{aze.comment}
 		<form method="POST" action="?/updateSet">
 			<label for="exerciseId">The exercise : </label>
 			<select name="exerciseId" id="exercise">
@@ -69,7 +69,7 @@ Details ({data.trainingSessionId})
 
 			<label>
 				Remark :
-				<input name="remark" autocomplete="off" value={aze.remark} type="text" />
+				<input name="comment" autocomplete="off" value={aze.comment} type="text" />
 			</label>
 
 			<input name="gymSetId" value={aze.id} hidden />

@@ -9,7 +9,7 @@ import { getAllExercises } from '$lib/server/db/repo';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
-	const trainingSessionData: table.TrainingSession[] = await getAllTrainingSession(user.id);
+	const trainingSessionData: table.Workout[] = await getAllTrainingSession(user.id);
 	const userExercise = await getAllExercises(user.id);
 	return { user, trainingSessionData, userExercise };
 };
@@ -27,23 +27,23 @@ export const actions: Actions = {
 	createNewTrainingSession: async ({ request }) => {
 		const data = await request.formData();
 		const a = await db
-			.insert(table.trainingSession)
+			.insert(table.workout)
 			.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
-			.returning({ insertedId: table.trainingSession.id });
+			.returning({ insertedId: table.workout.id });
 
 
 		return redirect(302, '/session/' + a[0].insertedId);
 	},
 	deleteTrainingSession: async ({ request }) => {
 		const data = await request.formData();
-		const b = await db
-			.delete(table.gymSet)
-			.where(eq(table.gymSet.session, Number(data.get('trainingSessionId')?.toString())));
+		// const b = await db
+		// 	.delete(table.set)
+		// 	.where(eq(table.set.session, Number(data.get('trainingSessionId')?.toString())));
 
 
 		const a = await db
-			.delete(table.trainingSession)
-			.where(eq(table.trainingSession.id, Number(data.get('trainingSessionId')?.toString())));
+			.delete(table.workout)
+			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
 
 	},
 	foo: async ({ cookies, request }) => {
@@ -54,12 +54,12 @@ export const actions: Actions = {
 			todayBOD.setHours(0, 0, 0, 0);
 			const todayEOD: Date = new Date();
 			todayEOD.setHours(23, 59, 59, 999);
-			const res: table.TrainingSession[] = await db.select().from(table.trainingSession).where(
+			const res: table.Workout[] = await db.select().from(table.workout).where(
 				and(
-					eq(table.trainingSession.userId, data.get('userId')!.toString()),
+					eq(table.workout.userId, data.get('userId')!.toString()),
 					and(
-						gte(table.trainingSession.date, todayBOD),
-						lt(table.trainingSession.date, todayEOD)
+						gte(table.workout.date, todayBOD),
+						lt(table.workout.date, todayEOD)
 					)
 				));
 
@@ -71,24 +71,24 @@ export const actions: Actions = {
 				console.log(`This user (${data.get('userId')!.toString()}) has not logged any training today`);
 				console.log(`Inserting a new gym session for (${data.get('userId')!.toString()}) today`);
 				const a = await db
-					.insert(table.trainingSession)
+					.insert(table.workout)
 					.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
-					.returning({ insertedId: table.trainingSession.id });
+					.returning({ insertedId: table.workout.id });
 
 				aTrainingSessionId = a[0].insertedId;
 			}
 
-			const b = await db
-				.insert(table.gymSet)
-				.values({
-					session: aTrainingSessionId,
-					exercise: Number(data.get('exerciseId')!.toString()),
-					repNumber: Number(data.get('rep')!.toString()),
-					weight: Number(data.get('weight')!.toString()),
-					repInReserve: Number(data.get('rir')!.toString()),
-					remark: data.get('remark')!.toString()
-				})
-				.returning({ insertedId: table.trainingSession.id });
+			// const b = await db
+			// 	.insert(table.set)
+			// 	.values({
+			// 		session: aTrainingSessionId,
+			// 		exercise: Number(data.get('exerciseId')!.toString()),
+			// 		repNumber: Number(data.get('rep')!.toString()),
+			// 		weight: Number(data.get('weight')!.toString()),
+			// 		repInReserve: Number(data.get('rir')!.toString()),
+			// 		comment: data.get('comment')!.toString()
+			// 	})
+			// 	.returning({ insertedId: table.workout.id });
 		}
 	}
 };
@@ -105,7 +105,7 @@ export function _requireLogin() {
 	return locals.user;
 }
 
-async function getAllTrainingSession(userId: string): Promise<table.TrainingSession[]> {
-	const res = await db.select().from(table.trainingSession).where(eq(table.trainingSession.userId, userId));
+async function getAllTrainingSession(userId: string): Promise<table.Workout[]> {
+	const res = await db.select().from(table.workout).where(eq(table.workout.userId, userId));
 	return res;
 }

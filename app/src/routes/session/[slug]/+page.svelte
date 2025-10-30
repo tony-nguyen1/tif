@@ -2,7 +2,8 @@
 	import type { PageServerData } from '../../session/[slug]/$types';
 
 	let { data }: { data: PageServerData } = $props();
-	console.log(data);
+	console.log(data.lastExercise);
+	// console.log(data.cleanMap);
 </script>
 
 <br />
@@ -42,7 +43,7 @@ Details ({data.trainingSessionInfo.id})
 
 	<label>
 		Remark :
-		<input name="remark" autocomplete="off" type="text" />
+		<input name="comment" autocomplete="off" type="text" />
 	</label>
 
 	<input name="userId" value={data.user.id} hidden />
@@ -59,7 +60,7 @@ Details ({data.trainingSessionInfo.id})
 	<br />
 	{#each data.cleanMap.get(exerciseId) as aSet, i}
 		{aSet.repNumber}x{aSet.weight}kg, ({aSet.repInReserve})
-		{aSet.remark}
+		{aSet.comment}
 		<form method="POST" action="?/deleteSet">
 			<input name="gymSetId" value={aSet.id} hidden />
 			<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"

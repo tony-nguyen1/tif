@@ -6,101 +6,79 @@ import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { redirect } from '@sveltejs/kit';
-import { getAllExercises, getATrainingSession, getLastSeries } from '$lib/server/db/repo.js';
+import { getAllExercises, getATrainingSession, getLastSeries, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
 
 export async function load({ params }) {
 	// no verification for now ...
-
 	const user = _requireLogin();
 	const userExercise = await getAllExercises(user.id);
+	const workoutId: number = Number(params.slug);
+	const workoutDone = await getWorkoutSet(user.id, workoutId);
 
-	const res2: {
-		training_session: table.TrainingSession | null,
-		gym_set: table.GymSet | null,
-		// gym_exercise: table.GymExercise | null
-	}[] = await db
-		.select()
-		.from(table.trainingSession)
-		.rightJoin(table.gymSet, eq(table.trainingSession.id, table.gymSet.session))
-		// .leftJoin(table.gymExercise, eq(table.gymSet.exercise, table.gymExercise.id))
-		.where(eq(table.trainingSession.id, Number(params.slug)));
-	const exerciseMap: Map<Number, String> = new Map();
-	userExercise.forEach((value) => {
-		exerciseMap.set(value.id, value.name);
-	});
-
-	let cleanMap: Map<number, Array<table.GymSet>> = new Map();
+	const cleanMap: Map<number, Array<table.Set>> = new Map();
 	const volumeMap: Map<number, number> = new Map();
-	res2.forEach((aSet) => {
-		const exerciseId: number = aSet.gym_set!.exercise!;
+	workoutDone?.set.forEach((aSet) => {
+		const exerciseId: number = aSet.exerciseId!;
 
 		// building cleanMap
-		let exerciseDoneList: Array<table.GymSet> | undefined = cleanMap.get(exerciseId);
+		let exerciseDoneList: Array<table.Set> | undefined = cleanMap.get(exerciseId);
 		if (!exerciseDoneList) {
 			exerciseDoneList = new Array();
 			cleanMap.set(exerciseId, exerciseDoneList);
-		} exerciseDoneList.push(aSet.gym_set!);
+		} exerciseDoneList.push(aSet);
 
 		// building volumeMap
 		if (!volumeMap.get(exerciseId)) {
 			volumeMap.set(exerciseId, 0);
 		}
-		volumeMap.set(exerciseId, volumeMap.get(exerciseId)! + Number(aSet.gym_set!.repNumber) * Number(aSet.gym_set!.weight));
+		volumeMap.set(exerciseId, volumeMap.get(exerciseId)! + Number(aSet.repNumber) * Number(aSet.weight));
 	});
 
 	dayjs.extend(relativeTime);
-
-
 
 	const exerciseIdToNameMap: Map<number, String> = new Map();
 	userExercise.forEach((anExercise) => {
 		exerciseIdToNameMap.set(anExercise.id, anExercise.name);
 	})
+	const lastSet = await getLastSeriesBis(workoutId);
 
-	const lastSeries = await getLastSeries(Number(params.slug));
-	console.log('lastSeries');
-	console.log(lastSeries);
-	console.log('--');
-	console.log(lastSeries.gym_set?.exercise);
-	console.log('--');
-
-	const trainingSessionData = await getATrainingSession(Number(params.slug));
 	return {
-		trainingSessionInfo: { ...trainingSessionData, formattedDateFromNow: dayjs(trainingSessionData.date).fromNow() },
+		trainingSessionInfo: { ...workoutDone, formattedDateFromNow: dayjs(workoutDone?.date).fromNow() },
 		user,
 		userExercise,
 		cleanMap,
 		volumeMap,
 		exerciseIdToNameMap,
-		lastExercise: lastSeries.gym_set?.exercise ?? -1
+		lastExercise: lastSet?.exerciseId ?? -1
 	};
 }
 
 export const actions: Actions = {
 	addASet: async ({ request }) => {
 		const data = await request.formData();
+		// console.log(data);
 		await db
-			.insert(table.gymSet)
+			.insert(table.set)
 			.values({
-				session: Number(data.get('trainingSessionId')!.toString()),
-				exercise: Number(data.get('exerciseId')!.toString()),
+				workoutId: Number(data.get('trainingSessionId')!.toString()),
+				exerciseId: Number(data.get('exerciseId')!.toString()),
 				repNumber: Number(data.get('rep')!.toString()),
 				weight: Number(data.get('weight')!.toString()),
 				repInReserve: Number(data.get('rir')!.toString()),
-				remark: data.get('remark')!.toString()
+				comment: data.get('comment')!.toString()
 			})
-			.returning({ insertedId: table.trainingSession.id });
+			.returning({ insertedId: table.workout.id });
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
 		const b = await db
-			.delete(table.gymSet)
-			.where(eq(table.gymSet.session, Number(data.get('trainingSessionId')?.toString())));
+			.delete(table.set)
+			.where(eq(table.set.workoutId, Number(data.get('trainingSessionId')?.toString())));
 
 
 		const a = await db
-			.delete(table.trainingSession)
-			.where(eq(table.trainingSession.id, Number(data.get('trainingSessionId')?.toString())));
+			.delete(table.workout)
+			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
 
 
 
@@ -109,8 +87,8 @@ export const actions: Actions = {
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
 		await db
-			.delete(table.gymSet)
-			.where(eq(table.gymSet.id, Number(data.get('gymSetId')!.toString())));
+			.delete(table.set)
+			.where(eq(table.set.id, Number(data.get('gymSetId')!.toString())));
 	}
 };
 

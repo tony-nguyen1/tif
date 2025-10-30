@@ -23,30 +23,25 @@
 			y: { beginAtZero: true }
 		}
 	};
-
-	// console.log(data);
-	// data.
 </script>
 
 <main>
 	<h1>
 		{data.exerciseInfo.name}
 	</h1>
-	{#if data.cleanedData.length === 0}
+	{#if data.workoutList.length === 0}
 		No data
 	{:else}
-		<ul>
-			{#each data.cleanedData as aSeries}
-				<li>
-					{aSeries.repNumber}x
-					{aSeries.weight}kg ({aSeries.repInReserve})
-					<br />
-					{aSeries.remark}
-				</li>
-			{/each}
-		</ul>
-		<section>
-			<Chart data={beepBoop} {options} type="line" />
-		</section>
+		{#each data.workoutList as aWorkout}
+			<h2>Workout ID: {aWorkout.id}</h2>
+			<ul>
+				{#each aWorkout.set as aSet}
+					<li>
+						{aSet.repNumber} x{aSet.weight} ({aSet.repInReserve}) {aSet.comment}
+					</li>
+				{/each}
+			</ul>
+		{/each}
+		<Chart data={beepBoop} {options} type="line" />
 	{/if}
 </main>
