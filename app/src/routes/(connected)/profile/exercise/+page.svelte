@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { PageServerData } from '../../profile/exercise/$types';
 
 	let { data }: { data: PageServerData } = $props();
@@ -26,9 +27,11 @@
 	</form>
 	<h2 class="text-2xl">All</h2>
 	<ul>
-		{#each data.exerciseMap as [i, anExercise]}
+		{#each data.exerciseMap as [i, anExercise] (i)}
 			<li>
-				<a href={`exercise/${i}`}>{anExercise}</a>
+				<a href={resolve(`/(connected)/profile/exercise/[slug]`, { slug: i.toString() })}
+					>{anExercise}</a
+				>
 			</li>
 		{/each}
 	</ul>

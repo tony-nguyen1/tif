@@ -2,6 +2,8 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
+import fs from 'fs';
+import path from 'path';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
@@ -33,5 +35,12 @@ export default defineConfig({
 				}
 			}
 		]
+	},
+	server: {
+		host: '0.0.0.0',
+		https: {
+			key: fs.readFileSync(path.resolve('./localhost-key.pem')),
+			cert: fs.readFileSync(path.resolve('./localhost.pem'))
+		}
 	}
 });

@@ -4,7 +4,6 @@
 	// import type { PageServerData } from
 
 	let { data }: { data: PageServerData } = $props();
-	console.log(data);
 </script>
 
 <br />

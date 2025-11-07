@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from './$types';
+	// import type { ActionData } from './$types';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 
-	let { form }: { form: ActionData } = $props();
+	// let { form }: { form: ActionData } = $props();
 </script>
 
 <!-- <h1 class="mt-6 ml-8 text-5xl">Login</h1> -->
 
-<!-- 
+<!--
 <p style="color: red">{form?.message ?? ''}</p> -->
 <main class="grid w-full">
 	<Card.Root class="mx-8 h-fit self-center">

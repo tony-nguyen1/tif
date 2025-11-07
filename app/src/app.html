@@ -1,16 +1,20 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="author" content="Tony Nguyen" />
+		<meta
+			name="description"
+			content="Website to log health and fitness metrics for personal tracking and improvement"
+		/>
+		<title>Big application</title>
+		%sveltekit.head%
+	</head>
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	%sveltekit.head%
-</head>
-
-<body data-sveltekit-preload-data="hover" class="flex h-dvh">
-	<!-- <div class="grid" style="display: contents"> -->
-	%sveltekit.body%
-	<!-- </div> -->
-</body>
-
+	<body data-sveltekit-preload-data="hover" class="flex h-dvh">
+		<!-- <div class="grid" style="display: contents"> -->
+		%sveltekit.body%
+		<!-- </div> -->
+	</body>
 </html>

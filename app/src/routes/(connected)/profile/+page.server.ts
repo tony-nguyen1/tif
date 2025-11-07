@@ -31,7 +31,6 @@ export const actions: Actions = {
 			.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
 			.returning({ insertedId: table.workout.id });
 
-
 		return redirect(302, '/session/' + a[0].insertedId);
 	},
 	deleteTrainingSession: async ({ request }) => {
@@ -40,13 +39,11 @@ export const actions: Actions = {
 		// 	.delete(table.set)
 		// 	.where(eq(table.set.session, Number(data.get('trainingSessionId')?.toString())));
 
-
-		const a = await db
+		await db
 			.delete(table.workout)
 			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
-
 	},
-	foo: async ({ cookies, request }) => {
+	foo: async ({ request }) => {
 		const data = await request.formData();
 
 		if (data.get('userId') !== null) {
@@ -54,25 +51,33 @@ export const actions: Actions = {
 			todayBOD.setHours(0, 0, 0, 0);
 			const todayEOD: Date = new Date();
 			todayEOD.setHours(23, 59, 59, 999);
-			const res: table.Workout[] = await db.select().from(table.workout).where(
-				and(
-					eq(table.workout.userId, data.get('userId')!.toString()),
+			const res: table.Workout[] = await db
+				.select()
+				.from(table.workout)
+				.where(
 					and(
-						gte(table.workout.date, todayBOD),
-						lt(table.workout.date, todayEOD)
+						eq(table.workout.userId, data.get('userId')!.toString()),
+						and(gte(table.workout.date, todayBOD), lt(table.workout.date, todayEOD))
 					)
-				));
+				);
 
 			let aTrainingSessionId: number;
 			if (res.length > 0) {
 				console.log(`This user (${data.get('userId')!.toString()}) has logged some training today`);
 				aTrainingSessionId = res[0].id;
 			} else {
-				console.log(`This user (${data.get('userId')!.toString()}) has not logged any training today`);
+				console.log(
+					`This user (${data.get('userId')!.toString()}) has not logged any training today`
+				);
 				console.log(`Inserting a new gym session for (${data.get('userId')!.toString()}) today`);
 				const a = await db
 					.insert(table.workout)
-					.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
+					.values({
+						date: new Date(),
+						duration: -1,
+						place: '',
+						userId: data.get('userId')!.toString()
+					})
 					.returning({ insertedId: table.workout.id });
 
 				aTrainingSessionId = a[0].insertedId;
@@ -95,8 +100,6 @@ export const actions: Actions = {
 
 export function _requireLogin() {
 	const { locals } = getRequestEvent();
-
-
 
 	if (!locals.user) {
 		return redirect(302, '/login');

@@ -7,7 +7,7 @@ import { env } from '$env/dynamic/private';
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 if (!dev && !env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
 
-console.log(env.NODE_ENV);
+console.log(`Node environment=${env.NODE_ENV}`);
 
 const client = createClient({
 	url: env.DATABASE_URL,

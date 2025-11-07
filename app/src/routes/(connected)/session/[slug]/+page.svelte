@@ -1,9 +1,12 @@
 <script lang="ts">
-	import type { PageServerData } from '../../session/[slug]/$types';
+	// TODO : true error handling and redirection to error page
+	import { enhance } from '$app/forms';
+	import type { PageServerData } from './$types';
+	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
+	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
+	import { resolve } from '$app/paths';
 
 	let { data }: { data: PageServerData } = $props();
-	console.log(data.lastExercise);
-	// console.log(data.cleanMap);
 </script>
 
 <header>
@@ -17,7 +20,7 @@
 <p>{data.trainingSessionInfo.place}</p>
 
 <p>{data.trainingSessionInfo.formattedDateFromNow}</p> -->
-<section>
+<section id="addSetForm">
 	<h2 class="text-2xl">Add a set</h2>
 	<form method="POST" action="?/addASet" class="grid gap-2">
 		<div class="grid gap-1">
@@ -90,22 +93,51 @@
 	</form>
 </section>
 
-{#each data.cleanMap.keys() as exerciseId (exerciseId)}
-	{data.exerciseIdToNameMap.get(exerciseId)} Vtotal={data.volumeMap.get(exerciseId)!}
-	<br />
-	{#each data.cleanMap.get(exerciseId) as aSet (aSet.id)}
-		{aSet.repNumber}x{aSet.weight}kg, ({aSet.repInReserve})
-		{aSet.comment}
-		<form method="POST" action="?/deleteSet">
-			<input name="gymSetId" value={aSet.id} hidden />
-			<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
-				>Delete this set</button
-			>
-		</form>
-		<br />
+<section id="setLOfWorkoutist">
+	{#each data.cleanMap.keys() as exerciseId (exerciseId)}
+		<article>
+			<header>
+				<div class="flex flex-row">
+					<h2 class="text-3xl">
+						<a
+							href={resolve('/(connected)/profile/exercise/[slug]', {
+								slug: exerciseId.toString()
+							})}>{data.exerciseIdToNameMap.get(exerciseId)}</a
+						>
+					</h2>
+					<span class="grow self-center text-center text-sm"
+						>V<sub>total</sub>={data.volumeMap.get(exerciseId)!}</span
+					>
+				</div>
+				<!-- <p class="text-sm text-slate-400">{data.trainingSessionInfo.comment} {data.cleanMap.get(exerciseId)}</p> -->
+			</header>
+			{#each data.cleanMap.get(exerciseId) as aSet (aSet.id)}
+				<li class="grid grid-cols-(--custom-col-pattern)">
+					<div class="flex flex-col">
+						<span class="text-base">{aSet.repNumber}x{aSet.weight}kg</span>
+						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-400">{aSet.comment}</span>
+					</div>
+					<div>{aSet.repInReserve} RIR</div>
+					<div class="flex flex-row">
+						<!-- bg-amber-700 -->
+						<button
+							class="size-min cursor-not-allowed rounded-xs bg-gray-900 p-1 text-white transition hover:bg-amber-800"
+							><SolarPen2Linear class="size-[24px]" /></button
+						>
+						<form method="POST" action="?/deleteSet" class="size-min" use:enhance>
+							<input name="gymSetId" value={aSet.id} hidden />
+							<button
+								class="cursor-pointer rounded-xs bg-red-600 p-1 text-white transition hover:bg-red-700"
+								><SolarCloseSquareLineDuotone class="size-[24px]" /></button
+							>
+						</form>
+					</div>
+				</li>
+			{/each}
+			<br />
+		</article>
 	{/each}
-	<br />
-{/each}
+</section>
 
 <form method="POST" action="?/delete">
 	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />

@@ -6,7 +6,7 @@ import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { redirect } from '@sveltejs/kit';
-import { getAllExercises, getATrainingSession, getLastSeries, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
+import { getAllExercises, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -23,27 +23,34 @@ export async function load({ params }) {
 		// building cleanMap
 		let exerciseDoneList: Array<table.Set> | undefined = cleanMap.get(exerciseId);
 		if (!exerciseDoneList) {
-			exerciseDoneList = new Array();
+			exerciseDoneList = [];
 			cleanMap.set(exerciseId, exerciseDoneList);
-		} exerciseDoneList.push(aSet);
+		}
+		exerciseDoneList.push(aSet);
 
 		// building volumeMap
 		if (!volumeMap.get(exerciseId)) {
 			volumeMap.set(exerciseId, 0);
 		}
-		volumeMap.set(exerciseId, volumeMap.get(exerciseId)! + Number(aSet.repNumber) * Number(aSet.weight));
+		volumeMap.set(
+			exerciseId,
+			volumeMap.get(exerciseId)! + Number(aSet.repNumber) * Number(aSet.weight)
+		);
 	});
 
 	dayjs.extend(relativeTime);
 
-	const exerciseIdToNameMap: Map<number, String> = new Map();
+	const exerciseIdToNameMap: Map<number, string> = new Map();
 	userExercise.forEach((anExercise) => {
 		exerciseIdToNameMap.set(anExercise.id, anExercise.name);
-	})
+	});
 	const lastSet = await getLastSeriesBis(workoutId);
 
 	return {
-		trainingSessionInfo: { ...workoutDone, formattedDateFromNow: dayjs(workoutDone?.date).fromNow() },
+		trainingSessionInfo: {
+			...workoutDone,
+			formattedDateFromNow: dayjs(workoutDone?.date).fromNow()
+		},
 		user,
 		userExercise,
 		cleanMap,
@@ -56,7 +63,6 @@ export async function load({ params }) {
 export const actions: Actions = {
 	addASet: async ({ request }) => {
 		const data = await request.formData();
-		// console.log(data);
 		await db
 			.insert(table.set)
 			.values({
@@ -71,24 +77,18 @@ export const actions: Actions = {
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
-		const b = await db
+		await db
 			.delete(table.set)
 			.where(eq(table.set.workoutId, Number(data.get('trainingSessionId')?.toString())));
 
-
-		const a = await db
+		await db
 			.delete(table.workout)
 			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
-
-
 
 		return redirect(302, '/profile');
 	},
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
-		await db
-			.delete(table.set)
-			.where(eq(table.set.id, Number(data.get('gymSetId')!.toString())));
+		await db.delete(table.set).where(eq(table.set.id, Number(data.get('gymSetId')!.toString())));
 	}
 };
-

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageServerData } from '../../exercise/[slug]/$types';
 	import Chart from '$lib/components/Chart.svelte';
-	import DraftsIcon from '@iconify-svelte/material-symbols/drafts';
 	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
+	import { resolve } from '$app/paths';
 
 	let { data }: { data: PageServerData } = $props();
 	const labels = data.x;
@@ -33,14 +33,18 @@
 	{#if data.workoutList.length === 0}
 		No data
 	{:else}
-		{#each data.workoutList as aWorkout}
+		{#each data.workoutList as aWorkout (aWorkout.id)}
 			{#if aWorkout.set.length !== 0}
 				<article>
-					<h2 class="text-2xl">Workout ID: {aWorkout.id}</h2>
+					<h2 class="text-2xl">
+						<a href={resolve('/(connected)/session/[slug]', { slug: aWorkout.id.toString() })}
+							>Workout ID: {aWorkout.id}</a
+						>
+					</h2>
 					<!-- <DraftsIcon /> -->
 					<p class="text-sm text-slate-400">{aWorkout.comment}</p>
 					<ul>
-						{#each aWorkout.set as aSet}
+						{#each aWorkout.set as aSet (aSet.id)}
 							<li class="grid grid-cols-(--custom-col-pattern)">
 								<div class="flex flex-col">
 									<span class="text-lg">{aSet.repNumber}x{aSet.weight}kg</span>

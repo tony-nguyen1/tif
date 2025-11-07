@@ -1,7 +1,13 @@
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../../../profile/+page.server.js';
 import type { Actions } from './$types.js';
-import { getAnExercise, getSeriesByWorkout, getSet, getSetBis, type WorkoutWithExercise } from '$lib/server/db/repo.js';
+import {
+	getAnExercise,
+	getSeriesByWorkout,
+	getSet,
+	getSetBis,
+	type WorkoutWithExercise
+} from '$lib/server/db/repo.js';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ params }) {
@@ -14,16 +20,8 @@ export async function load({ params }) {
 	}
 
 	const seriesDone = await getSet(user.id, Number(params.slug));
-	console.log('seriesDone=');
-	console.log(seriesDone);
 
 	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, Number(params.slug));
-	console.log('workoutList=');
-	console.log(workoutList);
-	workoutList.forEach((aWorkout) => {
-		console.log(aWorkout);
-	})
-
 
 	const cleanedData: table.Set[] = new Array();
 	seriesDone.forEach(({ set, exercise }, i) => {
@@ -31,19 +29,14 @@ export async function load({ params }) {
 			cleanedData.push(set);
 		}
 	});
-	// console.log(cleanedData);
 
 	const seriesByWorkout = await getSeriesByWorkout(user.id, Number(params.slug));
-	// console.log(foo);
 	const x: Array<number> = [];
 	const y: Array<number> = [];
 	seriesByWorkout.forEach((val) => {
-		x.push(val.id!); y.push(Number(val.total!));
+		x.push(val.id!);
+		y.push(Number(val.total!));
 	});
-
-
-
-
 
 	return {
 		user,
