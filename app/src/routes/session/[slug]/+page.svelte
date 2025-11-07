@@ -6,59 +6,94 @@
 	// console.log(data.cleanMap);
 </script>
 
-<br />
-Details ({data.trainingSessionInfo.id})
+<header>
+	<h1 class="text-5xl">
+		Workout ({data.trainingSessionInfo.id})
+	</h1>
+</header>
 
-<p>{data.trainingSessionInfo.duration}</p>
+<!-- <p>{data.trainingSessionInfo.duration}</p>
 
 <p>{data.trainingSessionInfo.place}</p>
 
-<p>{data.trainingSessionInfo.formattedDateFromNow}</p>
-
-<form method="POST" action="?/addASet">
-	<label for="exerciseId">The exercise : </label>
-	<select name="exerciseId" id="exercise" required>
-		<option></option>
-		{#each data.userExercise as anExercise, i}
-			<option value={anExercise.id} selected={anExercise.id === data.lastExercise}
-				>{anExercise.name}</option
+<p>{data.trainingSessionInfo.formattedDateFromNow}</p> -->
+<section>
+	<h2 class="text-2xl">Add a set</h2>
+	<form method="POST" action="?/addASet" class="grid gap-2">
+		<div class="grid gap-1">
+			<label for="exerciseId" class="text-sm">The exercise : </label>
+			<select
+				name="exerciseId"
+				id="exercise"
+				class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				required
 			>
-		{/each}
-	</select>
+				<option></option>
+				{#each data.userExercise as anExercise (anExercise.id)}
+					<option value={anExercise.id} selected={anExercise.id === data.lastExercise}
+						>{anExercise.name}</option
+					>
+				{/each}
+			</select>
+		</div>
 
-	<label>
-		Number of repetition :
-		<input name="rep" autocomplete="off" type="number" />
-	</label>
+		<div class="grid grid-cols-2 gap-4">
+			<div class="grid w-full gap-1">
+				<label for="rep" class="w-full text-sm">Number of rep :</label>
+				<input
+					id="rep"
+					type="number"
+					name="rep"
+					step=".5"
+					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				/>
+			</div>
 
-	<label>
-		Weight used :
-		<input name="weight" autocomplete="off" type="number" />
-	</label>
+			<div class="grid w-full">
+				<label for="weight" class="w-fit text-sm"> Weight used : </label>
+				<input
+					name="weight"
+					autocomplete="off"
+					type="number"
+					step=".25"
+					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				/>
+			</div>
+		</div>
 
-	<label>
-		Repetition in reserve :
-		<input name="rir" autocomplete="off" type="number" />
-	</label>
+		<div class="grid gap-1">
+			<label for="rir" class="text-sm"> Repetition in reserve : </label>
+			<input
+				name="rir"
+				autocomplete="off"
+				type="number"
+				class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+			/>
+		</div>
 
-	<label>
-		Remark :
-		<input name="comment" autocomplete="off" type="text" />
-	</label>
+		<div class="grid gap-1">
+			<label for="comment" class="text-sm"> Remark : </label>
+			<input
+				name="comment"
+				autocomplete="off"
+				type="text"
+				class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+			/>
+		</div>
+		<input name="userId" value={data.user.id} hidden />
+		<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
 
-	<input name="userId" value={data.user.id} hidden />
-	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
+		<button
+			class="w-fit justify-self-end rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+			>Send</button
+		>
+	</form>
+</section>
 
-	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Send</button
-	>
-</form>
-
-<br /> <br />
-{#each data.cleanMap.keys() as exerciseId}
+{#each data.cleanMap.keys() as exerciseId (exerciseId)}
 	{data.exerciseIdToNameMap.get(exerciseId)} Vtotal={data.volumeMap.get(exerciseId)!}
 	<br />
-	{#each data.cleanMap.get(exerciseId) as aSet, i}
+	{#each data.cleanMap.get(exerciseId) as aSet (aSet.id)}
 		{aSet.repNumber}x{aSet.weight}kg, ({aSet.repInReserve})
 		{aSet.comment}
 		<form method="POST" action="?/deleteSet">
@@ -78,5 +113,3 @@ Details ({data.trainingSessionInfo.id})
 		>Delete this training session</button
 	>
 </form>
-
-<br />

@@ -119,3 +119,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@utility height-* {  height: --value("inherit");}
+
+:root {
+  --custom-col-pattern: 11fr 5fr 4fr;
+}
