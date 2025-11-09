@@ -1,5 +1,5 @@
 import { relations, sql, type SQL } from 'drizzle-orm';
-import { sqliteTable, integer, text, unique, primaryKey, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -15,15 +15,17 @@ export const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
-export const exercise = sqliteTable('exercise', {
-	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id),
-	name: text('name').notNull(),
-}, (table) => [
-	unique('unique_name_per_user').on(table.userId, table.name)
-]);
+export const exercise = sqliteTable(
+	'exercise',
+	{
+		id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id),
+		name: text('name').notNull()
+	},
+	(table) => [unique('unique_name_per_user').on(table.userId, table.name)]
+);
 
 export const userRelation = relations(user, ({ many }) => ({
 	exercise: many(exercise),
@@ -32,7 +34,7 @@ export const userRelation = relations(user, ({ many }) => ({
 export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	user: one(user, {
 		fields: [exercise.userId],
-		references: [user.id],
+		references: [user.id]
 	}),
 	set: many(set)
 }));
@@ -42,13 +44,17 @@ export const tag = sqliteTable('tag', {
 	name: text('name').notNull(),
 	userId: text('user_id')
 		.notNull()
-		.references(() => user.id),
+		.references(() => user.id)
 });
 
 export const taggedWorkout = sqliteTable('tagged_workout', {
-	tagId: text('tag_id').notNull().references(() => tag.id),
-	workoutId: text('workout_id').notNull().references(() => workout.id)
-});// add relation
+	tagId: text('tag_id')
+		.notNull()
+		.references(() => tag.id),
+	workoutId: text('workout_id')
+		.notNull()
+		.references(() => workout.id)
+}); // add relation
 
 export const workout = sqliteTable('workout', {
 	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -59,12 +65,12 @@ export const workout = sqliteTable('workout', {
 		.notNull()
 		.references(() => user.id),
 	comment: text('comment')
-})
+});
 export const workoutRelation = relations(workout, ({ one, many }) => ({
 	set: many(set),
 	user: one(user, {
 		fields: [workout.userId],
-		references: [user.id],
+		references: [user.id]
 	})
 }));
 
@@ -80,18 +86,20 @@ export const set = sqliteTable('set', {
 	weight: integer('weight').notNull(),
 	repInReserve: integer('rip').notNull(),
 	comment: text('comment'),
-	volume: integer('volume')
-		.generatedAlwaysAs((): SQL => sql`${set.repNumber}*${set.weight}`.mapWith(Number), { mode: "stored" })
+	volume: integer('volume').generatedAlwaysAs(
+		(): SQL => sql`${set.repNumber}*${set.weight}`.mapWith(Number),
+		{ mode: 'stored' }
+	)
 });
-export const setRelation = relations(set, ({ one, many }) => ({
+export const setRelation = relations(set, ({ one }) => ({
 	// set: many(set),
 	exercise: one(exercise, {
 		fields: [set.exerciseId],
-		references: [exercise.id],
+		references: [exercise.id]
 	}),
 	workout: one(workout, {
 		fields: [set.workoutId],
-		references: [workout.id],
+		references: [workout.id]
 	})
 }));
 
@@ -112,8 +120,8 @@ export const setRelation = relations(set, ({ one, many }) => ({
 // export const workoutRelation = relations(workout, ({ many }) => ({
 // 	link: many(linkTable, {
 // 		fields: [workout.id],
-// 		references: [linkTable.workoutId]	
-// 	}) 
+// 		references: [linkTable.workoutId]
+// 	})
 // }));
 // export const workoutRelation = relations(workout, ({ many }) => ({
 // 	group: many(linkTable, {
@@ -125,7 +133,6 @@ export const setRelation = relations(set, ({ one, many }) => ({
 // 		references: [users.id],
 // 	}),
 // }));
-
 
 export type Exercise = typeof exercise.$inferSelect;
 export type Workout = typeof workout.$inferSelect;

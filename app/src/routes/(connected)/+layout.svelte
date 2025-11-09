@@ -6,6 +6,8 @@
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import SolarDumbbellLargeMinimalisticOutline from '@iconify-svelte/solar/dumbbell-large-minimalistic-outline';
 	import SolarHome2Outline from '@iconify-svelte/solar/home-2-outline';
+	import SolarDonutBittenOutline from '@iconify-svelte/solar/donut-bitten-outline';
+	import SolarMoonSleepOutline from '@iconify-svelte/solar/moon-sleep-outline';
 
 	import { toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -24,10 +26,11 @@
 	<main class="grid grow auto-rows-min gap-y-4 overflow-y-auto px-3 py-3">
 		{@render children?.()}
 	</main>
-	<nav class="flex h-fit flex-row">
+	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
 		<a href={resolve('/')}><SolarHome2Outline class="size-9" /></a>
-		<!-- <a href={resolve('/login')}>Login</a> -->
 		<a href={resolve('/profile')}><SolarDumbbellLargeMinimalisticOutline class="size-9" /></a>
+		<a href={resolve('/profile')}><SolarDonutBittenOutline class="size-9" /></a>
+		<a href={resolve('/profile')}><SolarMoonSleepOutline class="size-9" /></a>
 		<Button onclick={toggleMode} variant="outline" size="icon">
 			<SunIcon
 				class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"

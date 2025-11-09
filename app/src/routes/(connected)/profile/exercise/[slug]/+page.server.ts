@@ -23,8 +23,8 @@ export async function load({ params }) {
 
 	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, Number(params.slug));
 
-	const cleanedData: table.Set[] = new Array();
-	seriesDone.forEach(({ set, exercise }, i) => {
+	const cleanedData: table.Set[] = [];
+	seriesDone.forEach(({ set }) => {
 		if (set) {
 			cleanedData.push(set);
 		}
