@@ -22,25 +22,18 @@
 		}
 
 		edit(getASet: () => Set) {
-			this.formState = FormState.Edit;
+			this.formState = FormState.EditSet;
 			this.setState = getASet();
 			this.selectedExerciseId = getASet().exerciseId;
 			console.log(this.selectedExerciseId);
 		}
 
-		mutateFormDisplayState() {
-			switch (this.formState) {
-				case FormState.Display:
-					this.formState = FormState.Hide;
-					break;
-				case FormState.Edit:
-					this.formState = FormState.Display;
-					this.selectedExerciseId = this.lastExerciseId;
-					break;
-				case FormState.Hide:
-					this.formState = FormState.Display;
-					break;
+		mutateFormDisplayStateTo(newSate: FormState) {
+			if (this.formState === FormState.EditSet) {
+				// in the state EditSet, the exercice selected is modified, so we need to revert it back
+				this.selectedExerciseId = this.lastExerciseId;
 			}
+			this.formState = newSate;
 		}
 	}
 
@@ -60,20 +53,46 @@
 <p>{data.trainingSessionInfo.place}</p>
 
 <p>{data.trainingSessionInfo.formattedDateFromNow}</p> -->
-{#if formDisplayStateValue.formState === FormState.Display || formDisplayStateValue.formState === FormState.Edit}
+<div id="buttonGroupWorkoutForm" class="flex flex-row gap-x-2">
+	<button
+		class={[
+			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
+			formDisplayStateValue.formState === FormState.Hide ? 'cursor-not-allowed' : 'cursor-pointer'
+		]}
+		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.Hide)}
+	>
+		Hide form
+	</button>
+	<button
+		class={[
+			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
+			formDisplayStateValue.formState === FormState.Display
+				? 'cursor-not-allowed'
+				: 'cursor-pointer'
+		]}
+		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.Display)}
+	>
+		Add a set
+	</button>
+	<button
+		class={[
+			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
+			formDisplayStateValue.formState === FormState.EditWorkoutInfo
+				? 'cursor-not-allowed'
+				: 'cursor-pointer'
+		]}
+		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.EditWorkoutInfo)}
+	>
+		Edit the workout
+	</button>
+</div>
+
+{#if formDisplayStateValue.formState === FormState.Display || formDisplayStateValue.formState === FormState.EditSet}
 	<section id="addSetForm">
-		<header class="grid grid-cols-2">
+		<header class="">
 			<h2 class="text-2xl">
 				{formDisplayStateValue.formState === FormState.Display ? 'Add' : 'Update'} a set
 			</h2>
-			<button
-				class="size-fit cursor-pointer self-center justify-self-end rounded-sm bg-slate-800 px-2 py-1 text-xs"
-				onclick={() => formDisplayStateValue.mutateFormDisplayState()}
-			>
-				{formDisplayStateValue.formState === FormState.Display
-					? FormState[FormState.Hide]
-					: FormState[FormState.Display]} form
-			</button>
 		</header>
 		<form
 			method="POST"
@@ -89,7 +108,7 @@
 					bind:value={formDisplayStateValue.selectedExerciseId}
 					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 					required
-					disabled={formDisplayStateValue.formState === FormState.Edit}
+					disabled={formDisplayStateValue.formState === FormState.EditSet}
 				>
 					<option value={-1}>Choose an exercise</option>
 					{#each data.userExercise as anExercise (anExercise.id)}
@@ -110,10 +129,11 @@
 						step=".5"
 						min="0"
 						placeholder="8"
-						value={formDisplayStateValue.formState === FormState.Edit
+						value={formDisplayStateValue.formState === FormState.EditSet
 							? formDisplayStateValue.setState?.repNumber
 							: null}
 						class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+						required
 					/>
 				</div>
 
@@ -126,10 +146,11 @@
 						step=".125"
 						min="0"
 						placeholder="12.5"
-						value={formDisplayStateValue.formState === FormState.Edit
+						value={formDisplayStateValue.formState === FormState.EditSet
 							? formDisplayStateValue.setState?.weight
 							: null}
 						class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+						required
 					/>
 				</div>
 			</div>
@@ -143,7 +164,7 @@
 					min="0"
 					max="10"
 					placeholder="2"
-					value={formDisplayStateValue.formState === FormState.Edit
+					value={formDisplayStateValue.formState === FormState.EditSet
 						? formDisplayStateValue.setState?.repInReserve
 						: null}
 					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
@@ -157,7 +178,7 @@
 					autocomplete="off"
 					type="text"
 					placeholder="Good range of motion"
-					value={formDisplayStateValue.formState === FormState.Edit
+					value={formDisplayStateValue.formState === FormState.EditSet
 						? formDisplayStateValue.setState?.comment
 						: null}
 					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
@@ -166,7 +187,7 @@
 			<input name="userId" bind:value={data.user.id} hidden />
 			<input name="trainingSessionId" bind:value={data.trainingSessionInfo.id} hidden />
 
-			{#if formDisplayStateValue.formState === FormState.Edit}
+			{#if formDisplayStateValue.formState === FormState.EditSet}
 				<input name="setId" value={formDisplayStateValue.setState!.id} hidden />
 				<input name="comment" value={formDisplayStateValue.setState!.comment} hidden />
 				<!-- <input name="volume" value={formDisplayStateValue.setState!.volume} hidden /> -->
@@ -180,13 +201,58 @@
 			</button>
 		</form>
 	</section>
-{:else}
-	<button
-		class="size-fit cursor-pointer place-self-center rounded-sm bg-slate-800 px-2 py-1 text-xs"
-		onclick={() => formDisplayStateValue.mutateFormDisplayState()}
-	>
-		{FormState[FormState.Display]} form
-	</button>
+{:else if formDisplayStateValue.formState === FormState.EditWorkoutInfo}
+	<section id="editWorkoutForm">
+		<header>
+			<h2 class="text-2xl">Edit current workout</h2>
+		</header>
+		<form method="POST" action="?/editWorkout" class="grid gap-2" use:enhance>
+			<input name="userId" bind:value={data.user.id} hidden />
+			<input name="trainingSessionId" bind:value={data.trainingSessionInfo.id} hidden />
+
+			<div class="grid gap-1">
+				<label for="place" class="text-sm">Place</label>
+				<input
+					name="place"
+					type="text"
+					placeholder="Basic Park Fit"
+					bind:value={data.trainingSessionInfo.place}
+					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				/>
+			</div>
+
+			<div class="grid gap-1">
+				<label for="duration" class="text-sm">Duration (in minutes)</label>
+				<input
+					name="duration"
+					type="number"
+					min="-1"
+					placeholder="60"
+					bind:value={data.trainingSessionInfo.duration}
+					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				/>
+			</div>
+
+			<div class="grid gap-1">
+				<label for="comment" class="text-sm">Comment</label>
+				<input
+					name="comment"
+					type="text"
+					placeholder="Trained to failure, good pump"
+					bind:value={data.trainingSessionInfo.comment}
+					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
+				/>
+			</div>
+
+			<button
+				class="w-fit justify-self-end rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+			>
+				Send
+			</button>
+		</form>
+	</section>
+{:else if formDisplayStateValue.formState === FormState.Hide}{:else}
+	<p>Something went wrong</p>
 {/if}
 
 <section id="setLOfWorkoutist">
@@ -211,9 +277,15 @@
 				<li class="grid grid-cols-(--custom-col-pattern)">
 					<div class="flex flex-col">
 						<span class="text-base">{aSet.repNumber}x{aSet.weight}kg</span>
-						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-400">{aSet.comment}</span>
+						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-600 dark:text-slate-400"
+							>{aSet.comment}</span
+						>
 					</div>
-					<div>{aSet.repInReserve} RIR</div>
+					<div>
+						{#if aSet.repInReserve > -1}
+							{aSet.repInReserve} RIR
+						{/if}
+					</div>
 					<div class="flex flex-row gap-x-2">
 						<!-- bg-amber-700 -->
 						<button

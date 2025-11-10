@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { redirect } from '@sveltejs/kit';
 import { getAllExercises, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
-import { editSet } from '$lib/server/db/repo.js';
+import { editSet, editWorkout } from '$lib/server/db/repo.js';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -71,7 +71,7 @@ export const actions: Actions = {
 				exerciseId: Number(data.get('exerciseId')!.toString()),
 				repNumber: Number(data.get('rep')!.toString()),
 				weight: Number(data.get('weight')!.toString()),
-				repInReserve: Number(data.get('rir')!.toString()),
+				repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : '-1',
 				comment: data.get('comment')!.toString()
 			})
 			.returning({ insertedId: table.workout.id });
@@ -80,7 +80,6 @@ export const actions: Actions = {
 	},
 	editASet: async ({ request }) => {
 		const data = await request.formData();
-		console.log(data);
 		const setData = {
 			id: Number(data.get('setId')!.toString()),
 			workoutId: Number(data.get('trainingSessionId')!.toString()),
@@ -93,6 +92,18 @@ export const actions: Actions = {
 		};
 
 		await editSet(setData);
+	},
+	editWorkout: async ({ request }) => {
+		const data = await request.formData();
+		const userId: string = data.get('userId')!.toString();
+		const workoutId = Number(data.get('trainingSessionId')!.toString());
+		const inputData = {
+			comment: data.get('comment')!.toString(),
+			place: data.get('place')!.toString(),
+			duration: Number(data.get('duration')!.toString())
+		};
+
+		await editWorkout(userId, workoutId, inputData);
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();

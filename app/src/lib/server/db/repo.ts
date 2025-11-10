@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq, and, sql, sum, desc, asc } from 'drizzle-orm';
+import { eq, and, sum, desc } from 'drizzle-orm';
 import type { BuildQueryResult, DBQueryConfig, ExtractTablesWithRelations } from 'drizzle-orm';
 import * as schema from '$lib/server/db/schema';
 
@@ -90,6 +90,7 @@ export async function getSetBis(
 	exerciseId: number
 ): Promise<WorkoutWithExercise[]> {
 	const res = await db.query.workout.findMany({
+		where: eq(table.workout.userId, userId),
 		with: {
 			set: {
 				where: eq(table.set.exerciseId, exerciseId)
@@ -108,8 +109,7 @@ export async function getAnExercise(exerciseId: number): Promise<table.Exercise 
 }
 
 export async function getSeriesByWorkout(userId: string, exerciseId: number) {
-	let res;
-	res = await db
+	const res = await db
 		.select({ id: table.workout.id, total: sum(table.set.volume) })
 		.from(table.set)
 		.leftJoin(table.workout, eq(table.set.workoutId, table.workout.id))
@@ -141,5 +141,22 @@ export async function getLastSeriesBis(workoutId: number) {
 
 export async function editSet(aSet: { id: number }) {
 	const result = await db.update(table.set).set(aSet).where(eq(table.set.id, aSet.id)).returning();
+	return result;
+}
+
+export async function editWorkout(
+	userId: string,
+	workoutId: number,
+	data: {
+		comment: string;
+		place: string;
+		duration: number;
+	}
+) {
+	const result = await db
+		.update(table.workout)
+		.set(data)
+		.where(and(eq(table.workout.id, workoutId), eq(table.workout.userId, userId)))
+		.returning();
 	return result;
 }

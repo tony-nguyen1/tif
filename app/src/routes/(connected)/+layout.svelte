@@ -23,14 +23,16 @@
 <ModeWatcher />
 <!-- test -->
 <div class="flex w-full flex-col">
-	<main class="grid grow auto-rows-min gap-y-4 overflow-y-auto px-3 py-3">
+	<main class="grid grow auto-rows-min gap-y-2 overflow-y-auto px-3 py-3">
 		{@render children?.()}
 	</main>
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
 		<a href={resolve('/')}><SolarHome2Outline class="size-9" /></a>
-		<a href={resolve('/profile')}><SolarDumbbellLargeMinimalisticOutline class="size-9" /></a>
-		<a href={resolve('/profile')}><SolarDonutBittenOutline class="size-9" /></a>
-		<a href={resolve('/profile')}><SolarMoonSleepOutline class="size-9" /></a>
+		<a href={resolve('/(connected)/profile')}>
+			<SolarDumbbellLargeMinimalisticOutline class="size-9" />
+		</a>
+		<a href={resolve('/(connected)/meal')}><SolarDonutBittenOutline class="size-9" /></a>
+		<a href={resolve('/(connected)/sleep')}><SolarMoonSleepOutline class="size-9" /></a>
 		<Button onclick={toggleMode} variant="outline" size="icon">
 			<SunIcon
 				class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"
