@@ -46,10 +46,6 @@ export async function load({ params }) {
 		exerciseIdToNameMap.set(anExercise.id, anExercise.name);
 	});
 	const lastSet = await getLastSeriesBis(workoutId);
-	console.log('lastSet=');
-	console.log(lastSet);
-	console.log('userExercise=');
-	console.log(userExercise);
 
 	return {
 		trainingSessionInfo: {
@@ -79,6 +75,8 @@ export const actions: Actions = {
 				comment: data.get('comment')!.toString()
 			})
 			.returning({ insertedId: table.workout.id });
+
+		// return { success: true };
 	},
 	editASet: async ({ request }) => {
 		const data = await request.formData();
@@ -94,7 +92,7 @@ export const actions: Actions = {
 			// volume: Number(data.get('volume')!.toString())
 		};
 
-		editSet(setData);
+		await editSet(setData);
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();

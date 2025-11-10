@@ -1,7 +1,7 @@
 <script lang="ts">
 	// TODO : true error handling and redirection to error page
 	import { enhance } from '$app/forms';
-	import type { PageServerData } from './$types';
+	import type { PageProps } from './$types';
 	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
 	import { resolve } from '$app/paths';
@@ -12,33 +12,41 @@
 		formState: FormState;
 		setState: Set | null;
 		selectedExerciseId: number;
+		lastExerciseId: number;
 
 		constructor(n: number) {
 			this.formState = $state(FormState.Display);
 			this.setState = $state(null);
 			this.selectedExerciseId = $state(n);
+			this.lastExerciseId = $state(n);
 		}
 
 		edit(getASet: () => Set) {
 			this.formState = FormState.Edit;
 			this.setState = getASet();
-			this.selectedExerciseId = getASet().id;
+			this.selectedExerciseId = getASet().exerciseId;
+			console.log(this.selectedExerciseId);
+		}
+
+		mutateFormDisplayState() {
+			switch (this.formState) {
+				case FormState.Display:
+					this.formState = FormState.Hide;
+					break;
+				case FormState.Edit:
+					this.formState = FormState.Display;
+					this.selectedExerciseId = this.lastExerciseId;
+					break;
+				case FormState.Hide:
+					this.formState = FormState.Display;
+					break;
+			}
 		}
 	}
 
-	// let formDisplayStateString: string = $derived(FormState[formDisplayStateValue]);
-
-	let { data }: { data: PageServerData } = $props();
+	let { data }: PageProps = $props();
 
 	let formDisplayStateValue: FormStateUnion = $state(new FormStateUnion(data.lastExercise));
-	function mutateFormDisplayState() {
-		if (formDisplayStateValue.formState === FormState.Display) {
-			formDisplayStateValue.formState = FormState.Hide;
-		} else {
-			formDisplayStateValue.formState = FormState.Display;
-		}
-	}
-	console.log(formDisplayStateValue.selectedExerciseId);
 </script>
 
 <header>
@@ -60,7 +68,7 @@
 			</h2>
 			<button
 				class="size-fit cursor-pointer self-center justify-self-end rounded-sm bg-slate-800 px-2 py-1 text-xs"
-				onclick={mutateFormDisplayState}
+				onclick={() => formDisplayStateValue.mutateFormDisplayState()}
 			>
 				{formDisplayStateValue.formState === FormState.Display
 					? FormState[FormState.Hide]
@@ -155,8 +163,8 @@
 					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 				/>
 			</div>
-			<input name="userId" value={data.user.id} hidden />
-			<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
+			<input name="userId" bind:value={data.user.id} hidden />
+			<input name="trainingSessionId" bind:value={data.trainingSessionInfo.id} hidden />
 
 			{#if formDisplayStateValue.formState === FormState.Edit}
 				<input name="setId" value={formDisplayStateValue.setState!.id} hidden />
@@ -167,14 +175,15 @@
 
 			<button
 				class="w-fit justify-self-end rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-				>Send</button
 			>
+				Send
+			</button>
 		</form>
 	</section>
 {:else}
 	<button
 		class="size-fit cursor-pointer place-self-center rounded-sm bg-slate-800 px-2 py-1 text-xs"
-		onclick={mutateFormDisplayState}
+		onclick={() => formDisplayStateValue.mutateFormDisplayState()}
 	>
 		{FormState[FormState.Display]} form
 	</button>
@@ -205,13 +214,13 @@
 						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-400">{aSet.comment}</span>
 					</div>
 					<div>{aSet.repInReserve} RIR</div>
-					<div class="flex flex-row">
+					<div class="flex flex-row gap-x-2">
 						<!-- bg-amber-700 -->
 						<button
 							onclick={() => {
 								formDisplayStateValue.edit(() => aSet);
 							}}
-							class="size-min cursor-not-allowed rounded-xs bg-gray-900 p-1 text-white transition hover:bg-amber-800"
+							class="size-min cursor-pointer rounded-xs bg-amber-700 p-1 text-white transition hover:bg-amber-800"
 							><SolarPen2Linear class="size-[24px]" /></button
 						>
 						<form method="POST" action="?/deleteSet" class="size-min" use:enhance>

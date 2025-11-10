@@ -140,6 +140,6 @@ export async function getLastSeriesBis(workoutId: number) {
 }
 
 export async function editSet(aSet: { id: number }) {
-	const result = await db.update(table.set).set(aSet).where(eq(table.set.id, aSet.id));
+	const result = await db.update(table.set).set(aSet).where(eq(table.set.id, aSet.id)).returning();
 	return result;
 }
