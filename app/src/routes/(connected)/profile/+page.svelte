@@ -82,8 +82,8 @@
 							<div class="grid grid-cols-2">
 								<a
 									class="w-fit rounded-md bg-blue-800 px-4 py-2 text-white transition hover:bg-blue-900"
-									href={resolve('/(connected)/session/[slug]', {
-										slug: aTrainingSession.id.toString()
+									href={resolve('/(connected)/session/[exerciseId]', {
+										exerciseId: aTrainingSession.id.toString()
 									})}
 								>
 									Details

@@ -13,15 +13,15 @@ import { redirect } from '@sveltejs/kit';
 export async function load({ params }) {
 	const user = _requireLogin();
 
-	const exerciseInfo = await getAnExercise(Number(params.slug));
+	const exerciseInfo = await getAnExercise(Number(params.exerciseId));
 	if (!exerciseInfo || exerciseInfo!.userId !== user.id) {
 		// Do something better than this
 		redirect(307, '/');
 	}
 
-	const seriesDone = await getSet(user.id, Number(params.slug));
+	const seriesDone = await getSet(user.id, Number(params.exerciseId));
 
-	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, Number(params.slug));
+	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, Number(params.exerciseId));
 
 	const cleanedData: table.Set[] = [];
 	seriesDone.forEach(({ set }) => {
@@ -30,7 +30,7 @@ export async function load({ params }) {
 		}
 	});
 
-	const seriesByWorkout = await getSeriesByWorkout(user.id, Number(params.slug));
+	const seriesByWorkout = await getSeriesByWorkout(user.id, Number(params.exerciseId));
 	const x: Array<string> = [];
 	const y: Array<number> = [];
 	const nbWorkout = seriesByWorkout.length;

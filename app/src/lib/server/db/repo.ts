@@ -160,3 +160,16 @@ export async function editWorkout(
 		.returning();
 	return result;
 }
+
+export async function addASet(input: {
+	workoutId: number;
+	exerciseId: number;
+	repNumber: number;
+	weight: number;
+	repInReserve: number;
+	comment: string;
+}): Promise<boolean> {
+	return (await db.insert(table.set).values(input)).rowsAffected === 1;
+}
+
+// .returning({ insertedId: table.workout.id });

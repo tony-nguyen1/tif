@@ -1,6 +1,7 @@
 <script lang="ts">
 	// TODO : true error handling and redirection to error page
 	import { enhance } from '$app/forms';
+	// import type { PageServerData } from '../../../(connected)/profile/exercise/[exerciseId]/$types';
 	import type { PageProps } from './$types';
 	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
@@ -262,8 +263,8 @@
 				<div class="flex flex-row">
 					<h2 class="text-3xl">
 						<a
-							href={resolve('/(connected)/profile/exercise/[slug]', {
-								slug: exerciseId.toString()
+							href={resolve('/(connected)/profile/exercise/[exerciseId]', {
+								exerciseId: exerciseId.toString()
 							})}>{data.exerciseIdToNameMap.get(exerciseId)}</a
 						>
 					</h2>
@@ -298,6 +299,9 @@
 						<form method="POST" action="?/deleteSet" class="size-min" use:enhance>
 							<input name="gymSetId" value={aSet.id} hidden />
 							<button
+								onclick={() => {
+									formDisplayStateValue.mutateFormDisplayStateTo(FormState.Display);
+								}}
 								class="cursor-pointer rounded-xs bg-red-600 p-1 text-white transition hover:bg-red-700"
 								><SolarCloseSquareLineDuotone class="size-[24px]" /></button
 							>

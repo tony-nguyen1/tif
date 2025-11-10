@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageServerData } from '../../exercise/[slug]/$types';
+	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
 	import Chart from '$lib/components/Chart.svelte';
 	import { resolve } from '$app/paths';
 
@@ -38,8 +38,10 @@
 				{#if aWorkout.set.length !== 0}
 					<article class="w-full">
 						<h2 class="text-2xl font-semibold">
-							<a href={resolve('/(connected)/session/[slug]', { slug: aWorkout.id.toString() })}
-								>Workout ID: {aWorkout.id}</a
+							<a
+								href={resolve('/(connected)/session/[exerciseId]', {
+									exerciseId: aWorkout.id.toString()
+								})}>Workout ID: {aWorkout.id}</a
 							>
 						</h2>
 						<!-- <DraftsIcon /> -->

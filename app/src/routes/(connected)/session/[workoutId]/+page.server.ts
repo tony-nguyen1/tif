@@ -7,13 +7,13 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { redirect } from '@sveltejs/kit';
 import { getAllExercises, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
-import { editSet, editWorkout } from '$lib/server/db/repo.js';
+import { editSet, editWorkout, addASet } from '$lib/server/db/repo.js';
 
 export async function load({ params }) {
 	// no verification for now ...
 	const user = _requireLogin();
 	const userExercise = await getAllExercises(user.id);
-	const workoutId: number = Number(params.slug);
+	const workoutId: number = Number(params.workoutId);
 	const workoutDone = await getWorkoutSet(user.id, workoutId);
 
 	const cleanMap: Map<number, Array<table.Set>> = new Map();
@@ -64,19 +64,17 @@ export async function load({ params }) {
 export const actions: Actions = {
 	addASet: async ({ request }) => {
 		const data = await request.formData();
-		await db
-			.insert(table.set)
-			.values({
-				workoutId: Number(data.get('trainingSessionId')!.toString()),
-				exerciseId: Number(data.get('exerciseId')!.toString()),
-				repNumber: Number(data.get('rep')!.toString()),
-				weight: Number(data.get('weight')!.toString()),
-				repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : '-1',
-				comment: data.get('comment')!.toString()
-			})
-			.returning({ insertedId: table.workout.id });
+		const input = {
+			workoutId: Number(data.get('trainingSessionId')!.toString()),
+			exerciseId: Number(data.get('exerciseId')!.toString()),
+			repNumber: Number(data.get('rep')!.toString()),
+			weight: Number(data.get('weight')!.toString()),
+			repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : -1,
+			comment: data.get('comment')!.toString()
+		};
 
-		// return { success: true };
+		const success = await addASet(input);
+		return { success };
 	},
 	editASet: async ({ request }) => {
 		const data = await request.formData();

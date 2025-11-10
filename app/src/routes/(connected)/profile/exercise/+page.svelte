@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { PageServerData } from '../../profile/exercise/$types';
+	import type { PageServerData } from './$types';
 	import * as Card from '$lib/components/ui/card/index.js';
 
 	let { data }: { data: PageServerData } = $props();
@@ -31,7 +31,9 @@
 	<ul class="flex flex-col gap-4">
 		{#each data.exerciseMap as [i, anExercise] (i)}
 			<li>
-				<a href={resolve(`/(connected)/profile/exercise/[slug]`, { slug: i.toString() })}>
+				<a
+					href={resolve(`/(connected)/profile/exercise/[exerciseId]`, { exerciseId: i.toString() })}
+				>
 					<Card.Root>
 						<Card.Content>
 							{anExercise}
