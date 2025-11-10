@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { _requireLogin } from '../../profile/+page.server.js';
+import { _requireLogin } from '../workout/+page.server';
 import type { Actions } from './$types.js';
 import { getAllExercises } from '$lib/server/db/repo.js';
 

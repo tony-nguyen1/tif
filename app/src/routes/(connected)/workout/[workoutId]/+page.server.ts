@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import { _requireLogin } from '../../profile/+page.server.js';
+import { _requireLogin } from '../+page.server.js';
 import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';

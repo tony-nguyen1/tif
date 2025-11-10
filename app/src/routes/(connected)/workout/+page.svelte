@@ -6,8 +6,8 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import * as Card from '$lib/components/ui/card/index.js';
 
-	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
-	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
+	// import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
+	// import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
 
 	dayjs.extend(relativeTime);
 
@@ -26,7 +26,7 @@
 </header>
 <section class="grid place-items-center gap-y-3">
 	<a
-		href={resolve('/profile/exercise/')}
+		href={resolve('/(connected)/exercise')}
 		class="rounded-md bg-blue-800 px-4 py-2 text-white transition hover:bg-blue-900"
 	>
 		My exercises
@@ -48,7 +48,7 @@
 					<Card.Header>
 						<Card.Title class="grid grid-cols-2 text-base">
 							{aTrainingSession.id}
-							<div class="flex w-fit flex-row gap-2 self-end justify-self-end">
+							<!-- <div class="flex w-fit flex-row gap-2 self-end justify-self-end">
 								<button
 									class="size-min cursor-not-allowed rounded-xs bg-gray-900 p-1 text-white transition hover:bg-amber-800"
 								>
@@ -66,7 +66,7 @@
 										><SolarCloseSquareLineDuotone class="size-[16px]" /></button
 									>
 								</form>
-							</div>
+							</div> -->
 						</Card.Title>
 						<Card.Description>
 							At {aTrainingSession.place ? aTrainingSession.place : 'N/A'}

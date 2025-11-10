@@ -31,9 +31,7 @@
 	<ul class="flex flex-col gap-4">
 		{#each data.exerciseMap as [i, anExercise] (i)}
 			<li>
-				<a
-					href={resolve(`/(connected)/profile/exercise/[exerciseId]`, { exerciseId: i.toString() })}
-				>
+				<a href={resolve(`/(connected)/exercise/[exerciseId]`, { exerciseId: i.toString() })}>
 					<Card.Root>
 						<Card.Content>
 							{anExercise}

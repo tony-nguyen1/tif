@@ -263,7 +263,7 @@
 				<div class="flex flex-row">
 					<h2 class="text-3xl">
 						<a
-							href={resolve('/(connected)/profile/exercise/[exerciseId]', {
+							href={resolve('/(connected)/exercise/[exerciseId]', {
 								exerciseId: exerciseId.toString()
 							})}>{data.exerciseIdToNameMap.get(exerciseId)}</a
 						>
@@ -278,9 +278,9 @@
 				<li class="grid grid-cols-(--custom-col-pattern)">
 					<div class="flex flex-col">
 						<span class="text-base">{aSet.repNumber}x{aSet.weight}kg</span>
-						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-600 dark:text-slate-400"
-							>{aSet.comment}</span
-						>
+						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-600 dark:text-slate-400">
+							{aSet.comment}
+						</span>
 					</div>
 					<div>
 						{#if aSet.repInReserve > -1}
@@ -288,14 +288,14 @@
 						{/if}
 					</div>
 					<div class="flex flex-row gap-x-2">
-						<!-- bg-amber-700 -->
 						<button
 							onclick={() => {
 								formDisplayStateValue.edit(() => aSet);
 							}}
 							class="size-min cursor-pointer rounded-xs bg-amber-700 p-1 text-white transition hover:bg-amber-800"
-							><SolarPen2Linear class="size-[24px]" /></button
 						>
+							<SolarPen2Linear class="size-[24px]" />
+						</button>
 						<form method="POST" action="?/deleteSet" class="size-min" use:enhance>
 							<input name="gymSetId" value={aSet.id} hidden />
 							<button
@@ -303,8 +303,9 @@
 									formDisplayStateValue.mutateFormDisplayStateTo(FormState.Display);
 								}}
 								class="cursor-pointer rounded-xs bg-red-600 p-1 text-white transition hover:bg-red-700"
-								><SolarCloseSquareLineDuotone class="size-[24px]" /></button
 							>
+								<SolarCloseSquareLineDuotone class="size-[24px]" />
+							</button>
 						</form>
 					</div>
 				</li>
@@ -314,9 +315,9 @@
 	{/each}
 </section>
 
-<form method="POST" action="?/delete">
+<form method="POST" action="?/delete" class="justify-self-center">
 	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
-	<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
-		>Delete this training session</button
-	>
+	<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700">
+		Delete this training session
+	</button>
 </form>
