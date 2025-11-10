@@ -5,6 +5,7 @@
 
 	let { data }: { data: PageServerData } = $props();
 	const labels = data.x;
+
 	const beepBoop = {
 		labels,
 		datasets: [
@@ -31,7 +32,7 @@
 	{#if data.workoutList.length === 0}
 		No data
 	{:else}
-		<div class="flex flex-col">
+		<div class="flex flex-col-reverse">
 			{#each data.workoutList as aWorkout (aWorkout.id)}
 				<!-- All workout are fetched, including those without the current exercise  -->
 				{#if aWorkout.set.length !== 0}

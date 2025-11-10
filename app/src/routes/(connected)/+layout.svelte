@@ -8,6 +8,8 @@
 	import SolarHome2Outline from '@iconify-svelte/solar/home-2-outline';
 	import SolarDonutBittenOutline from '@iconify-svelte/solar/donut-bitten-outline';
 	import SolarMoonSleepOutline from '@iconify-svelte/solar/moon-sleep-outline';
+	import SolarUserIdOutline from '@iconify-svelte/solar/user-id-outline';
+	import SolarWeigherOutline from '@iconify-svelte/solar/weigher-outline';
 
 	import { toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -33,6 +35,8 @@
 		</a>
 		<a href={resolve('/(connected)/meal')}><SolarDonutBittenOutline class="size-9" /></a>
 		<a href={resolve('/(connected)/sleep')}><SolarMoonSleepOutline class="size-9" /></a>
+		<a href={resolve('/(connected)/profile')}><SolarUserIdOutline class="size-9" /></a>
+		<a href={resolve('/(connected)/profile')}><SolarWeigherOutline class="size-9" /></a>
 		<Button onclick={toggleMode} variant="outline" size="icon">
 			<SunIcon
 				class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"

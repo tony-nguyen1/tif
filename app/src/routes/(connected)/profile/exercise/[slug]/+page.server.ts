@@ -31,11 +31,15 @@ export async function load({ params }) {
 	});
 
 	const seriesByWorkout = await getSeriesByWorkout(user.id, Number(params.slug));
-	const x: Array<number> = [];
+	const x: Array<string> = [];
 	const y: Array<number> = [];
+	const nbWorkout = seriesByWorkout.length;
+	let i = 0;
 	seriesByWorkout.forEach((val) => {
-		x.push(val.id!);
+		// x.push(`W-${val.id!}`);
+		x.push(`W-${nbWorkout - i}`);
 		y.push(Number(val.total!));
+		i++;
 	});
 
 	return {

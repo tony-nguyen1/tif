@@ -8,11 +8,10 @@
 
 <section>
 	<h1 class="text-5xl">Exercise</h1>
-	<form method="POST" action="?/exercise">
+	<form method="POST" action="?/exercise" class="mt-3 grid">
 		<h2 class="text-lg">Add a new exercise</h2>
-		<label>
-			Name
-			<!-- <input name="name" autocomplete="off" type="text" /> -->
+		<div class="grid">
+			<label for="name">Name </label>
 			<input
 				name="name"
 				autocomplete="off"
@@ -20,13 +19,13 @@
 				placeholder="Curl"
 				class="mt-1 rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 			/>
-		</label>
-
-		<input name="userId" value={data.user.id} hidden />
-
-		<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-			>Create</button
+			<input name="userId" value={data.user.id} hidden />
+		</div>
+		<button
+			class="mt-2 w-fit justify-self-end rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
 		>
+			Send
+		</button>
 	</form>
 	<h2 class="mb-1 text-2xl">All</h2>
 	<ul class="flex flex-col gap-4">
