@@ -39,7 +39,7 @@
 					<article class="w-full">
 						<h2 class="text-2xl font-semibold">
 							<a
-								href={resolve('/(connected)/session/[exerciseId]', {
+								href={resolve('/(connected)/workout/[exerciseId]', {
 									exerciseId: aWorkout.id.toString()
 								})}>Workout ID: {aWorkout.id}</a
 							>
