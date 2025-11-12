@@ -148,9 +148,9 @@ export async function editWorkout(
 	userId: string,
 	workoutId: number,
 	data: {
-		comment: string;
-		place: string;
-		duration: number;
+		comment: string | null;
+		place: string | null;
+		duration: number | null;
 	}
 ) {
 	const result = await db
@@ -167,9 +167,24 @@ export async function addASet(input: {
 	repNumber: number;
 	weight: number;
 	repInReserve: number;
-	comment: string;
+	comment: string | null;
 }): Promise<boolean> {
 	return (await db.insert(table.set).values(input)).rowsAffected === 1;
 }
 
-// .returning({ insertedId: table.workout.id });
+export async function createWorkout(userId: string) {
+	return await db.insert(table.workout).values({ userId, date: new Date() }).returning();
+}
+
+export async function deleteWorkoutCascade(workoutId: number) {
+	await db.delete(table.set).where(eq(table.set.workoutId, workoutId));
+	await db.delete(table.workout).where(eq(table.workout.id, workoutId));
+}
+
+export async function deleteSet(setId: number) {
+	await db.delete(table.set).where(eq(table.set.id, setId));
+}
+
+export async function findWorkoutOfUser(userId: string) {
+	return await db.query.workout.findMany({ where: eq(table.workout.userId, userId) });
+}

@@ -29,7 +29,8 @@ export const exercise = sqliteTable(
 
 export const userRelation = relations(user, ({ many }) => ({
 	exercise: many(exercise),
-	workout: many(workout)
+	workout: many(workout),
+	meal: many(meal)
 }));
 export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	user: one(user, {
@@ -59,7 +60,7 @@ export const taggedWorkout = sqliteTable('tagged_workout', {
 export const workout = sqliteTable('workout', {
 	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
 	date: integer('date', { mode: 'timestamp' }).notNull(),
-	duration: integer('duration').notNull(), // in minutes
+	duration: integer('duration'), // in minutes
 	place: text('place'),
 	userId: text('user_id')
 		.notNull()
@@ -133,6 +134,27 @@ export const setRelation = relations(set, ({ one }) => ({
 // 		references: [users.id],
 // 	}),
 // }));
+
+// Meal tables
+export const meal = sqliteTable('meal', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	date: integer('date', { mode: 'timestamp' }).notNull(),
+	place: text('place').notNull(),
+	protein: integer('protein').notNull(),
+	fullness: integer('fullness').notNull(),
+	description: text('description').notNull()
+});
+export const mealRelation = relations(meal, ({ one }) => ({
+	user: one(user, {
+		fields: [meal.userId],
+		references: [user.id]
+	})
+}));
+
+export type Meal = typeof meal.$inferSelect;
 
 export type Exercise = typeof exercise.$inferSelect;
 export type Workout = typeof workout.$inferSelect;

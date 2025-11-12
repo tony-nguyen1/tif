@@ -71,9 +71,7 @@
 						<Card.Description>
 							At {aTrainingSession.place ? aTrainingSession.place : 'N/A'}
 
-							{aTrainingSession.duration !== -1
-								? `during ${aTrainingSession.duration} minutes`
-								: ''}
+							{aTrainingSession.duration ? `during ${aTrainingSession.duration} minutes` : ''}
 						</Card.Description>
 					</Card.Header>
 					<Card.Content>

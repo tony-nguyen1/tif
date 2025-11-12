@@ -1,5 +1,5 @@
 import * as table from '$lib/server/db/schema';
-import { _requireLogin } from '../../../profile/+page.server.js';
+import { _requireLogin } from '../../workout/+page.server';
 import type { Actions } from './$types.js';
 import {
 	getAnExercise,
@@ -9,6 +9,8 @@ import {
 	type WorkoutWithExercise
 } from '$lib/server/db/repo.js';
 import { redirect } from '@sveltejs/kit';
+// import { getAllExercises } from '$lib/server/db/repo.js';
+// , getLastSeriesBis, getWorkoutSet
 
 export async function load({ params }) {
 	const user = _requireLogin();

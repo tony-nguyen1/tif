@@ -1,13 +1,18 @@
-import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
 import { _requireLogin } from '../+page.server.js';
 import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { redirect } from '@sveltejs/kit';
 import { getAllExercises, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
-import { editSet, editWorkout, addASet } from '$lib/server/db/repo.js';
+import {
+	editSet,
+	editWorkout,
+	addASet,
+	deleteWorkoutCascade,
+	deleteSet
+} from '$lib/server/db/repo.js';
+import { resolve } from '$app/paths';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -18,6 +23,8 @@ export async function load({ params }) {
 
 	const cleanMap: Map<number, Array<table.Set>> = new Map();
 	const volumeMap: Map<number, number> = new Map();
+
+	// FIXME : put that in a function
 	workoutDone?.set.forEach((aSet) => {
 		const exerciseId: number = aSet.exerciseId!;
 
@@ -69,8 +76,8 @@ export const actions: Actions = {
 			exerciseId: Number(data.get('exerciseId')!.toString()),
 			repNumber: Number(data.get('rep')!.toString()),
 			weight: Number(data.get('weight')!.toString()),
-			repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : -1,
-			comment: data.get('comment')!.toString()
+			repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : 10,
+			comment: data.get('comment') ? data.get('comment')!.toString() : null
 		};
 
 		const success = await addASet(input);
@@ -96,27 +103,20 @@ export const actions: Actions = {
 		const userId: string = data.get('userId')!.toString();
 		const workoutId = Number(data.get('trainingSessionId')!.toString());
 		const inputData = {
-			comment: data.get('comment')!.toString(),
-			place: data.get('place')!.toString(),
-			duration: Number(data.get('duration')!.toString())
+			comment: data.get('comment') ? data.get('comment')!.toString() : null,
+			place: data.get('place') ? data.get('place')!.toString() : null,
+			duration: data.get('duration') ? Number(data.get('duration')!.toString()) : null
 		};
 
 		await editWorkout(userId, workoutId, inputData);
 	},
-	delete: async ({ request }) => {
+	deleteWorkout: async ({ request }) => {
 		const data = await request.formData();
-		await db
-			.delete(table.set)
-			.where(eq(table.set.workoutId, Number(data.get('trainingSessionId')?.toString())));
-
-		await db
-			.delete(table.workout)
-			.where(eq(table.workout.id, Number(data.get('trainingSessionId')?.toString())));
-
-		return redirect(302, '/profile');
+		deleteWorkoutCascade(Number(data.get('trainingSessionId')?.toString()));
+		return redirect(302, resolve('/(connected)/workout'));
 	},
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
-		await db.delete(table.set).where(eq(table.set.id, Number(data.get('gymSetId')!.toString())));
+		await deleteSet(Number(data.get('gymSetId')!.toString()));
 	}
 };

@@ -5,11 +5,12 @@ import * as table from '$lib/server/db/schema';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { getAllExercises } from '$lib/server/db/repo';
+import { getAllExercises, createWorkout, findWorkoutOfUser } from '$lib/server/db/repo';
+import { resolve } from '$app/paths';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
-	const trainingSessionData: table.Workout[] = await getAllTrainingSession(user.id);
+	const trainingSessionData: table.Workout[] = await findWorkoutOfUser(user.id);
 	const userExercise = await getAllExercises(user.id);
 	return { user, trainingSessionData, userExercise };
 };
@@ -26,18 +27,14 @@ export const actions: Actions = {
 	},
 	createNewTrainingSession: async ({ request }) => {
 		const data = await request.formData();
-		const a = await db
-			.insert(table.workout)
-			.values({ date: new Date(), duration: -1, place: '', userId: data.get('userId')!.toString() })
-			.returning({ insertedId: table.workout.id });
-
-		return redirect(302, '/session/' + a[0].insertedId);
+		const insertedWorkout = (await createWorkout(data.get('userId')!.toString()))[0];
+		return redirect(
+			302,
+			resolve('/(connected)/workout/[workoutId]', { workoutId: insertedWorkout.id.toString() })
+		);
 	},
 	deleteTrainingSession: async ({ request }) => {
 		const data = await request.formData();
-		// const b = await db
-		// 	.delete(table.set)
-		// 	.where(eq(table.set.session, Number(data.get('trainingSessionId')?.toString())));
 
 		await db
 			.delete(table.workout)
@@ -45,6 +42,7 @@ export const actions: Actions = {
 	}
 };
 
+// FIXME : put that function in lib, and create a type to get full type safety
 export function _requireLogin() {
 	const { locals } = getRequestEvent();
 
@@ -53,9 +51,4 @@ export function _requireLogin() {
 	}
 
 	return locals.user;
-}
-
-async function getAllTrainingSession(userId: string): Promise<table.Workout[]> {
-	const res = await db.select().from(table.workout).where(eq(table.workout.userId, userId));
-	return res;
 }

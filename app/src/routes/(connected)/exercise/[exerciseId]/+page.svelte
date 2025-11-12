@@ -2,6 +2,7 @@
 	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
 	import Chart from '$lib/components/Chart.svelte';
 	import { resolve } from '$app/paths';
+	import WorkoutForm from '$lib/components/custom/form/WorkoutForm.svelte';
 
 	let { data }: { data: PageServerData } = $props();
 	const labels = data.x;
@@ -39,8 +40,8 @@
 					<article class="w-full">
 						<h2 class="text-2xl font-semibold">
 							<a
-								href={resolve('/(connected)/workout/[exerciseId]', {
-									exerciseId: aWorkout.id.toString()
+								href={resolve('/(connected)/workout/[workoutId]', {
+									workoutId: aWorkout.id.toString()
 								})}>Workout ID: {aWorkout.id}</a
 							>
 						</h2>
