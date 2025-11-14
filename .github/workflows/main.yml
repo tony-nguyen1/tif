@@ -11,7 +11,8 @@ jobs:
           node-version: '20'
       - run: npm install -g bats
       - run: bats -v
-      - run: ls -R
-      - run: cd ./app
-      - run: npm install
-      - run: npm run build
+      - run: |
+        ls -R
+        cd ./app
+        npm install
+        npm run build
