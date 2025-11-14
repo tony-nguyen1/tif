@@ -7,7 +7,11 @@ Built with SvelteKit and Turso
 # Features
 - [x] Authentication
     - [ ] Switch to JWT
-- [x] User Profile
+- [ ] User Profile
+- [x] Workout
+    - [ ] Create component for displaying sets
+    - [ ] Create component for forms
+    - [ ] Add form component in exercise/[slug]
 - [ ] Weight tracker
     - [ ] Add a data point
     - [ ] Line chart with prediction
