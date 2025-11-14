@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from './$types.js';
-import { createMeal } from '$lib/server/db/mealRepo.js';
+import { createMeal, deleteMeal } from '$lib/server/db/mealRepo.js';
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import { findMealOfUser } from '$lib/server/db/mealRepo.js';
@@ -25,5 +25,13 @@ export const actions: Actions = {
 		};
 
 		await createMeal(input);
+	},
+	deleteMeal: async ({ request }) => {
+		const data = await request.formData();
+		const mealId: number = Number(data.get('mealId')!.toString());
+		console.log(mealId);
+		await deleteMeal(mealId);
+
+		return { success: true };
 	}
 };

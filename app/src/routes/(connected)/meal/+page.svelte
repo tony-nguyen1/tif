@@ -2,20 +2,37 @@
 	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
 	import * as Card from '$lib/components/ui/card/index.js';
-	// import * as DropdownMenu '$lib/components/ui/button-group'
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { EllipsisVertical } from '@lucide/svelte';
+	// import { Button } from '$lib/components/ui/button/index.js';
 	// import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { Toggle } from '$lib/components/ui/toggle/index.js';
+
+	function submitDelete(mealId: number) {
+		const f: HTMLFormElement = document.querySelector(`form[data-meal-id="${mealId}"]`)!;
+		f.requestSubmit();
+	}
 
 	let { data }: PageProps = $props();
+
+	let formStateDisplay = $state(true);
 </script>
 
 <h1 class="text-5xl">Meal</h1>
+<div></div>
 <section id="addMealForm">
-	<header class="">
-		<h2 class="text-2xl">Add a meal</h2>
+	<header class="grid grid-cols-2">
+		<h2 class="w-fit text-2xl">Add a meal</h2>
+		<Toggle
+			class="w-fit justify-self-end"
+			pressed={false}
+			variant="outline"
+			onPressedChange={(b) => (formStateDisplay = !b)}
+		>
+			Hide form
+		</Toggle>
 	</header>
-	<form method="POST" action="?/meal" class="grid gap-2" use:enhance>
+	<form method="POST" action="?/meal" class="grid gap-2" hidden={!formStateDisplay} use:enhance>
 		<div class="grid gap-1">
 			<label for="place" class="text-sm">Place</label>
 			<input
@@ -79,82 +96,64 @@
 	</form>
 </section>
 
-<section id="mealList">
-	{#each data.mealArray as aMeal (aMeal.id)}
-		<article>
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>
-						{aMeal.id}
-					</Card.Title>
-				</Card.Header>
-				<Card.Action
-					><DropdownMenu.Root>
-						<DropdownMenu.Trigger>
-							<Button>...</Button>
-							<!-- {#snippet child({ props })}
-							<Button {...props} variant="outline" class="!pl-2">
-								<ChevronDown />
-							</Button>
-						{/snippet} -->
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Content align="end" class="[--radius:1rem]">
-							<DropdownMenu.Group>
-								<DropdownMenu.Item>
-									<!-- <VolumeOff /> -->
-									Mute Conversation
-								</DropdownMenu.Item>
-								<DropdownMenu.Item>
-									<!-- <Check /> -->
-									Mark as Read
-								</DropdownMenu.Item>
-								<DropdownMenu.Item>
-									<!-- <AlertTriangle /> -->
-									Report Conversation
-								</DropdownMenu.Item>
-								<DropdownMenu.Item>
-									<!-- <UserRoundX /> -->
-									Block User
-								</DropdownMenu.Item>
-								<DropdownMenu.Item>
-									<!-- <Share /> -->
-									Share Conversation
-								</DropdownMenu.Item>
-								<DropdownMenu.Item>
-									<!-- <Copy /> -->
-									Copy Conversation
-								</DropdownMenu.Item>
-							</DropdownMenu.Group>
-							<DropdownMenu.Separator />
-							<DropdownMenu.Group>
-								<DropdownMenu.Item variant="destructive">
-									<!-- <Trash /> -->
-									Delete Conversation
-								</DropdownMenu.Item>
-							</DropdownMenu.Group>
-						</DropdownMenu.Content>
-					</DropdownMenu.Root></Card.Action
-				>
-				<Card.CardContent>
-					{`${aMeal.date.toLocaleDateString()} ${aMeal.date.getHours()}:${aMeal.date.getMinutes()}`}
-					<br />
-					<span class="text-sm text-muted-foreground">
-						At {aMeal.place} – {aMeal.fullness}/10 fullness – {aMeal.protein}g of protein
-						<!-- — -->
-					</span>
-					<br />
-					<span class="text-sm text-muted-foreground"> </span>
-					<br />
-					<p class="">
-						{aMeal.description}
-					</p>
-				</Card.CardContent>
-			</Card.Root>
-		</article>
-	{/each}
+<section id="mealList" class="">
+	<h2 class="text-2xl">Past meals</h2>
+	<div class="mt-1.5 flex flex-col gap-y-3">
+		{#each data.mealArray as aMeal (aMeal.id)}
+			<article>
+				<Card.Root>
+					<Card.Header>
+						<Card.Title class="text-xl font-semibold">
+							{`${aMeal.date.toLocaleDateString()} ${aMeal.date.getHours()}:${aMeal.date.getMinutes()}`}
+						</Card.Title>
+						<span class="text-sm text-muted-foreground italic">
+							At {aMeal.place} – {aMeal.fullness}/10 fullness – {aMeal.protein}g of protein
+							<!-- — -->
+						</span>
+
+						<Card.CardAction>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									<!-- | -->
+									<EllipsisVertical />
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content>
+									<DropdownMenu.Item
+										onclick={() => {
+											console.info('clicked edit button');
+										}}>Edit</DropdownMenu.Item
+									>
+									<!-- Can't use this, very unreliable -->
+									<!-- <DropdownMenu.Item>
+										<form method="post" action="?/deleteMeal" use:enhance>
+											<input name="mealId" value={aMeal.id} hidden />
+											<button type="submit">Delete</button>
+										</form>
+									</DropdownMenu.Item> -->
+
+									<DropdownMenu.Item onclick={() => submitDelete(aMeal.id)} class="text-red-500">
+										Delete
+									</DropdownMenu.Item>
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
+							<form method="post" action="?/deleteMeal" data-meal-id={aMeal.id} hidden use:enhance>
+								<input name="mealId" value={aMeal.id} />
+							</form>
+						</Card.CardAction>
+					</Card.Header>
+					<Card.CardContent>
+						<p class="">
+							{aMeal.description}
+						</p>
+					</Card.CardContent>
+				</Card.Root>
+			</article>
+		{/each}
+	</div>
 </section>
 
 <!-- <ButtonGroup.Root>
-	<Button variant="outline">Follow</Button>
-
+	<Button variant="outline">Display form</Button>
+	<Button variant="outline">Hide form</Button>
+	<Button variant="outline">Editing</Button>
 </ButtonGroup.Root> -->

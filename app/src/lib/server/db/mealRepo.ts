@@ -15,6 +15,6 @@ export async function findMealOfUser(userId: string) {
 export async function findMeal(mealId: number) {
 	return await db.query.meal.findFirst({ where: eq(table.meal.id, mealId) });
 }
-export async function editMeal(updatedMeal: table.Meal) {
-	await db.delete(table.meal).where(eq(table.meal.id, updatedMeal.id));
+export async function deleteMeal(mealId: number) {
+	await db.delete(table.meal).where(eq(table.meal.id, mealId));
 }

@@ -28,6 +28,7 @@
 	<main class="grid grow auto-rows-min gap-y-2 overflow-y-auto px-3 py-3">
 		{@render children?.()}
 	</main>
+	<div class="border-t text-center text-sm">Goal : placeholder - Weight : 00kg</div>
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
 		<a href={resolve('/')}><SolarHome2Outline class="size-9" /></a>
 		<a href={resolve('/(connected)/meal')}><SolarDonutBittenOutline class="size-9" /></a>
