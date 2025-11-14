@@ -33,5 +33,14 @@ export const actions: Actions = {
 		await deleteMeal(mealId);
 
 		return { success: true };
+	},
+	putMeal: async ({ request }) => {
+		const data = await request.formData();
+		console.info(data);
+		// const mealId: number = Number(data.get('mealId')!.toString());
+		// console.log(mealId);
+		// await deleteMeal(mealId);
+
+		return { success: true };
 	}
 };
