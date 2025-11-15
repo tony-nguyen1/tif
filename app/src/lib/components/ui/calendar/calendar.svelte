@@ -3,15 +3,14 @@
 	import * as Calendar from './index.js';
 	import { cn, type WithoutChildrenOrChild } from '$lib/utils.js';
 	import type { ButtonVariant } from '../button/button.svelte';
-	import { isEqualMonth, type DateValue, getLocalTimeZone } from '@internationalized/date';
+	import { isEqualMonth, type DateValue } from '@internationalized/date';
 	import type { Snippet } from 'svelte';
-	import { SvelteMap } from 'svelte/reactivity';
 
 	let {
 		ref = $bindable(null),
 		value = $bindable(),
 		placeholder = $bindable(),
-		customMapCalendarDateValue = $bindable(),
+		sleepCalendarDateMap = $bindable(),
 		class: className,
 		weekdayFormat = 'short',
 		buttonVariant = 'ghost',
@@ -25,7 +24,7 @@
 		disableDaysOutsideMonth = false,
 		...restProps
 	}: WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {
-		customMapCalendarDateValue: SvelteMap<number, string>;
+		sleepCalendarDateMap: Map<string, number>;
 		buttonVariant?: ButtonVariant;
 		captionLayout?: 'dropdown' | 'dropdown-months' | 'dropdown-years' | 'label';
 		months?: CalendarPrimitive.MonthSelectProps['months'];
@@ -96,16 +95,9 @@ get along, so we shut typescript up by casting `value` to `never`.
 							{#each month.weeks as weekDates (weekDates)}
 								<Calendar.GridRow class="mt-2 w-full">
 									{#each weekDates as date (date)}
-										<!-- {date.toDate(getLocalTimeZone()).valueOf()} -->
-										<!-- {console.log(date.getTime())} -->
-										<!-- data-rest-quality={customMapCalendarDateValue.get(
-											date.toDate(getLocalTimeZone()).valueOf()
-										)
-											? date.toDate(getLocalTimeZone()).valueOf()
-											: date.toDate(getLocalTimeZone()).valueOf()} -->
 										<Calendar.Cell
 											{date}
-											data-rest-quality={date.toDate('UTC').toString()}
+											data-rest-quality={sleepCalendarDateMap.get(date.toString()) ?? null}
 											month={month.value}
 										>
 											{#if day}
