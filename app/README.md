@@ -49,3 +49,11 @@ For a migration of the database's schema, the Drizzle ORM will write compare sch
 npm run db:push
 
 https://www.chartjs.org/
+
+ssh-add ...
+mkcert localhost
+npm install chart.js
+touch local.db
+touch .env
+DATABASE_URL="file:local.db"
+npm rundb:push

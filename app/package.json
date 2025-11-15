@@ -78,6 +78,7 @@
 		"@iconify-svelte/material-symbols": "^1.0.5",
 		"@iconify-svelte/solar": "^1.0.1",
 		"@node-rs/argon2": "^2.0.2",
+		"chart.js": "^4.5.1",
 		"dayjs": "^1.11.18",
 		"mode-watcher": "^1.1.0"
 	}
