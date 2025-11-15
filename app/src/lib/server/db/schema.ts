@@ -30,7 +30,8 @@ export const exercise = sqliteTable(
 export const userRelation = relations(user, ({ many }) => ({
 	exercise: many(exercise),
 	workout: many(workout),
-	meal: many(meal)
+	meal: many(meal),
+	sleep: many(sleep)
 }));
 export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	user: one(user, {
@@ -154,7 +155,24 @@ export const mealRelation = relations(meal, ({ one }) => ({
 	})
 }));
 
+// Sleep tables
+export const sleep = sqliteTable('sleep', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	date: integer('date', { mode: 'timestamp' }).notNull(),
+	restQuality: integer('rest_quality').notNull()
+});
+export const sleepRelation = relations(sleep, ({ one }) => ({
+	user: one(user, {
+		fields: [sleep.userId],
+		references: [user.id]
+	})
+}));
+
 export type Meal = typeof meal.$inferSelect;
+export type Sleep = typeof sleep.$inferSelect;
 
 export type Exercise = typeof exercise.$inferSelect;
 export type Workout = typeof workout.$inferSelect;

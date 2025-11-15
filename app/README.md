@@ -57,3 +57,5 @@ touch local.db
 touch .env
 DATABASE_URL="file:local.db"
 npm rundb:push
+npm install lodash.isequal
+npm i --save-dev @types/lodash.isequal
