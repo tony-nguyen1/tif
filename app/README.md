@@ -50,6 +50,7 @@ npm run db:push
 
 https://www.chartjs.org/
 
+eval "$(ssh-agent -s)"
 ssh-add ...
 mkcert localhost
 npm install chart.js
