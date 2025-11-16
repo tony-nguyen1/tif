@@ -4,13 +4,23 @@ import type { Actions } from './$types.js';
 import { createSleep, findSleepOfUser } from '$lib/server/db/sleepRepo.js';
 import type { SleepValue } from '$lib/server/db/sleepRepo.js';
 import { _requireLogin } from '../workout/+page.server';
+import { CalendarDate } from '@internationalized/date';
 
 export async function load() {
 	const user = _requireLogin();
 
+	console.info('server load');
+
+	const sleepArray = await findSleepOfUser(user.id);
+	const sleepCalendarDateMap: Map<string, number> = new Map();
+	sleepArray.forEach((s) => {
+		sleepCalendarDateMap.set(toCalendarDate(s.date).toString(), s.restQuality);
+	});
+
 	return {
 		user,
-		sleepArray: await findSleepOfUser(user.id)
+		sleepArray,
+		sleepCalendarDateMap
 	};
 }
 
@@ -24,6 +34,10 @@ export const actions: Actions = {
 		};
 		console.log(input);
 		const success = await createSleep(input);
-		return { success };
+		return { success, user: _requireLogin() };
 	}
 };
+
+function toCalendarDate(date: Date): CalendarDate {
+	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+}
