@@ -59,3 +59,13 @@ DATABASE_URL="file:local.db"
 npm rundb:push
 npm install lodash.isequal
 npm i --save-dev @types/lodash.isequal
+
+
+bg
+disown -h
+
+
+export DATABASE_URL="..."
+export DATABASE_AUTH_TOKEN="..."
+export NODE_ENV=production
+node build

@@ -18,7 +18,7 @@
 		// '[&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground [&[data-today][data-disabled]]:text-muted-foreground',
 		'data-[selected]:bg-primary data-[selected]:text-primary-foreground dark:data-[selected]:hover:bg-accent/50',
 		// Outside months
-		'[&[data-outside-month]:not([data-selected])]:text-muted-foreground [&[data-outside-month]:not([data-selected])]:hover:text-accent-foreground',
+		'[&[data-outside-month]:not([data-selected])]:text-white [&[data-outside-month]:not([data-selected])]:hover:text-accent-foreground',
 		// Disabled
 		'data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
 		// Unavailable

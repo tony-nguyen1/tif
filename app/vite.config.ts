@@ -4,9 +4,25 @@ import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 import fs from 'fs';
 import path from 'path';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	// ssr: {
+	// 	external: ['@libsql/linux-x64-gnu']
+	// },
+	// ssr: {
+	// 	// Don't bundle this, let Node require it at runtime
+	// 	noExternal: ['@libsql/linux-x64-gnu']
+	// },
+	plugins: [
+		tailwindcss(),
+		sveltekit(),
+		devtoolsJson(),
+		commonjs({
+			// ignoreDynamicRequires: true
+			// dynamicRequireTargets: ['@libsql/linux-x64-gnu']
+		})
+	],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
