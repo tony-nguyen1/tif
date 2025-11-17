@@ -65,6 +65,7 @@ bg
 disown -h
 
 
+sudo lsof -i:3000 ## see a specific port such as 22
 export DATABASE_URL="..."
 export DATABASE_AUTH_TOKEN="..."
 export NODE_ENV=production
