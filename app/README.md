@@ -70,4 +70,5 @@ sudo lsof -i:3000 ## see a specific port such as 22
 export DATABASE_URL="..."
 export DATABASE_AUTH_TOKEN="..."
 export NODE_ENV=production
+export ORIGIN=http://127.0.0.1:3000
 node build

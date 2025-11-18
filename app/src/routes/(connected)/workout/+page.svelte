@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
-	import * as dayjs from 'dayjs';
+	// import * as dayjs from 'dayjs';
+	// import * as relativeTime from 'dayjs/plugin/relativeTime.js';
 	import type { PageServerData } from './$types';
-	import * as relativeTime from 'dayjs/plugin/relativeTime';
 	import * as Card from '$lib/components/ui/card/index.js';
 
 	// import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	// import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
 
-	dayjs.extend(relativeTime.default);
+	// dayjs.extend(relativeTime.default);
 
 	let { data }: { data: PageServerData } = $props();
 </script>
@@ -86,9 +86,9 @@
 								>
 									Details
 								</a>
-								<p class="self-end justify-self-end text-xs text-muted-foreground">
-									{dayjs.default(aTrainingSession.date).fromNow()}
-								</p>
+								<!-- <p class="self-end justify-self-end text-xs text-muted-foreground">
+									{dayjs.unix(aTrainingSession.date.getTime()).fromNow()}
+								</p> -->
 							</div>
 						</div>
 					</Card.Content>

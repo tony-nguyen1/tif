@@ -2,11 +2,11 @@
 	import '../../../app.css';
 	import { enhance } from '$app/forms';
 	import { ModeWatcher } from 'mode-watcher';
-	// import type { ActionData } from './$types';
+	import type { ActionData } from './$types';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 
-	// let { form }: { form: ActionData } = $props();
+	let { form }: { form: ActionData } = $props();
 </script>
 
 <ModeWatcher />
@@ -51,6 +51,8 @@
 					>Register</button
 				> -->
 			</form>
+
+			<p class="text-red-500">{form?.message ?? ''}</p>
 		</Card.Content>
 		<!-- <Card.Footer>
 			<p>Card Footer</p>
