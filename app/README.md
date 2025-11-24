@@ -61,11 +61,6 @@ npm rundb:push
 npm install lodash.isequal
 npm i --save-dev @types/lodash.isequal
 
-
-bg
-disown -h
-
-
 sudo lsof -i:3000 ## see a specific port such as 22
 export DATABASE_URL="..."
 export DATABASE_AUTH_TOKEN="..."
@@ -81,3 +76,7 @@ files needed for deployement:
 - package.json
 
 ab -n 2000 -c 50 nyx.nguyentony.fr:443/
+
+git pull
+npm run build
+pm2 restart ...
