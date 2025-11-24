@@ -58,6 +58,11 @@ export async function getWorkoutSet(userId: string, workoutId: number) {
 				with: {
 					exercise: true
 				}
+			},
+			taggedWorkout: {
+				with: {
+					tag: true
+				}
 			}
 		}
 	});
@@ -161,6 +166,7 @@ export async function editWorkout(
 	return result;
 }
 
+// FIXME : use an omit type to exclude id
 export async function addASet(input: {
 	workoutId: number;
 	exerciseId: number;
@@ -187,4 +193,67 @@ export async function deleteSet(setId: number) {
 
 export async function findWorkoutOfUser(userId: string) {
 	return await db.query.workout.findMany({ where: eq(table.workout.userId, userId) });
+}
+
+// Tag
+export async function addTagToUser(val: Omit<table.Tag, 'id'>) {
+	return await db.insert(table.tag).values(val).returning({ id: table.tag.id });
+}
+export async function addTagToWorkout(val: table.TaggedWorkout) {
+	return await db.insert(table.taggedWorkout).values(val).returning();
+}
+
+export async function removeTagToWorkout(val: table.TaggedWorkout) {
+	return await db
+		.delete(table.taggedWorkout)
+		.where(
+			and(
+				eq(table.taggedWorkout.tagId, val.tagId),
+				eq(table.taggedWorkout.workoutId, val.workoutId)
+			)
+		);
+}
+
+export async function getTagOfUser(userId: string) {
+	return await db.query.tag.findMany({
+		where: eq(table.tag.userId, userId)
+	});
+}
+
+export async function getWorkout(userId: string, workoutId: number) {
+	return await db.query.user.findFirst({
+		where: eq(table.user.id, userId),
+		with: {
+			workout: {
+				where: eq(table.workout.id, workoutId)
+			}
+		}
+	});
+}
+
+export async function getTagOfUserAndId(userId: string, tagId: number) {
+	return await db.query.user.findFirst({
+		where: eq(table.user.id, userId),
+		with: {
+			tag: {
+				where: eq(table.tag.id, tagId)
+			}
+		}
+	});
+}
+
+export async function getTagOfWorkout(tagId: number, workoutId: number) {
+	return await db.query.taggedWorkout.findFirst({
+		where: and(eq(table.taggedWorkout.tagId, tagId), eq(table.taggedWorkout.workoutId, workoutId))
+	});
+}
+
+export async function getAllTagOfWorkout(workoutId: number) {
+	return await db.query.taggedWorkout.findMany({
+		columns: {
+			tagId: true,
+			workoutId: false
+		},
+		where: eq(table.taggedWorkout.workoutId, workoutId)
+	});
 }

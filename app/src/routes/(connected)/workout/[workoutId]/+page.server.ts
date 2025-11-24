@@ -3,14 +3,27 @@ import { _requireLogin } from '../+page.server.js';
 import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { error } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
-import { getAllExercises, getLastSeriesBis, getWorkoutSet } from '$lib/server/db/repo.js';
+import {
+	getAllExercises,
+	getLastSeriesBis,
+	getWorkoutSet,
+	getTagOfUser
+} from '$lib/server/db/repo.js';
 import {
 	editSet,
 	editWorkout,
 	addASet,
 	deleteWorkoutCascade,
-	deleteSet
+	deleteSet,
+	addTagToUser,
+	getWorkout,
+	getTagOfUserAndId,
+	getTagOfWorkout,
+	addTagToWorkout,
+	removeTagToWorkout,
+	getAllTagOfWorkout
 } from '$lib/server/db/repo.js';
 import { resolve } from '$app/paths';
 
@@ -20,6 +33,9 @@ export async function load({ params }) {
 	const userExercise = await getAllExercises(user.id);
 	const workoutId: number = Number(params.workoutId);
 	const workoutDone = await getWorkoutSet(user.id, workoutId);
+	const userTag = await getTagOfUser(user.id);
+	const workoutTag = await getAllTagOfWorkout(workoutId);
+	const tagIds = new Set(workoutTag.map((obj) => obj.tagId));
 
 	const cleanMap: Map<number, Array<table.Set>> = new Map();
 	const volumeMap: Map<number, number> = new Map();
@@ -64,7 +80,9 @@ export async function load({ params }) {
 		cleanMap,
 		volumeMap,
 		exerciseIdToNameMap,
-		lastExercise: lastSet?.exerciseId ?? -1
+		lastExercise: lastSet?.exerciseId ?? -1,
+		userTag,
+		tagIds
 	};
 }
 
@@ -118,5 +136,49 @@ export const actions: Actions = {
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
 		await deleteSet(Number(data.get('gymSetId')!.toString()));
+	},
+	createTag: async ({ request }) => {
+		const data = await request.formData();
+		const tag = {
+			name: data.get('newTagName')!.toString(),
+			userId: data.get('userId')!.toString()
+		};
+		await addTagToUser(tag);
+	},
+	toggleTag: async ({ request }) => {
+		const data = await request.formData();
+		const tag = {
+			userId: data.get('userId')!.toString(),
+			tagId: Number(data.get('tagId')!.toString()),
+			workoutId: Number(data.get('workoutId')!.toString()),
+			name: data.get('tagName')!.toString()
+		};
+
+		// FIXME
+		// check if user exist
+		// check if workout exist
+		// check if tag exist
+
+		// check if user can modify this workout
+		if (!(await getWorkout(tag.userId, tag.workoutId))) {
+			error(403, 'User not authorized to modify this workout');
+		}
+
+		// check if tag belongs to user
+		// If user doesn't exit, 403
+		// If user exist, we always get an answer (not an undefined)
+		const res = await getTagOfUserAndId(tag.userId, tag.tagId);
+		if (!res || res!.tag.length < 1) {
+			error(403, 'User not authorized to add this tag');
+		}
+
+		// check if workoutId linked to tagId
+		if (await getTagOfWorkout(tag.tagId, tag.workoutId)) {
+			const rmRes = await removeTagToWorkout({ tagId: tag.tagId, workoutId: tag.workoutId });
+			return { success: rmRes.rowsAffected === 1 };
+		} else {
+			const addRes = await addTagToWorkout({ tagId: tag.tagId, workoutId: tag.workoutId });
+			return { success: addRes.length === 1 };
+		}
 	}
 };

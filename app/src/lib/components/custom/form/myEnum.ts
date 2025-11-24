@@ -1,8 +1,9 @@
 export enum FormState {
-	Display,
+	AddSet,
 	Hide,
 	EditSet,
-	EditWorkoutInfo
+	EditWorkoutInfo,
+	AddTag
 }
 
 export type FormStateStrings = keyof typeof FormState;

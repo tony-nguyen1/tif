@@ -2,22 +2,23 @@
 	// TODO : true error handling and redirection to error page
 	import { enhance } from '$app/forms';
 	// import type { PageServerData } from '../../../(connected)/profile/exercise/[exerciseId]/$types';
-	import type { PageProps } from './$types';
+	import type { PageServerData } from './$types';
 	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
 	import { resolve } from '$app/paths';
 	import { FormState } from '$lib/components/custom/form/myEnum';
 	import { type Set } from '$lib/server/db/schema';
 	import WorkoutForm from '$lib/components/custom/form/WorkoutForm.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
 
-	class FormStateUnion {
+	export class FormStateUnion {
 		formState: FormState;
 		setState: Set | null;
 		selectedExerciseId: number;
 		lastExerciseId: number;
 
 		constructor(n: number) {
-			this.formState = $state(FormState.Display);
+			this.formState = $state(FormState.AddSet);
 			this.setState = $state(null);
 			this.selectedExerciseId = $state(n);
 			this.lastExerciseId = $state(n);
@@ -27,7 +28,6 @@
 			this.formState = FormState.EditSet;
 			this.setState = getASet();
 			this.selectedExerciseId = getASet().exerciseId;
-			console.log(this.selectedExerciseId);
 		}
 
 		mutateFormDisplayStateTo(newSate: FormState) {
@@ -39,7 +39,7 @@
 		}
 	}
 
-	let { data }: PageProps = $props();
+	let { data }: { data: PageServerData } = $props();
 
 	let formDisplayStateValue: FormStateUnion = $state(new FormStateUnion(data.lastExercise));
 	// let formOptionsAuthorized: Array<boolean | undefined> = data.formOptionsAuthorized;
@@ -75,7 +75,7 @@
 				<li class="grid grid-cols-(--custom-col-pattern)">
 					<div class="flex flex-col">
 						<span class="text-base">{aSet.repNumber}x{aSet.weight}kg</span>
-						<span class="max-h-[1rem] min-h-[1rem] text-xs text-slate-600 dark:text-slate-400">
+						<span class="max-h-4 min-h-4 text-xs text-slate-600 dark:text-slate-400">
 							{aSet.comment}
 						</span>
 					</div>
@@ -91,17 +91,17 @@
 							}}
 							class="size-min cursor-pointer rounded-xs bg-amber-700 p-1 text-white transition hover:bg-amber-800"
 						>
-							<SolarPen2Linear class="size-[24px]" />
+							<SolarPen2Linear class="size-6" />
 						</button>
 						<form method="POST" action="?/deleteSet" class="size-min" use:enhance>
 							<input name="gymSetId" value={aSet.id} hidden />
 							<button
 								onclick={() => {
-									formDisplayStateValue.mutateFormDisplayStateTo(FormState.Display);
+									formDisplayStateValue.mutateFormDisplayStateTo(FormState.AddSet);
 								}}
 								class="cursor-pointer rounded-xs bg-red-600 p-1 text-white transition hover:bg-red-700"
 							>
-								<SolarCloseSquareLineDuotone class="size-[24px]" />
+								<SolarCloseSquareLineDuotone class="size-6" />
 							</button>
 						</form>
 					</div>
@@ -114,7 +114,7 @@
 
 <form method="POST" action="?/deleteWorkout" class="justify-self-center">
 	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
-	<button class="rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700">
-		Delete this training session
-	</button>
+	<Button class="bg-red-600 text-white transition hover:bg-red-700"
+		>Delete this training session</Button
+	>
 </form>

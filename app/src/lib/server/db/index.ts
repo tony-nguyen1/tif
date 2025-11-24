@@ -15,3 +15,22 @@ const client = createClient({
 });
 
 export const db = drizzle(client, { schema });
+
+// if (!dev && !env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
+// if (!dev && !env.DATABSE_SYNC) throw new Error('DATABSE_SYNC is not set');
+// let tmpClient;
+// if (dev) {
+// 	// Simple file database
+// 	tmpClient = createClient({
+// 		url: env.DATABASE_URL!
+// 	});
+// } else {
+// 	// Embedded replica databse
+// 	tmpClient = createClient({
+// 		url: env.DATABASE_REPLICA!,
+// 		authToken: env.DATABASE_AUTH_TOKEN,
+// 		syncUrl: env.DATABASE_URL,
+// 		syncInterval: Number(env.DATABSE_SYNC!)
+// 	});
+// }
+// const client = tmpClient;

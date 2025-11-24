@@ -72,3 +72,12 @@ export DATABASE_AUTH_TOKEN="..."
 export NODE_ENV=production
 export ORIGIN=http://127.0.0.1:3000
 node build
+
+
+files needed for deployement:
+- build/
+- node_modules
+- env files & config files
+- package.json
+
+ab -n 2000 -c 50 nyx.nguyentony.fr:443/

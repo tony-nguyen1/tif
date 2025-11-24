@@ -1,54 +1,75 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { FormState } from './myEnum';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
 
-	let { userExercise, trainingSessionInfo, user, formDisplayStateValue } = $props();
+	let { userExercise, trainingSessionInfo, user, formDisplayStateValue, userTag, tagIds } =
+		$props();
 </script>
 
-<div id="buttonGroupWorkoutForm" class="flex flex-row gap-x-2">
-	<button
+<ButtonGroup.Root id="buttonGroupWorkoutForm">
+	<Button
+		variant="outline"
 		class={[
-			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
+			'size-fit px-2 py-1',
 			formDisplayStateValue.formState === FormState.Hide ? 'cursor-not-allowed' : 'cursor-pointer'
 		]}
 		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.Hide)}
 	>
 		Hide form
-	</button>
-	<button
+	</Button>
+	<Button
+		variant="outline"
 		class={[
-			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
-			formDisplayStateValue.formState === FormState.Display
-				? 'cursor-not-allowed'
-				: 'cursor-pointer'
+			'size-fit px-2 py-1',
+			formDisplayStateValue.formState === FormState.AddSet ? 'cursor-not-allowed' : 'cursor-pointer'
 		]}
-		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.Display)}
+		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.AddSet)}
 	>
-		Add a set
-	</button>
-	<button
+		Add set
+	</Button>
+	<Button
+		variant="outline"
 		class={[
-			'size-fit place-self-center rounded-sm bg-slate-300 px-2 py-1 text-xs dark:bg-slate-700',
+			'size-fit px-2 py-1',
 			formDisplayStateValue.formState === FormState.EditWorkoutInfo
 				? 'cursor-not-allowed'
 				: 'cursor-pointer'
 		]}
 		onclick={() => formDisplayStateValue.mutateFormDisplayStateTo(FormState.EditWorkoutInfo)}
 	>
-		Edit the workout
-	</button>
-</div>
+		Edit workout
+	</Button>
+	<Button
+		variant="outline"
+		class={[
+			'size-fit px-2 py-1',
+			formDisplayStateValue.formState === FormState.AddTag ? 'cursor-not-allowed' : 'cursor-pointer'
+		]}
+		onclick={() => {
+			formDisplayStateValue.mutateFormDisplayStateTo(FormState.AddTag);
+			console.info('hi');
+		}}
+	>
+		Add tag
+	</Button>
+</ButtonGroup.Root>
 
-{#if formDisplayStateValue.formState === FormState.Display || formDisplayStateValue.formState === FormState.EditSet}
+<div id="buttonGroupWorkoutForm" class="flex flex-row gap-x-2"></div>
+
+{#if formDisplayStateValue.formState === FormState.AddSet || formDisplayStateValue.formState === FormState.EditSet}
 	<section id="addSetForm">
 		<header class="">
 			<h2 class="text-2xl">
-				{formDisplayStateValue.formState === FormState.Display ? 'Add' : 'Update'} a set
+				{formDisplayStateValue.formState === FormState.AddSet ? 'Add' : 'Update'} a set
 			</h2>
 		</header>
 		<form
 			method="POST"
-			action={formDisplayStateValue.formState === FormState.Display ? '?/addASet' : '?/editASet'}
+			action={formDisplayStateValue.formState === FormState.AddSet ? '?/addASet' : '?/editASet'}
 			class="grid gap-2"
 			use:enhance
 		>
@@ -204,6 +225,48 @@
 			</button>
 		</form>
 	</section>
-{:else if formDisplayStateValue.formState === FormState.Hide}{:else}
+{:else if formDisplayStateValue.formState === FormState.Hide}
+	<!-- Display nothing -->
+{:else if formDisplayStateValue.formState === FormState.AddTag}
+	<section id="AddTagForm">
+		<header>
+			<h2 class="text-2xl">Add tags to current workout</h2>
+		</header>
+		<!-- 			action={formDisplayStateValue.formState === FormState.AddSet ? '?/addASet' : '?/editASet'}
+ -->
+		<p>Tags available:</p>
+		{#each userTag as aUserTag (aUserTag.id)}
+			<form method="POST" class="grid w-fit gap-2" use:enhance action="?/toggleTag">
+				<input name="userId" bind:value={user.id} hidden />
+				<!-- <input name="userId" value="15" hidden /> -->
+				<input name="tagId" bind:value={aUserTag.id} hidden />
+				<!-- <input name="tagId" value="999999" hidden /> -->
+				<input name="workoutId" bind:value={trainingSessionInfo.id} hidden />
+				<!-- <input name="workoutId" value="12121212" hidden /> -->
+				<input name="tagName" bind:value={aUserTag.name} hidden />
+				<Button
+					variant={tagIds.has(aUserTag.id) ? 'secondary' : 'ghost'}
+					type="submit"
+					class="py-.5 rounded-full px-2.5 text-sm"
+				>
+					{aUserTag.name}
+				</Button>
+			</form>
+		{/each}
+		<form class="flex w-full items-center space-x-4" method="post" action="?/createTag">
+			<Label for="newTagName" class="basis-1/6">New tag:</Label>
+			<Input
+				id="newTagName"
+				name="newTagName"
+				class="basis-3/6"
+				type="text"
+				placeholder="Shoulder"
+				required
+			/>
+			<input name="userId" bind:value={user.id} hidden />
+			<Button type="submit">Create</Button>
+		</form>
+	</section>
+{:else}
 	<p>Something went wrong</p>
 {/if}

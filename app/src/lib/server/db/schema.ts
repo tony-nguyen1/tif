@@ -1,5 +1,5 @@
 import { relations, sql, type SQL } from 'drizzle-orm';
-import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, unique, primaryKey } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -31,7 +31,8 @@ export const userRelation = relations(user, ({ many }) => ({
 	exercise: many(exercise),
 	workout: many(workout),
 	meal: many(meal),
-	sleep: many(sleep)
+	sleep: many(sleep),
+	tag: many(tag)
 }));
 export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	user: one(user, {
@@ -41,22 +42,42 @@ export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	set: many(set)
 }));
 
-export const tag = sqliteTable('tag', {
-	id: text('id').primaryKey(),
-	name: text('name').notNull(),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id)
-});
+export const tag = sqliteTable(
+	'tag',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		name: text('name').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id)
+	},
+	(table) => [unique('unique_tag_name_per_user').on(table.name, table.userId)]
+);
+export const tagRelation = relations(tag, ({ one, many }) => ({
+	taggedWorkout: many(taggedWorkout),
+	user: one(user, { fields: [tag.userId], references: [user.id] })
+}));
 
-export const taggedWorkout = sqliteTable('tagged_workout', {
-	tagId: text('tag_id')
-		.notNull()
-		.references(() => tag.id),
-	workoutId: text('workout_id')
-		.notNull()
-		.references(() => workout.id)
-}); // add relation
+// taggedWorkout.tagId taggedWorkout.workoutId
+export const taggedWorkout = sqliteTable(
+	'tagged_workout',
+	{
+		tagId: integer('tag_id')
+			.notNull()
+			.references(() => tag.id),
+		workoutId: integer('workout_id')
+			.notNull()
+			.references(() => workout.id)
+	},
+	(table) => [
+		primaryKey({ columns: [table.tagId, table.workoutId] }),
+		unique('no_multiple_identical_tag_per_workout').on(table.tagId, table.workoutId)
+	]
+);
+export const taggedWorkoutRelation = relations(taggedWorkout, ({ one, many }) => ({
+	workout: many(workout),
+	tag: one(tag, { fields: [taggedWorkout.tagId], references: [tag.id] })
+}));
 
 export const workout = sqliteTable('workout', {
 	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -73,7 +94,8 @@ export const workoutRelation = relations(workout, ({ one, many }) => ({
 	user: one(user, {
 		fields: [workout.userId],
 		references: [user.id]
-	})
+	}),
+	taggedWorkout: one(taggedWorkout, { fields: [workout.id], references: [taggedWorkout.workoutId] })
 }));
 
 export const set = sqliteTable('set', {
@@ -177,6 +199,8 @@ export type Sleep = typeof sleep.$inferSelect;
 export type Exercise = typeof exercise.$inferSelect;
 export type Workout = typeof workout.$inferSelect;
 export type Set = typeof set.$inferSelect;
+export type TaggedWorkout = typeof taggedWorkout.$inferSelect;
+export type Tag = typeof tag.$inferSelect;
 
 export type Session = typeof session.$inferSelect;
 

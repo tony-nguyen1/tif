@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
 	// import * as dayjs from 'dayjs';
 	// import * as relativeTime from 'dayjs/plugin/relativeTime.js';
 	import type { PageServerData } from './$types';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 
 	// import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
 	// import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
@@ -15,27 +15,14 @@
 </script>
 
 <header class="grid grid-cols-2">
-	<h1 class="text-5xl">Profile</h1>
-	<aside class="justify-self-end text-right text-muted-foreground">
-		<h2 class="text-xs">connected as {data.user.username}</h2>
-		<h2 class="text-xs">{data.user.id}</h2>
-		<form method="post" action="?/logout" use:enhance>
-			<button class="text-sm text-red-400">Log out</button>
-		</form>
-	</aside>
+	<h1 class="text-5xl">Workout</h1>
+	<aside class="justify-self-end text-right text-muted-foreground"></aside>
 </header>
 <section class="grid place-items-center gap-y-3">
-	<a
-		href={resolve('/(connected)/exercise')}
-		class="rounded-md bg-blue-800 px-4 py-2 text-white transition hover:bg-blue-900"
-	>
-		My exercises
-	</a>
+	<Button variant="outline" href={resolve('/(connected)/exercise')}>My exercises</Button>
 	<form method="post" action="?/createNewTrainingSession">
 		<input name="userId" value={data.user.id} hidden />
-		<button class="rounded-md bg-blue-800 px-4 py-2 text-white transition hover:bg-blue-900"
-			>Begin new training session</button
-		>
+		<Button variant="outline">Begin new training session</Button>
 	</form>
 </section>
 
@@ -78,14 +65,15 @@
 						<div class="grid gap-2">
 							<p class="text-blue-600 dark:text-blue-100">{aTrainingSession.comment}</p>
 							<div class="grid grid-cols-2">
-								<a
-									class="w-fit rounded-md bg-blue-800 px-4 py-2 text-white transition hover:bg-blue-900"
+								<Button
+									variant="outline"
+									class="w-fit"
 									href={resolve('/(connected)/workout/[workoutId]', {
 										workoutId: aTrainingSession.id.toString()
 									})}
 								>
 									Details
-								</a>
+								</Button>
 								<!-- <p class="self-end justify-self-end text-xs text-muted-foreground">
 									{dayjs.unix(aTrainingSession.date.getTime()).fromNow()}
 								</p> -->
