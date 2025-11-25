@@ -18,16 +18,15 @@ jobs:
         node-version: 22
         cache: 'npm'
         cache-dependency-path: app/package-lock.json
-      env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-          DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
-          DATABSE_SYNC: ${{ secrets.DATABSE_SYNC }}
-          ORIGIN: ${{ secrets.ORIGIN }}
     - run: cd ./app && npm ci
     - run: |
         curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
         chmod +x mkcert-v*-linux-amd64
-    - run: echo "$DATABASE_URL"
     - run: cd ./app && ../mkcert-*-linux-amd64 localhost
+      env:
+            DATABASE_URL: ${{ secrets.DATABASE_URL }}
+            DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+            DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
+            DATABSE_SYNC: ${{ secrets.DATABSE_SYNC }}
+            ORIGIN: ${{ secrets.ORIGIN }}
     - run: cd ./app && npm run build --if-present
