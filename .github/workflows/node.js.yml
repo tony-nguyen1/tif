@@ -22,6 +22,5 @@ jobs:
     - run: |
         curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
         chmod +x mkcert-v*-linux-amd64
-        ls
-    - run: cd ./app && ~/mkcert localhost
+    - run: cd ./app && ../mkcert-*-linux-amd64 localhost
     - run: cd ./app && npm run build --if-present
