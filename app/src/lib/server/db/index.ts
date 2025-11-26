@@ -7,7 +7,7 @@ import { env } from '$env/dynamic/private';
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 if (!dev && !env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
 if (!dev && !env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
-if (!dev && !env.DATABSE_SYNC) throw new Error('DATABSE_SYNC is not set');
+if (!dev && !env.DATABASE_SYNC) throw new Error('DATABSE_SYNC is not set');
 
 console.log(`Node environment=${env.NODE_ENV}`);
 
@@ -25,7 +25,7 @@ if (dev) {
 		url: env.DATABASE_REPLICA!,
 		authToken: env.DATABASE_AUTH_TOKEN,
 		syncUrl: env.DATABASE_URL,
-		syncInterval: Number(env.DATABSE_SYNC!),
+		syncInterval: Number(env.DATABASE_SYNC!),
 		offline: true
 	});
 

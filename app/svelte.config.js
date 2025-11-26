@@ -8,11 +8,6 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter()
-		// vite: {
-		// 	ssr: {
-		// 		// noExternal: ['@libsql/client', '@libsql/linux-x64-gnu']
-		// 	}
-		// },
 	}
 };
 
