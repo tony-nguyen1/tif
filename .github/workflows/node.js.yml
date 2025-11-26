@@ -31,3 +31,5 @@ jobs:
     - run: echo "$DATABASE_URL"
     - run: echo $DATABASE_URL
     - run: cd ./app && npm run build --if-present
+    - run: cd ./app && rsync -azrv --include={'build/***','package.json/***','ecosystem.config.cjs/***'} --exclude=* ./ ubuntu@217.182.205.165
+    - run: echo "test"
