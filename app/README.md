@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/tony-nguyen1/tif/actions/workflows/node.js.yml/badge.svg)](https://github.com/tony-nguyen1/tif/actions/workflows/node.js.yml)
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
