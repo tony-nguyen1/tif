@@ -22,7 +22,7 @@
 	<Button variant="outline" href={resolve('/(connected)/exercise')}>My exercises</Button>
 	<form method="post" action="?/createNewTrainingSession">
 		<input name="userId" value={data.user.id} hidden />
-		<Button variant="outline">Begin new training session</Button>
+		<Button type="submit" variant="outline">Begin new training session</Button>
 	</form>
 </section>
 

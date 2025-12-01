@@ -1,11 +1,23 @@
 import { relations, sql, type SQL } from 'drizzle-orm';
-import { sqliteTable, integer, text, unique, primaryKey } from 'drizzle-orm/sqlite-core';
+import { check, sqliteTable, integer, text, unique, primaryKey } from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('user', {
-	id: text('id').primaryKey(),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
-});
+export const user = sqliteTable(
+	'user',
+	{
+		id: text('id').primaryKey(),
+		username: text('username').notNull().unique(),
+		passwordHash: text('password_hash').notNull(),
+		goal: text('goal', { enum: ['cutting', 'bulking', 'maintaining', 'cardio', 'strength'] }),
+		goalWeight: integer('goalWeight')
+	},
+	(table) => [
+		check(
+			'goalCheck',
+			sql`${table.goal} IN ('cutting', 'bulking', 'maintaining', 'cardio', 'strength')`
+		),
+		check('goalWeightCheck', sql`${table.goalWeight} > 40`)
+	]
+);
 
 export const session = sqliteTable('session', {
 	id: text('id').primaryKey(),
@@ -32,7 +44,8 @@ export const userRelation = relations(user, ({ many }) => ({
 	workout: many(workout),
 	meal: many(meal),
 	sleep: many(sleep),
-	tag: many(tag)
+	tag: many(tag),
+	weight: many(weight)
 }));
 export const exerciseRelation = relations(exercise, ({ one, many }) => ({
 	user: one(user, {
@@ -193,8 +206,25 @@ export const sleepRelation = relations(sleep, ({ one }) => ({
 	})
 }));
 
+// Weight tables
+export const weight = sqliteTable('weight', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	date: integer('date', { mode: 'timestamp' }).notNull(),
+	weight: integer('weight').notNull()
+});
+export const weightRelation = relations(weight, ({ one }) => ({
+	user: one(user, {
+		fields: [weight.userId],
+		references: [user.id]
+	})
+}));
+
 export type Meal = typeof meal.$inferSelect;
 export type Sleep = typeof sleep.$inferSelect;
+export type Weight = typeof weight.$inferSelect;
 
 export type Exercise = typeof exercise.$inferSelect;
 export type Workout = typeof workout.$inferSelect;

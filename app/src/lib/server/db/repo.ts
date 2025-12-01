@@ -257,3 +257,19 @@ export async function getAllTagOfWorkout(workoutId: number) {
 		where: eq(table.taggedWorkout.workoutId, workoutId)
 	});
 }
+
+export async function getUser(userId: string) {
+	return await db.query.user.findFirst({ where: eq(table.user.id, userId) });
+}
+
+export async function editUser(
+	userId: string,
+	goal: 'cutting' | 'bulking' | 'maintaining' | 'cardio' | 'strength' | null,
+	goalWeight: number
+) {
+	const result = await db
+		.update(table.user)
+		.set({ goal, goalWeight })
+		.where(eq(table.user.id, userId));
+	return result;
+}

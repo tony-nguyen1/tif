@@ -82,3 +82,5 @@ ab -n 2000 -c 50 nyx.nguyentony.fr:443/
 git pull
 npm run build
 pm2 restart ...
+
+rsync -az --progress -e ssh ~/pp/test ubuntu@217.182.205.165:~/target
