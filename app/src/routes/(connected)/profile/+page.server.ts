@@ -4,6 +4,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getUser, editUser } from '$lib/server/db/repo';
 import { resolve } from '$app/paths';
+import { goalEnum, type Goal } from '$lib/customType';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -38,33 +39,31 @@ export const actions: Actions = {
 			return fail(400, { missing: true, message: 'Form is missing goalWeight input' });
 		}
 
-		// FIXME : transform this into a nice enum
-		const arr = ['cutting', 'bulking', 'maintaining', 'cardio', 'strength'];
 		const tmpGoal = data.get('goal');
-		if (!(arr.some((elem) => elem === tmpGoal) || tmpGoal === null)) {
+		if (!goalEnum.some((elem) => elem === tmpGoal) && tmpGoal !== '') {
 			return fail(400, { incorrect: true, message: `Goal value '${tmpGoal}' is not authorized` });
 		}
 
-		const goal: 'cutting' | 'bulking' | 'maintaining' | 'cardio' | 'strength' | null = tmpGoal as
-			| 'cutting'
-			| 'bulking'
-			| 'maintaining'
-			| 'cardio'
-			| 'strength'
-			| null;
+		const goal: Goal | null = tmpGoal ? (tmpGoal as Goal) : null;
 
-		const goalWeight: number = Number(data.get('goalWeight'));
-		if (goalWeight <= 40) {
+		const tmpGoalWeight: number = Number(data.get('goalWeight'));
+		if (tmpGoalWeight <= 40 && data.get('goalWeight') !== '') {
 			return fail(400, {
 				incorrect: true,
 				message: `Goal Weight must be stricly greater than 40kg`
 			});
 		}
+		const goalWeight: number | null = data.get('goalWeight')
+			? Number(data.get('goalWeight'))
+			: null;
 
 		const result = await editUser(user.id, goal, goalWeight);
-		if (result.rowsAffected === 1) {
-			return { success: true };
+		if (result.length === 1) {
+			return {
+				success: true,
+				updatedValues: { goal: result[0].goal, goalWeight: result[0].goalWeight }
+			};
 		}
-		return fail(500, { success: false, message: `${result.rowsAffected} rows were affected` });
+		return fail(500, { success: false, message: `${result.length} rows were affected` });
 	}
 };

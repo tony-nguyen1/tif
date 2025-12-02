@@ -1,20 +1,20 @@
 import { relations, sql, type SQL } from 'drizzle-orm';
 import { check, sqliteTable, integer, text, unique, primaryKey } from 'drizzle-orm/sqlite-core';
+import { goalEnum } from '$lib/customType';
 
+// Tables
+const goalEnumStringSqlCheck = `${goalEnum.map((g) => "'" + g + "'").join(', ')}`;
 export const user = sqliteTable(
 	'user',
 	{
 		id: text('id').primaryKey(),
 		username: text('username').notNull().unique(),
 		passwordHash: text('password_hash').notNull(),
-		goal: text('goal', { enum: ['cutting', 'bulking', 'maintaining', 'cardio', 'strength'] }),
+		goal: text('goal', { enum: goalEnum }),
 		goalWeight: integer('goalWeight')
 	},
 	(table) => [
-		check(
-			'goalCheck',
-			sql`${table.goal} IN ('cutting', 'bulking', 'maintaining', 'cardio', 'strength')`
-		),
+		check('goalCheck', sql`${table.goal} IN (${sql.raw(goalEnumStringSqlCheck)})`),
 		check('goalWeightCheck', sql`${table.goalWeight} > 40`)
 	]
 );

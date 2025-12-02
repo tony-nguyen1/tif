@@ -3,6 +3,7 @@ import * as table from '$lib/server/db/schema';
 import { eq, and, sum, desc } from 'drizzle-orm';
 import type { BuildQueryResult, DBQueryConfig, ExtractTablesWithRelations } from 'drizzle-orm';
 import * as schema from '$lib/server/db/schema';
+import { type Goal } from '$lib/customType';
 
 type Schema = typeof schema;
 type TSchema = ExtractTablesWithRelations<Schema>;
@@ -262,14 +263,11 @@ export async function getUser(userId: string) {
 	return await db.query.user.findFirst({ where: eq(table.user.id, userId) });
 }
 
-export async function editUser(
-	userId: string,
-	goal: 'cutting' | 'bulking' | 'maintaining' | 'cardio' | 'strength' | null,
-	goalWeight: number
-) {
+export async function editUser(userId: string, goal: Goal | null, goalWeight: number | null) {
 	const result = await db
 		.update(table.user)
 		.set({ goal, goalWeight })
-		.where(eq(table.user.id, userId));
+		.where(eq(table.user.id, userId))
+		.returning();
 	return result;
 }
