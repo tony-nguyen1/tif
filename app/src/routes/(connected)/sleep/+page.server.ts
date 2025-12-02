@@ -9,8 +9,6 @@ import { CalendarDate } from '@internationalized/date';
 export async function load() {
 	const user = _requireLogin();
 
-	console.info('server load');
-
 	const sleepArray = await findSleepOfUser(user.id);
 	const sleepCalendarDateMap: Map<string, number> = new Map();
 	sleepArray.forEach((s) => {

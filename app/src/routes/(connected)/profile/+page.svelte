@@ -8,12 +8,14 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { toast } from 'svelte-sonner';
+	import { Spinner } from '$lib/components/ui/spinner/index.js';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	const { user, userInfo } = data;
 
 	let goalWeightValue = $state(userInfo?.goalWeight ?? null);
 	let selecteGoalValue = $state(userInfo?.goal ?? '');
+	let formProcessing = $state(false);
 	const triggerContent = $derived(goalEnum.find((f) => f === selecteGoalValue) ?? 'Select a goal');
 </script>
 
@@ -29,13 +31,21 @@
 	</aside>
 </header>
 <section>
-	<h3 class="text-2xl">Edit user info</h3>
+	<!-- items-baseline -->
+	<header class="grid grid-cols-2">
+		<h3 class="w-fit text-2xl">Edit user info</h3>
+		{#if formProcessing}
+			<Spinner class="mr-5 size-5 self-center justify-self-end text-yellow-500" />
+		{/if}
+	</header>
 	<form
 		method="post"
 		class="grid gap-2"
 		action="?/editUserInfo"
 		use:enhance={() => {
 			console.info('Form submitted');
+			formProcessing = true;
+
 			return async ({ result, update }) => {
 				// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
 				await update();
@@ -47,6 +57,7 @@
 					toast.success('User information updated');
 				}
 				console.info('Form processed');
+				formProcessing = false;
 			};
 		}}
 	>
@@ -86,7 +97,14 @@
 			</div>
 		</div>
 
-		<Button type="submit" variant="outline" class="w-fit justify-self-end">Send</Button>
+		<Button
+			type="submit"
+			variant="outline"
+			class={['w-fit justify-self-end']}
+			bind:disabled={formProcessing}
+		>
+			Send
+		</Button>
 	</form>
 
 	{#if form?.missing || form?.incorrect}
