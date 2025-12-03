@@ -186,6 +186,8 @@
 													</div>
 
 													<input name="userId" bind:value={data.user.id} hidden />
+													<input name="mealId" value={aMeal.id} hidden />
+													<!-- <input name="date" value={aMeal.date} hidden /> -->
 
 													<Button variant="outline" type="submit" class="justify-self-end">
 														Send

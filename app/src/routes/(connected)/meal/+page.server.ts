@@ -2,7 +2,8 @@ import type { Actions, PageServerLoad } from './$types.js';
 import { createMeal, deleteMeal } from '$lib/server/db/mealRepo.js';
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
-import { findMealOfUser } from '$lib/server/db/mealRepo.js';
+import { findMealOfUser, editMeal } from '$lib/server/db/mealRepo.js';
+import type { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -36,10 +37,18 @@ export const actions: Actions = {
 	},
 	putMeal: async ({ request }) => {
 		const data = await request.formData();
-		console.info(data);
-		// const mealId: number = Number(data.get('mealId')!.toString());
-		// console.log(mealId);
-		// await deleteMeal(mealId);
+
+		const input = {
+			// date: new Date(data.get('date')!.toString()),
+			id: Number(data.get('mealId')!.toString()),
+			userId: data.get('userId')!.toString(),
+			description: data.get('description')!.toString(),
+			place: data.get('place')!.toString(),
+			protein: Number(data.get('protein')!.toString()),
+			fullness: Number(data.get('fullness')!.toString())
+		};
+
+		await editMeal(input);
 
 		return { success: true };
 	}

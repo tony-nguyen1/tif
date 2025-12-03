@@ -18,3 +18,11 @@ export async function findMeal(mealId: number) {
 export async function deleteMeal(mealId: number) {
 	await db.delete(table.meal).where(eq(table.meal.id, mealId));
 }
+export async function editMeal(input: Omit<table.Meal, 'date'>) {
+	const result = await db
+		.update(table.meal)
+		.set(input)
+		.where(eq(table.meal.id, input.id))
+		.returning();
+	return result;
+}
