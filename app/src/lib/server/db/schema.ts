@@ -1,6 +1,6 @@
 import { relations, sql, type SQL } from 'drizzle-orm';
 import { check, sqliteTable, integer, text, unique, primaryKey } from 'drizzle-orm/sqlite-core';
-import { goalEnum } from '$lib/customType';
+import { goalEnum } from '../../customType';
 
 // Tables
 const goalEnumStringSqlCheck = `${goalEnum.map((g) => "'" + g + "'").join(', ')}`;

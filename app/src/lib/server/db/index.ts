@@ -4,12 +4,12 @@ import { createClient } from '@libsql/client';
 import * as schema from './schema';
 import { env } from '$env/dynamic/private';
 
+console.log(`Node environment=${env.NODE_ENV}`);
+
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 if (!dev && !env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
 if (!dev && !env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
 if (!dev && !env.DATABASE_SYNC) throw new Error('DATABASE_SYNC is not set');
-
-console.log(`Node environment=${env.NODE_ENV}`);
 
 let tmpClient;
 if (dev) {
@@ -18,7 +18,7 @@ if (dev) {
 		url: env.DATABASE_URL!
 	});
 
-	console.info('Using simple file databse');
+	console.info('Using simple file database');
 } else {
 	// Embedded replica databse
 	tmpClient = createClient({
