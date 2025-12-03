@@ -50,7 +50,7 @@ export const actions: Actions = {
 		if (tmpGoalWeight <= 40 && data.get('goalWeight') !== '') {
 			return fail(400, {
 				incorrect: true,
-				message: `Goal Weight must be stricly greater than 40kg`
+				message: `Goal weight must be greater than 40kg`
 			});
 		}
 		const goalWeight: number | null = data.get('goalWeight')

@@ -66,6 +66,7 @@
 				<label for="goalSelect" class="text-sm">Goal weight :</label>
 				<InputGroup.Root>
 					<InputGroup.Input
+						aria-invalid={form?.missing || form?.incorrect}
 						id="goalSelect"
 						name="goalWeight"
 						placeholder="60"
@@ -97,19 +98,20 @@
 			</div>
 		</div>
 
-		<Button
-			type="submit"
-			variant="outline"
-			class={['w-fit justify-self-end']}
-			bind:disabled={formProcessing}
-		>
-			Send
-		</Button>
+		<div class="grid grid-cols-[auto_auto]">
+			<div class="">
+				{#if form?.missing || form?.incorrect}
+					<p class="text-sm text-red-500">{form!.message}</p>
+				{/if}
+			</div>
+			<Button
+				type="submit"
+				variant="outline"
+				class={['w-fit justify-self-end']}
+				bind:disabled={formProcessing}
+			>
+				Send
+			</Button>
+		</div>
 	</form>
-
-	{#if form?.missing || form?.incorrect}
-		<p class="error">:(</p>
-	{:else}
-		:)
-	{/if}
 </section>
