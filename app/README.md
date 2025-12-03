@@ -83,4 +83,4 @@ git pull
 npm run build
 pm2 restart ...
 
-rsync -az --progress -e ssh ~/pp/test ubuntu@217.182.205.165:~/target
+rsync -az --progress -e ssh ~/dir/src ubuntu@ip_adress:~/dir/target
