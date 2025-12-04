@@ -40,3 +40,6 @@ jobs:
         printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
     - name: Upload build artifact to deployment server
       run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/testing
+    - name: Restart the server
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions && ls && echo 'ok'"
+      
