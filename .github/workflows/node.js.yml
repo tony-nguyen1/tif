@@ -65,4 +65,4 @@ jobs:
           app/package.json
         key: cache-build
     - name: Listing restored cache
-      run: ls ./
+      run: ls app
