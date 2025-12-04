@@ -64,3 +64,5 @@ jobs:
           app/ecosystem.config.cjs
           app/package.json
         key: cache-build
+    - name: Listing restored cache
+      run: ls ./
