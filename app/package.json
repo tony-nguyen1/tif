@@ -44,7 +44,7 @@
 		"bits-ui": "^2.14.3",
 		"clsx": "^2.1.1",
 		"dotenv-cli": "^10.0.0",
-		"drizzle-kit": "^0.31.4",
+		"drizzle-kit": "^0.31.8",
 		"drizzle-orm": "^0.44.5",
 		"eslint": "^9.36.0",
 		"eslint-config-prettier": "^10.1.8",
