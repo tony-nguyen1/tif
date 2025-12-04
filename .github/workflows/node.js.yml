@@ -6,30 +6,93 @@ name: Node.js CI
 on: push
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+      - name: Install dependencies
+        run: cd ./app && npm ci
+      - name: Run prettier & eslint
+        run: |
+          cd app
+          npm run lint
   build:
-
     runs-on: ubuntu-latest
     env:
-            DATABASE_URL: ${{ secrets.DATABASE_URL }}
-            DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-            DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
-            DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
-            ORIGIN: ${{ secrets.ORIGIN }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
+      DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
+      ORIGIN: ${{ secrets.ORIGIN }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'npm'
-        cache-dependency-path: app/package-lock.json
-    - run: cd ./app && npm ci
-    - run: |
-        curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-        chmod +x mkcert-v*-linux-amd64
-    - run: cd ./app && ../mkcert-*-linux-amd64 localhost
-    - run: echo "$DATABASE_URL"
-    - run: echo $DATABASE_URL
-    - run: cd ./app && npm run build --if-present
-    - run: cd ./app && rsync -azrv --include={'build/***','package.json/***','ecosystem.config.cjs/***'} --exclude=* ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
-    - run: echo "test"
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+      - name: Install dependencies
+        run: cd ./app && npm ci
+      - name: Install mkcert
+        run: |
+          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+          chmod +x mkcert-v*-linux-amd64
+          cd ./app && ../mkcert-*-linux-amd64 localhost
+      - name: Build app
+        run: cd ./app && npm run build --if-present
+      - name: Cache artifact
+        uses: actions/cache@v4.3.0
+        with:
+          path: |
+            app/build
+            app/ecosystem.config.cjs
+            app/svelte.config.js
+            app/package.json
+            app/package-lock.json
+            app/node_modules
+            app/script
+          key: cache-build
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cached build output
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            app/build
+            app/ecosystem.config.cjs
+            app/svelte.config.js
+            app/package.json
+            app/package-lock.json
+            app/node_modules
+            app/script
+          key: cache-build
+      - name: Listing restored cache
+        run: ls -R app
+      - name: Add deploy SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+      - name: Add env file
+        run: |
+          cd app
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
+          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
+          echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
+          echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
+          ls .env.production
+      - name: Upload build artifact to deployment server
+        run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx
+      - name: Restart the server
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && ls -l && ./script/deploy.sh"
