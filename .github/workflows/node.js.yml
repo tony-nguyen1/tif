@@ -52,6 +52,7 @@ jobs:
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions && ls && echo 'ok' > test.txt"
 
   deploy:
+    needs: build
 
     runs-on: ubuntu-latest
     steps:
