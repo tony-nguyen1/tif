@@ -40,17 +40,6 @@ jobs:
           app/ecosystem.config.cjs
           app/package.json
         key: cache-build
-    - name: Add deploy SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-    - name: Upload build artifact to deployment server
-      run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/testing
-    - name: Restart the server
-      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions && ls && echo 'ok' > test.txt"
-
   deploy:
     needs: build
 
@@ -65,4 +54,15 @@ jobs:
           app/package.json
         key: cache-build
     - name: Listing restored cache
-      run: ls app
+      run: ls -R app
+    - name: Add deploy SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - name: Upload build artifact to deployment server
+      run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/testing
+    - name: Restart the server
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions && ls && echo 'ok' > test.txt"
+      
