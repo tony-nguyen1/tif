@@ -50,4 +50,16 @@ jobs:
       run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/testing
     - name: Restart the server
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions && ls && echo 'ok' > test.txt"
-      
+
+  deploy:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Restore cached build output
+      id: cache-build
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          app/build
+          app/ecosystem.config.cjs
+          app/package.json
