@@ -23,13 +23,20 @@ jobs:
         node-version: 22
         cache: 'npm'
         cache-dependency-path: app/package-lock.json
-    - run: cd ./app && npm ci
-    - run: |
+    - name: Install dependencies
+      run: cd ./app && npm ci
+    - name: Install mkcert
+      run: |
         curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
         chmod +x mkcert-v*-linux-amd64
-    - run: cd ./app && ../mkcert-*-linux-amd64 localhost
-    - run: echo "$DATABASE_URL"
-    - run: echo $DATABASE_URL
-    - run: cd ./app && npm run build --if-present
-    - run: cd ./app && rsync -azrv --include={'build/***','package.json/***','ecosystem.config.cjs/***'} --exclude=* ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
-    - run: echo "test"
+        cd ./app && ../mkcert-*-linux-amd64 localhost
+    - name: Build app
+      run: cd ./app && npm run build --if-present
+    - name: Add deploy SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - name: Upload build artifact to deployment server
+      run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/testing
