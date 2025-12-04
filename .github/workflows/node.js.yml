@@ -32,6 +32,14 @@ jobs:
         cd ./app && ../mkcert-*-linux-amd64 localhost
     - name: Build app
       run: cd ./app && npm run build --if-present
+    - name: Cache artifact
+      uses: actions/cache@v4.3.0
+      with: 
+        path: |
+          app/build
+          app/ecosystem.config.cjs
+          app/package.json
+        key: cache-build
     - name: Add deploy SSH key
       run: |
         mkdir -p ~/.ssh
