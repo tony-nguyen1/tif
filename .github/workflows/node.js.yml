@@ -56,10 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Restore cached build output
-      id: cache-build
       uses: actions/cache/restore@v4
       with:
         path: |
           app/build
           app/ecosystem.config.cjs
           app/package.json
+        key: cache-build
