@@ -3,7 +3,6 @@ import { createMeal, deleteMeal } from '$lib/server/db/mealRepo.js';
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import { findMealOfUser, editMeal } from '$lib/server/db/mealRepo.js';
-import type { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();

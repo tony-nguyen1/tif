@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getLocalTimeZone, today, CalendarDate } from '@internationalized/date';
+	import { CalendarDate } from '@internationalized/date';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { enhance } from '$app/forms';
 	import type { PageServerData } from './$types';
@@ -8,8 +8,6 @@
 	let value: CalendarDate | undefined = $state(undefined);
 	let sleepQualityValue: number | undefined = $state(undefined);
 	let { data }: { data: PageServerData } = $props();
-	let foo = $state(data.user.id);
-	const oof = data.user.id;
 </script>
 
 <h1 class="text-5xl">Sleep</h1>

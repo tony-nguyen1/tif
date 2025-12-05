@@ -60,7 +60,7 @@ jobs:
             app/script
           key: cache-build
   deploy:
-    needs: build
+    needs: [lint, build]
 
     runs-on: ubuntu-latest
     steps:

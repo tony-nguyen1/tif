@@ -3,7 +3,6 @@ import * as auth from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getUser, editUser } from '$lib/server/db/repo';
-import { resolve } from '$app/paths';
 import { goalEnum, type Goal } from '$lib/customType';
 
 export const load: PageServerLoad = async () => {

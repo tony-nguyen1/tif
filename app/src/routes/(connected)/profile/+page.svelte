@@ -2,8 +2,7 @@
 	import type { PageServerData, ActionData } from './$types.js';
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { page } from '$app/state';
-	import { goalEnum, type Goal } from '$lib/customType';
+	import { goalEnum } from '$lib/customType';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
@@ -89,8 +88,8 @@
 					<Select.Content>
 						<Select.Item value="">None</Select.Item>
 						{#each goalEnum as aGoal, i (i)}
-							{@const latestGoal: Goal|null = form?.success ? form?.updatedValues?.goal as Goal | null : userInfo!.goal as Goal | null}
-							{@const selectedGoal = latestGoal ? goalEnum.findIndex((g) => g === latestGoal) : -1}
+							<!-- {@const latestGoal: Goal|null = form?.success ? form?.updatedValues?.goal as Goal | null : userInfo!.goal as Goal | null} -->
+							<!-- {@const selectedGoal = latestGoal ? goalEnum.findIndex((g) => g === latestGoal) : -1} -->
 							<Select.Item value={aGoal}>{aGoal}</Select.Item>
 						{/each}
 					</Select.Content>

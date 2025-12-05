@@ -51,5 +51,16 @@ export default defineConfig(
 			'@typescript-eslint/no-require-imports': 'off',
 			'no-restricted-imports': 'off'
 		}
+	},
+	{
+		// svelte require a explicit route for links
+		// components use an anchor tag with a link <a href>
+		// but have an arg and not a clear path at comptime
+		// restricting the type of the link inside component
+		// could be possible but TDB, FIXME
+		files: ['**/lib/components/**/*.svelte'],
+		rules: {
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );

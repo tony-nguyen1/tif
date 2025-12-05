@@ -2,7 +2,6 @@
 	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
 	import Chart from '$lib/components/Chart.svelte';
 	import { resolve } from '$app/paths';
-	import WorkoutForm from '$lib/components/custom/form/WorkoutForm.svelte';
 
 	let { data }: { data: PageServerData } = $props();
 	const labels = data.x;
