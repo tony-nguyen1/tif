@@ -75,6 +75,7 @@ jobs:
             app/node_modules
             app/script
           key: cache-build
+          fail-on-cache-miss: true
       - name: Listing restored cache
         run: ls -R app
       - name: Add deploy SSH key
