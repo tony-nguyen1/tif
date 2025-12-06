@@ -45,7 +45,7 @@
 		"clsx": "^2.1.1",
 		"dotenv-cli": "^10.0.0",
 		"drizzle-kit": "^0.31.4",
-		"drizzle-orm": "^0.44.5",
+		"drizzle-orm": "^0.45.0",
 		"eslint": "^9.36.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-storybook": "^9.1.10",
