@@ -1,5 +1,7 @@
 [![Node.js CI](https://github.com/tony-nguyen1/tif/actions/workflows/node.js.yml/badge.svg)](https://github.com/tony-nguyen1/tif/actions/workflows/node.js.yml)
 
+[![Dependabot Updates](https://github.com/tony-nguyen1/tif/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/tony-nguyen1/tif/actions/workflows/dependabot/dependabot-updates)
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
