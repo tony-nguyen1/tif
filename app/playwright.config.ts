@@ -4,7 +4,7 @@ export default defineConfig({
 	use: {
 		headless: true,
 		viewport: { width: 1280, height: 720 },
-		actionTimeout: 5000,
+		actionTimeout: 30000,
 		baseURL: 'https://localhost:4173' // Vite dev server URL
 	},
 	webServer: {
