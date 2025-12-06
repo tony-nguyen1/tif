@@ -43,7 +43,7 @@
 		"@vitest/browser": "^3.2.4",
 		"bits-ui": "^2.14.3",
 		"clsx": "^2.1.1",
-		"dotenv-cli": "^10.0.0",
+		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.4",
 		"drizzle-orm": "^0.45.0",
 		"eslint": "^9.36.0",
