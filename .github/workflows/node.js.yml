@@ -44,11 +44,6 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - name: Install dependencies
         run: cd ./app && npm ci
-      - name: Install mkcert
-        run: |
-          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-          chmod +x mkcert-v*-linux-amd64
-          cd ./app && ../mkcert-*-linux-amd64 localhost
       - name: Build app
         run: cd ./app && npm run build --if-present
       - name: Cache artifact
