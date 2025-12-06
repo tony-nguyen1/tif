@@ -83,3 +83,6 @@ npm run build
 pm2 restart ...
 
 rsync -az --progress -e ssh ~/dir/src ubuntu@ip_adress:~/dir/target
+
+Check if i really need env var in build phase
+pipeline only for main branch
