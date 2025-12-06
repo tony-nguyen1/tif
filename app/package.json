@@ -39,7 +39,7 @@
 		"@tailwindcss/typography": "^0.5.18",
 		"@tailwindcss/vite": "^4.1.13",
 		"@types/lodash.isequal": "^4.5.8",
-		"@types/node": "^22",
+		"@types/node": "^24",
 		"@vitest/browser": "^3.2.4",
 		"bits-ui": "^2.14.3",
 		"clsx": "^2.1.1",
