@@ -95,6 +95,7 @@ jobs:
           cd app
           sudo apt-get update
           sudo apt-get -y install libgtk-4-1
+          sudo npx playwright install-deps
           npx playwright install  
       - name: Test
         run: cd ./app && npm run test:e2e
