@@ -5,8 +5,9 @@ name: Node.js CI
 
 on:
   push:
-    main
-  worflow_dispatch
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   lint:
