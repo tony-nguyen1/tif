@@ -70,7 +70,7 @@
 		"vitest-browser-svelte": "^1.1.0"
 	},
 	"dependencies": {
-		"@iconify-svelte/material-symbols": "^1.0.5",
+		"@iconify-svelte/material-symbols": "^1.0.10",
 		"@iconify-svelte/solar": "^1.0.1",
 		"@libsql/client": "^0.7.0",
 		"@libsql/linux-x64-gnu": "^0.5.22",
