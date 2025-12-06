@@ -24,7 +24,7 @@
 		"build-storybook": "storybook build"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.4.0",
+		"@eslint/compat": "^2.0.0",
 		"@eslint/js": "^9.36.0",
 		"@internationalized/date": "^3.10.0",
 		"@libsql/client": "^0.15.15",
