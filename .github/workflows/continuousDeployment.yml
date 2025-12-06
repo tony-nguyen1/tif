@@ -90,6 +90,9 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - name: Install dependencies
         run: cd ./app && npm ci
+      - name: Install Playwright
+        run: |
+          npx playwright install  
       - name: Test
         run: cd ./app && npm run test:e2e
   deploy:
