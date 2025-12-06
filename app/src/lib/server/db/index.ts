@@ -32,7 +32,8 @@ if (dev) {
 
 	console.info('Using Turso embedded replica database setup');
 	console.info('... syncing');
-	await tmpClient.sync();
+	const resSync = await tmpClient.sync();
+	console.info(`Frames applied=${resSync?.frames_synced ?? 'N/A'}`);
 	console.info('... syncing OK');
 }
 const client = tmpClient;
