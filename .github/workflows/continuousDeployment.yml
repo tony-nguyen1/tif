@@ -92,7 +92,6 @@ jobs:
         run: cd ./app && npm ci
       - name: Install Playwright
         run: |
-          apt-get -y install libgtk-4-1
           sudo apt-get -y install libgtk-4-1
           npx playwright install  
       - name: Test
