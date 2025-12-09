@@ -42,6 +42,11 @@ jobs:
           node-version: 22
           cache: "npm"
           cache-dependency-path: app/package-lock.json
+      - name: Install mkcert
+        run: |
+          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+          chmod +x mkcert-v*-linux-amd64
+          cd ./app && ../mkcert-*-linux-amd64 localhost
       - name: Install dependencies
         run: cd ./app && npm ci
       - name: Build app
@@ -57,6 +62,8 @@ jobs:
             app/package-lock.json
             app/node_modules
             app/script
+            app/localhost-key.pem
+            app/localhost.pem
           key: cache-build
   testE2E:
     needs: [lint, build]
@@ -80,6 +87,8 @@ jobs:
             app/package-lock.json
             app/node_modules
             app/script
+            app/localhost-key.pem
+            app/localhost.pem
           key: cache-build
           fail-on-cache-miss: true
       - name: Use Node.js
@@ -88,11 +97,6 @@ jobs:
           node-version: 22
           cache: "npm"
           cache-dependency-path: app/package-lock.json
-      - name: Install mkcert
-        run: |
-          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-          chmod +x mkcert-v*-linux-amd64
-          cd ./app && ../mkcert-*-linux-amd64 localhost
       - name: Add env file
         run: |
           cd app
@@ -128,6 +132,8 @@ jobs:
             app/package-lock.json
             app/node_modules
             app/script
+            app/localhost-key.pem
+            app/localhost.pem
           key: cache-build
           fail-on-cache-miss: true
       - name: Listing restored cache
