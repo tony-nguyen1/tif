@@ -116,6 +116,8 @@ jobs:
           sudo apt-get -y install libgtk-4-1
           sudo npx playwright install-deps
           npx playwright install  
+      - name: Install Playwright dependencies
+        run: npx playwright install --with-deps
       - name: Test
         run: cd ./app && npm run test:e2e
   deploy:
