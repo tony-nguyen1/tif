@@ -7,7 +7,7 @@ export type SleepValue = Omit<table.Sleep, 'id'>;
 
 // Functions
 export async function createSleep(newSleep: SleepValue) {
-	await db.insert(table.sleep).values(newSleep);
+	return await db.insert(table.sleep).values(newSleep);
 }
 export async function findSleepOfUser(userId: string) {
 	return await db.query.sleep.findMany({ where: eq(table.sleep.userId, userId) });

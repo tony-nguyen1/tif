@@ -10,6 +10,7 @@
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
+	// svelte-ignore state_referenced_locally
 	const { user, userInfo } = data;
 
 	let goalWeightValue = $state(userInfo?.goalWeight ?? null);
