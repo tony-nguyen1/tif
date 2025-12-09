@@ -1,0 +1,32 @@
+# This workflow will lint the code
+
+name: Continous linting
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - "**.svelte"
+      - "**.svelte.ts"
+      - "**.ts"
+      - "**.js"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+      - name: Install dependencies
+        run: cd ./app && npm ci
+      - name: Run prettier & eslint
+        run: |
+          cd app
+          npm run lint
