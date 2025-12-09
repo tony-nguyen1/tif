@@ -8,7 +8,7 @@ export default defineConfig({
 		baseURL: 'https://localhost:4173' // Vite dev server URL
 	},
 	webServer: {
-		command: 'npm run build && npm run preview',
+		command: 'npm run preview',
 		reuseExistingServer: true,
 		port: 4173
 	},
