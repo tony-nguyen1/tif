@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import { EllipsisVertical } from '@lucide/svelte';
 	import type { PageProps } from './$types';
@@ -34,58 +35,63 @@
 	<form method="POST" action="?/meal" class="grid gap-2" hidden={!formStateDisplay} use:enhance>
 		<div class="grid gap-1">
 			<label for="place" class="text-sm">Place</label>
-			<input
-				name="place"
-				autocomplete="on"
-				type="text"
-				placeholder="Home"
-				required
-				class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-			/>
+			<InputGroup.Root>
+				<InputGroup.Input name="place" autocomplete="on" type="text" placeholder="Home" required />
+			</InputGroup.Root>
 		</div>
 
 		<div class="grid grid-cols-2 gap-4">
 			<div class="grid gap-1">
 				<label for="protein" class="text-sm">Protein estimation (g)</label>
-				<input
-					required
-					name="protein"
-					autocomplete="off"
-					type="number"
-					min="-1"
-					placeholder="35 grammes"
-					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<InputGroup.Input
+						required
+						name="protein"
+						autocomplete="off"
+						min="0"
+						max="100"
+						placeholder="35"
+						inputmode="numeric"
+					/>
+					<InputGroup.Addon align="inline-end">
+						<InputGroup.Text>Grammes</InputGroup.Text>
+					</InputGroup.Addon>
+				</InputGroup.Root>
 			</div>
 			<div class="grid gap-1">
 				<label for="fullness" class="text-sm">Fullness</label>
-				<input
-					required
-					name="fullness"
-					autocomplete="off"
-					type="number"
-					min="-1"
-					placeholder="5"
-					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<InputGroup.Input
+						required
+						name="fullness"
+						autocomplete="off"
+						min="0"
+						placeholder="5"
+						inputmode="numeric"
+						pattern="[0-9]"
+					/>
+					<InputGroup.Addon align="inline-end">
+						<InputGroup.Text>/ 10</InputGroup.Text>
+					</InputGroup.Addon>
+				</InputGroup.Root>
 			</div>
 		</div>
 
 		<div class="grid gap-1">
 			<label for="description" class="text-sm">Description</label>
-			<textarea
-				required
-				name="description"
-				autocomplete="off"
-				placeholder="Fish & chips"
-				rows="3"
-				class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-			></textarea>
+			<InputGroup.Root>
+				<InputGroup.Textarea
+					required
+					name="description"
+					autocomplete="off"
+					placeholder="Fish & chips"
+					rows={3}
+				/>
+			</InputGroup.Root>
 		</div>
 
 		<input name="userId" bind:value={data.user.id} hidden />
 
-		<!-- class="w-fit justify-self-end rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700" -->
 		<Button variant="outline" type="submit" class="w-fit justify-self-end">Send</Button>
 	</form>
 </section>
@@ -132,57 +138,64 @@
 													<input name="mealId" value={aMeal.id} hidden />
 													<div class="grid gap-1">
 														<label for="place" class="text-sm">Place</label>
-														<input
-															name="place"
-															autocomplete="on"
-															type="text"
-															placeholder="Home"
-															value={aMeal.place}
-															required
-															class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-														/>
+														<InputGroup.Root>
+															<InputGroup.Input
+																name="place"
+																autocomplete="on"
+																type="text"
+																placeholder="Home"
+																value={aMeal.place}
+																required
+															/>
+														</InputGroup.Root>
 													</div>
 
 													<div class="grid grid-cols-2 gap-4">
 														<div class="grid gap-1">
 															<label for="protein" class="text-sm">Protein estimation (g)</label>
-															<input
-																required
-																name="protein"
-																autocomplete="off"
-																type="number"
-																min="-1"
-																placeholder="35 grammes"
-																value={aMeal.protein}
-																class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-															/>
+															<InputGroup.Root>
+																<InputGroup.Input
+																	required
+																	name="protein"
+																	autocomplete="off"
+																	inputmode="numeric"
+																	min="0"
+																	placeholder="35 grammes"
+																	value={aMeal.protein}
+																/>
+															</InputGroup.Root>
 														</div>
 														<div class="grid gap-1">
 															<label for="fullness" class="text-sm">Fullness</label>
-															<input
-																required
-																name="fullness"
-																autocomplete="off"
-																type="number"
-																min="-1"
-																placeholder="5"
-																value={aMeal.fullness}
-																class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-															/>
+															<InputGroup.Root>
+																<InputGroup.Input
+																	required
+																	name="fullness"
+																	autocomplete="off"
+																	inputmode="numeric"
+																	min="0"
+																	placeholder="5"
+																	value={aMeal.fullness}
+																/>
+																<InputGroup.Addon align="inline-end">
+																	<InputGroup.Text>/ 10</InputGroup.Text>
+																</InputGroup.Addon>
+															</InputGroup.Root>
 														</div>
 													</div>
 
 													<div class="grid gap-1">
 														<label for="description" class="text-sm">Description</label>
-														<textarea
-															required
-															name="description"
-															autocomplete="off"
-															placeholder="Fish & chips"
-															value={aMeal.description}
-															rows="3"
-															class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-														></textarea>
+														<InputGroup.Root>
+															<InputGroup.Textarea
+																required
+																name="description"
+																autocomplete="off"
+																placeholder="Fish & chips"
+																value={aMeal.description}
+																rows={3}
+															/>
+														</InputGroup.Root>
 													</div>
 
 													<input name="userId" bind:value={data.user.id} hidden />

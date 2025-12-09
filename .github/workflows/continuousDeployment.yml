@@ -88,6 +88,14 @@ jobs:
           node-version: 22
           cache: "npm"
           cache-dependency-path: app/package-lock.json
+      - name: Add env file
+        run: |
+          cd app
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
+          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
+          echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
+          echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
+          ls .env.production
       - name: Install dependencies
         run: cd ./app && npm ci
       - name: Install Playwright
