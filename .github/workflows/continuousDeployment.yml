@@ -64,6 +64,7 @@ jobs:
             app/script
             app/localhost-key.pem
             app/localhost.pem
+            app/.svelte-kit
           key: cache-build
   testE2E:
     needs: [lint, build]
@@ -89,6 +90,7 @@ jobs:
             app/script
             app/localhost-key.pem
             app/localhost.pem
+            app/.svelte-kit
           key: cache-build
           fail-on-cache-miss: true
       - name: Use Node.js
