@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 // Types
 export type MealValue = Omit<table.Meal, 'id'>;
@@ -25,4 +25,10 @@ export async function editMeal(input: Omit<table.Meal, 'date'>) {
 		.where(eq(table.meal.id, input.id))
 		.returning();
 	return result;
+}
+export async function findLatestMealOf(userId: string) {
+	return await db.query.meal.findFirst({
+		where: eq(table.meal.userId, userId),
+		orderBy: (t) => sql`${t.date} desc`
+	});
 }

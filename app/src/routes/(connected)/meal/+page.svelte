@@ -36,7 +36,14 @@
 		<div class="grid gap-1">
 			<label for="place" class="text-sm">Place</label>
 			<InputGroup.Root>
-				<InputGroup.Input name="place" autocomplete="on" type="text" placeholder="Home" required />
+				<InputGroup.Input
+					name="place"
+					autocomplete="on"
+					type="text"
+					placeholder="Home"
+					value={data.lastMeal?.place ?? ''}
+					required
+				/>
 			</InputGroup.Root>
 		</div>
 

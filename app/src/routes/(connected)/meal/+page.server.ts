@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from './$types.js';
-import { createMeal, deleteMeal } from '$lib/server/db/mealRepo.js';
+import { createMeal, deleteMeal, findLatestMealOf } from '$lib/server/db/mealRepo.js';
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import { findMealOfUser, editMeal } from '$lib/server/db/mealRepo.js';
@@ -8,7 +8,10 @@ export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
 	const mealArray: table.Meal[] = await findMealOfUser(user.id);
 
-	return { user, mealArray };
+	const lastMeal: table.Meal | undefined = await findLatestMealOf(user.id);
+	console.info(lastMeal ?? 'N/A');
+
+	return { user, mealArray, lastMeal };
 };
 
 export const actions: Actions = {
