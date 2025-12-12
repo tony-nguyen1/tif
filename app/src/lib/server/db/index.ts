@@ -30,7 +30,7 @@ if (dev) {
 		offline: true
 	});
 
-	console.info('Using Turso embedded replica database setup');
+	console.info(`Using Turso embedded replica database setup\nsync every ${env.DATABASE_SYNC}sec`);
 
 	// Monkey-patch the sync() function
 	const originalSync = tmpClient.sync.bind(tmpClient);

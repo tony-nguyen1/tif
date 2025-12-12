@@ -7,7 +7,7 @@ export type MealValue = Omit<table.Meal, 'id'>;
 
 // Functions
 export async function createMeal(newMeal: MealValue) {
-	await db.insert(table.meal).values(newMeal);
+	return await db.insert(table.meal).values(newMeal);
 }
 export async function findMealOfUser(userId: string) {
 	return await db.query.meal.findMany({ where: eq(table.meal.userId, userId) });
