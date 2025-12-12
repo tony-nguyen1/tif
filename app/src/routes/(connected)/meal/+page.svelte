@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { PageServerData, ActionData } from './$types.js';
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -7,17 +8,33 @@
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import { EllipsisVertical } from '@lucide/svelte';
-	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+	import { Toaster } from '$lib/components/ui/sonner/index.js';
 
-	let { data }: PageProps = $props();
+	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 
 	let formStateDisplay = $state(true);
+	let lastMealPlace = $derived(data.lastMeal?.place ?? '');
 
 	function dateToStringCustomFormat(aDate: Date) {
 		return `${aDate.toLocaleDateString()} ${aDate.getHours()}:${aDate.getMinutes()}`;
 	}
+
+	// FIXME : extract to util lib
+	function createDeferred<T>() {
+		let resolve!: (value: T | PromiseLike<T>) => void;
+		let reject!: (reason?: unknown) => void;
+
+		const promise = new Promise<T>((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+
+		return { promise, resolve, reject };
+	}
 </script>
 
+<Toaster position="top-center" richColors />
 <h1 class="text-5xl">Meal</h1>
 <div></div>
 <section id="addMealForm">
@@ -32,7 +49,37 @@
 			Hide form
 		</Toggle>
 	</header>
-	<form method="POST" action="?/meal" class="grid gap-2" hidden={!formStateDisplay} use:enhance>
+	<form
+		method="POST"
+		action="?/meal"
+		class="grid gap-2"
+		hidden={!formStateDisplay}
+		use:enhance={() => {
+			const deferred = createDeferred();
+			toast.promise(deferred.promise, {
+				loading: 'Processing ...',
+				success: (val) => {
+					return val as string;
+				},
+				error: (reason) => reason as string
+			});
+
+			return async ({ result, update }) => {
+				await update();
+
+				if (result.type === 'success') {
+					lastMealPlace = form?.lastMealPlace ?? '';
+					deferred.resolve(`New meal added !`);
+				} else if (result.type === 'failure') {
+					deferred.reject(form!.message);
+				} else if (result.type === 'error') {
+					deferred.reject('Something went wrong');
+				} else {
+					deferred.resolve('Redirect');
+				}
+			};
+		}}
+	>
 		<div class="grid gap-1">
 			<label for="place" class="text-sm">Place</label>
 			<InputGroup.Root>
@@ -41,7 +88,7 @@
 					autocomplete="on"
 					type="text"
 					placeholder="Home"
-					value={data.lastMeal?.place ?? ''}
+					bind:value={lastMealPlace}
 					required
 				/>
 			</InputGroup.Root>

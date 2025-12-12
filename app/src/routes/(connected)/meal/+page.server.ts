@@ -3,6 +3,7 @@ import { createMeal, deleteMeal, findLatestMealOf } from '$lib/server/db/mealRep
 import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import { findMealOfUser, editMeal } from '$lib/server/db/mealRepo.js';
+import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -17,6 +18,15 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
 	meal: async ({ request }) => {
 		const data = await request.formData();
+
+		await sleep(3000);
+
+		if (!data.get('description')) {
+			return fail(400, {
+				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)'
+			});
+		}
+
 		const input = {
 			// id: undefined,
 			userId: data.get('userId')!.toString(),
@@ -28,6 +38,8 @@ export const actions: Actions = {
 		};
 
 		await createMeal(input);
+
+		return { success: true, lastMealPlace: input.place };
 	},
 	deleteMeal: async ({ request }) => {
 		const data = await request.formData();
@@ -55,3 +67,7 @@ export const actions: Actions = {
 		return { success: true };
 	}
 };
+
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
