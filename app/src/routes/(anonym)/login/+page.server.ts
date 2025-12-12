@@ -16,6 +16,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
 	login: async (event) => {
+		console.log('Origin:', event.request.headers.get('origin'));
 		const formData = await event.request.formData();
 		console.info(formData);
 		const username = formData.get('username');
