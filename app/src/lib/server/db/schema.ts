@@ -14,8 +14,11 @@ export const user = sqliteTable(
 		goalWeight: integer('goalWeight')
 	},
 	(table) => [
-		check('goalCheck', sql`${table.goal} IN (${sql.raw(goalEnumStringSqlCheck)})`),
-		check('goalWeightCheck', sql`${table.goalWeight} > 40`)
+		check(
+			'goalCheck',
+			sql`${table.goal} IS NULL OR ${table.goal} IN (${sql.raw(goalEnumStringSqlCheck)})`
+		),
+		check('goalWeightCheck', sql`${table.goalWeight} IS NULL OR ${table.goalWeight} > 40`)
 	]
 );
 
