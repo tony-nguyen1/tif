@@ -42,7 +42,10 @@ export const actions: Actions = {
 		}
 
 		const tmpFullness = Number(data.get('fullness')!.toString());
-		if (tmpFullness > 0 && tmpFullness <= 10) {
+		console.info(tmpFullness);
+		console.info(tmpFullness > 0);
+		console.info(tmpFullness <= 10);
+		if (!(tmpFullness > 0 && tmpFullness <= 10)) {
 			return fail(400, {
 				incorrect: true,
 				message: 'Fulness input must be between 1 and 10 included'
@@ -50,7 +53,7 @@ export const actions: Actions = {
 		}
 
 		const tmpProtein = Number(data.get('fullness')!.toString());
-		if (tmpProtein >= 0) {
+		if (tmpProtein < 0) {
 			return fail(400, {
 				incorrect: true,
 				message: 'Protein input must be positive'
