@@ -52,6 +52,7 @@ jobs:
       - name: Build app
         run: cd ./app && npm run build --if-present
       - name: Cache artifact
+        id: caching-step
         uses: actions/cache@v4.3.0
         with:
           path: |
@@ -138,7 +139,7 @@ jobs:
             app/script
             app/localhost-key.pem
             app/localhost.pem
-          key: cache-build
+          key: ${{steps.caching-step.outputs.cache-primary-key}}
           fail-on-cache-miss: true
       - name: Listing restored cache
         run: ls -R app
