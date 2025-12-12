@@ -8,9 +8,9 @@ console.info('index.ts');
 console.log(`Node environment=${env.NODE_ENV}`);
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-if (!dev && !env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
-if (!dev && !env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
-if (!dev && !env.DATABASE_SYNC) throw new Error('DATABASE_SYNC is not set');
+// if (!dev && !env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
+// if (!dev && !env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
+// if (!dev && !env.DATABASE_SYNC) throw new Error('DATABASE_SYNC is not set');
 
 let tmpClient;
 if (dev) {
@@ -23,11 +23,13 @@ if (dev) {
 } else {
 	// Embedded replica databse
 	tmpClient = createClient({
-		url: env.DATABASE_REPLICA!,
-		authToken: env.DATABASE_AUTH_TOKEN,
-		syncUrl: env.DATABASE_URL,
-		syncInterval: Number(env.DATABASE_SYNC!),
-		offline: false
+		url: 'file:local.db'
+
+		// url: env.DATABASE_REPLICA!,
+		// authToken: env.DATABASE_AUTH_TOKEN,
+		// syncUrl: env.DATABASE_URL,
+		// syncInterval: Number(env.DATABASE_SYNC!),
+		// offline: false
 	});
 
 	console.info(`Using Turso embedded replica database setup\nsync every ${env.DATABASE_SYNC}sec`);

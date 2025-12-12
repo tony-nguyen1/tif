@@ -11,6 +11,8 @@ module.exports = {
 				HOST: '0.0.0.0',
 				NODE_ENV: 'production',
 
+				ORIGIN: 'https://nyx.nguyentony.fr',
+
 				...env
 			}
 		}
