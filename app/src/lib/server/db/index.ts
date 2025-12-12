@@ -27,7 +27,7 @@ if (dev) {
 		authToken: env.DATABASE_AUTH_TOKEN,
 		syncUrl: env.DATABASE_URL,
 		syncInterval: Number(env.DATABASE_SYNC!),
-		offline: true
+		offline: false
 	});
 
 	console.info(`Using Turso embedded replica database setup\nsync every ${env.DATABASE_SYNC}sec`);
