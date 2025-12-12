@@ -44,10 +44,12 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - name: Install mkcert
         run: |
-          cd app
+          pwd
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           chmod +x mkcert-v*-linux-amd64
-          mkcert-*-linux-amd64 localhost
+          ls
+          mkcert-*-linux-amd64 app/localhost
+          ls app
       - name: Install dependencies
         run: cd ./app && npm ci
       - name: Build app
