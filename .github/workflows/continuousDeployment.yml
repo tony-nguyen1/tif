@@ -1,12 +1,8 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Continous Deployment
+name: Continuous Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -14,50 +10,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: "npm"
           cache-dependency-path: app/package-lock.json
+
       - name: Install dependencies
-        run: cd ./app && npm ci
+        run: cd app && npm ci
+
       - name: Run prettier & eslint
-        run: |
-          cd app
-          npm run lint
+        run: cd app && npm run lint
+
   build:
     runs-on: ubuntu-latest
+    needs: lint
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
       DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
       DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
       ORIGIN: ${{ secrets.ORIGIN }}
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: "npm"
           cache-dependency-path: app/package-lock.json
+
       - name: Install mkcert
         run: |
-          pwd
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           chmod +x mkcert-v*-linux-amd64
-          ls
-          mkcert-*-linux-amd64 app/localhost
-          ls app
+          cd app && ../mkcert-*-linux-amd64 localhost
+
       - name: Install dependencies
-        run: cd ./app && npm ci
+        run: cd app && npm ci
+
       - name: Build app
-        run: cd ./app && npm run build --if-present
-      - name: Cache artifact
-        id: caching-step
-        uses: actions/cache@v4.3.0
+        run: cd app && npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: app-build
+          retention-days: 3
           path: |
             app/build
             app/ecosystem.config.cjs
@@ -69,98 +72,40 @@ jobs:
             app/localhost-key.pem
             app/localhost.pem
             app/.svelte-kit
-          key: cache-build
-  # testE2E:
-  #   needs: [lint, build]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  #     DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-  #     DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
-  #     DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
-  #     ORIGIN: ${{ secrets.ORIGIN }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Restore cached build output
-  #       uses: actions/cache/restore@v4
-  #       with:
-  #         path: |
-  #           app/build
-  #           app/ecosystem.config.cjs
-  #           app/svelte.config.js
-  #           app/package.json
-  #           app/package-lock.json
-  #           app/node_modules
-  #           app/script
-  #           app/localhost-key.pem
-  #           app/localhost.pem
-  #           app/.svelte-kit
-  #         key: cache-build
-  #         fail-on-cache-miss: true
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 22
-  #         cache: "npm"
-  #         cache-dependency-path: app/package-lock.json
-  #     - name: Add env file
-  #       run: |
-  #         cd app
-  #         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
-  #         echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
-  #         echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
-  #         echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
-  #         ls .env.production
-  #     - name: Install dependencies
-  #       run: cd ./app && npm ci
-  #     - name: Install Playwright
-  #       run: |
-  #         cd app
-  #         sudo apt-get update
-  #         sudo apt-get -y install libgtk-4-1
-  #         sudo npx playwright install-deps
-  #         npx playwright install
-  #     - name: Install Playwright dependencies
-  #       run: npx playwright install --with-deps
-  #     - name: Test
-  #       run: cd ./app && npm run test:e2e
-  deploy:
-    needs: [lint, build]
 
+  deploy:
     runs-on: ubuntu-latest
+    needs: build
+
     steps:
-      - name: Restore cached build output
-        uses: actions/cache/restore@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            app/build
-            app/ecosystem.config.cjs
-            app/svelte.config.js
-            app/package.json
-            app/package-lock.json
-            app/node_modules
-            app/script
-            app/localhost-key.pem
-            app/localhost.pem
-          key: cache-build
-          fail-on-cache-miss: true
-      - name: Listing restored cache
+          name: app-build
+          path: app
+
+      - name: List downloaded files
         run: ls -R app
-      - name: Add deploy SSH key
+
+      - name: Add deployment SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-      - name: Add env file
+
+      - name: Generate .env.production
         run: |
           cd app
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
           echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
           echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
           echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
-          ls .env.production
-      - name: Upload build artifact to deployment server
-        run: rsync -az --progress -e ssh ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx
-      - name: Restart the server
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && ls -l && ./script/deploy.sh"
+          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.production
+          ls -l .env.production
+
+      - name: Upload build to server
+        run: rsync -az --delete --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+
+      - name: Restart server
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && ./script/deploy.sh"
