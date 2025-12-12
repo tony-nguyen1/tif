@@ -31,7 +31,15 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
 		}
 
+		// console.info('ez querry');
+		// const results1 = await db.select().from(table.meal);
+		// console.info(results1);
+		// console.info('ez querry of user');
+		// const results2 = await db.select().from(table.user);
+		// console.info(results2);
+		console.info('before result');
 		const results = await db.select().from(table.user).where(eq(table.user.username, username));
+		console.info('after result');
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -76,9 +84,9 @@ export const actions: Actions = {
 		});
 
 		try {
-			await db
-				.insert(table.user)
-				.values({ id: userId, username, passwordHash, goal: null, goalWeight: null });
+			const res = await db.insert(table.user).values({ id: userId, username, passwordHash });
+
+			console.info(res);
 
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);

@@ -33,15 +33,15 @@ if (dev) {
 	console.info(`Using Turso embedded replica database setup\nsync every ${env.DATABASE_SYNC}sec`);
 
 	// Monkey-patch the sync() function
-	const originalSync = tmpClient.sync.bind(tmpClient);
+	// const originalSync = tmpClient.sync.bind(tmpClient);
 
-	tmpClient.sync = async (...args) => {
-		console.info('... syncing');
-		const res = await originalSync(...args);
-		console.info(`Frames applied=${res?.frames_synced ?? 'N/A'}`);
-		console.info('... syncing OK');
-		return res;
-	};
+	// tmpClient.sync = async (...args) => {
+	// 	console.info('... syncing');
+	// 	const res = await originalSync(...args);
+	// 	console.info(`Frames applied=${res?.frames_synced ?? 'N/A'}`);
+	// 	console.info('... syncing OK');
+	// 	return res;
+	// };
 }
 
 export const db = drizzle(tmpClient, { schema });
