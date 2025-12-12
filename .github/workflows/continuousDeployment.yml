@@ -105,7 +105,7 @@ jobs:
           ls -l .env.production
 
       - name: Upload build to server
-        run: rsync -az --delete --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+        run: rsync -az --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
 
       - name: Restart server
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && ./script/deploy.sh"
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && pm2 start ecosystem.config.cjs && pm2 show nyx"
