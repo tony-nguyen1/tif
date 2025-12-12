@@ -139,7 +139,7 @@ jobs:
             app/script
             app/localhost-key.pem
             app/localhost.pem
-          key: ${{steps.caching-step.outputs.cache-primary-key}}
+          key: ${{ steps.caching-step.outputs.cache-primary-key }}
           fail-on-cache-miss: true
       - name: Listing restored cache
         run: ls -R app
