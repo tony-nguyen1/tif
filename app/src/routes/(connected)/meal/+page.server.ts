@@ -12,34 +12,71 @@ export const load: PageServerLoad = async () => {
 	const lastMeal: table.Meal | undefined = await findLatestMealOf(user.id);
 	console.info(lastMeal ?? 'N/A');
 
-	return { user, mealArray, lastMeal };
+	return { mealArray, lastMeal };
 };
 
 export const actions: Actions = {
 	meal: async ({ request }) => {
 		const data = await request.formData();
 
-		await sleep(3000);
+		await sleep(2000);
 
 		if (!data.get('description')) {
+			return fail(400, { missing: true, message: 'Form is missing description input' });
+		}
+
+		if (!data.get('fullness')) {
+			return fail(400, { missing: true, message: 'Form is missing fullness input' });
+		}
+
+		if (!data.get('protein')) {
+			return fail(400, { missing: true, message: 'Form is missing protein input' });
+		}
+
+		if (!data.get('place')) {
+			return fail(400, { missing: true, message: 'Form is missing place input' });
+		}
+
+		if (!data.get('place')) {
+			return fail(400, { missing: true, message: 'Form is missing place input' });
+		}
+
+		const tmpFullness = Number(data.get('fullness')!.toString());
+		if (tmpFullness > 0 && tmpFullness <= 10) {
 			return fail(400, {
-				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)'
+				incorrect: true,
+				message: 'Fulness input must be between 1 and 10 included'
 			});
 		}
 
+		const tmpProtein = Number(data.get('fullness')!.toString());
+		if (tmpProtein >= 0) {
+			return fail(400, {
+				incorrect: true,
+				message: 'Protein input must be positive'
+			});
+		}
+
+		const userId = _requireLogin().id;
+
+		// FIXME : remove userId inside form
 		const input = {
-			// id: undefined,
-			userId: data.get('userId')!.toString(),
+			userId: userId,
 			date: new Date(),
 			place: data.get('place')!.toString(),
-			protein: Number(data.get('protein')!.toString()),
-			fullness: Number(data.get('fullness')!.toString()),
+			protein: tmpProtein,
+			fullness: tmpFullness,
 			description: data.get('description')!.toString()
 		};
 
-		await createMeal(input);
-
-		return { success: true, lastMealPlace: input.place };
+		const res = await createMeal(input);
+		if (res.rowsAffected === 1) {
+			return { success: true, lastMealPlace: input.place, message: 'Meal inserted successfully' };
+		} else {
+			return fail(500, {
+				message: 'Somehow multiple rows were affected'
+			});
+		}
 	},
 	deleteMeal: async ({ request }) => {
 		const data = await request.formData();
@@ -51,11 +88,12 @@ export const actions: Actions = {
 	},
 	putMeal: async ({ request }) => {
 		const data = await request.formData();
+		const userId = _requireLogin().id;
 
 		const input = {
 			// date: new Date(data.get('date')!.toString()),
 			id: Number(data.get('mealId')!.toString()),
-			userId: data.get('userId')!.toString(),
+			userId: userId,
 			description: data.get('description')!.toString(),
 			place: data.get('place')!.toString(),
 			protein: Number(data.get('protein')!.toString()),

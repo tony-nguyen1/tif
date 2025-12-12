@@ -119,7 +119,8 @@
 						required
 						name="fullness"
 						autocomplete="off"
-						min="0"
+						min="1"
+						max="10"
 						placeholder="5"
 						inputmode="numeric"
 						pattern="[0-9]"
@@ -143,8 +144,6 @@
 				/>
 			</InputGroup.Root>
 		</div>
-
-		<input name="userId" bind:value={data.user.id} hidden />
 
 		<Button variant="outline" type="submit" class="w-fit justify-self-end">Send</Button>
 	</form>
@@ -252,7 +251,6 @@
 														</InputGroup.Root>
 													</div>
 
-													<input name="userId" bind:value={data.user.id} hidden />
 													<input name="mealId" value={aMeal.id} hidden />
 													<!-- <input name="date" value={aMeal.date} hidden /> -->
 
