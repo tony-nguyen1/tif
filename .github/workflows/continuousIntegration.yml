@@ -37,9 +37,17 @@ jobs:
       - name: Build app
         run: cd app && npm run build
 
+      - name: Start preview server
+        run: |
+          cd app
+          npm run preview:test &
+
+      - name: Wait for app
+        run: npx wait-on http://localhost:4173
+
       - name: Run Playwright test
         run: |
           cd app
           ls
           npx playwright install --with-deps
-          npx playwright test
+          npm run test:e2e
