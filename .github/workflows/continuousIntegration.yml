@@ -28,6 +28,7 @@ jobs:
         run: |
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           chmod +x mkcert-v*-linux-amd64
+          ./mkcert-*-linux-amd64 -install
           cd app && ../mkcert-*-linux-amd64 localhost
 
       - name: Install dependencies
@@ -39,5 +40,6 @@ jobs:
       - name: Run Playwright test
         run: |
           cd app
+          ls
           npx playwright install
           npx playwright test
