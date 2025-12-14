@@ -2,12 +2,12 @@
 	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
 	import Chart from '$lib/components/Chart.svelte';
 	import { resolve } from '$app/paths';
+	import type { ChartData } from 'chart.js';
 
 	let { data }: { data: PageServerData } = $props();
-	const labels = data.x;
 
-	const beepBoop = {
-		labels,
+	const beepBoop = $derived<() => ChartData<'bar'>>(() => ({
+		labels: data.x,
 		datasets: [
 			{
 				label: 'Volume',
@@ -17,7 +17,7 @@
 				borderWidth: 1
 			}
 		]
-	};
+	}));
 
 	const options = {
 		responsive: true,
@@ -71,6 +71,12 @@
 			{/each}
 		</div>
 
-		<Chart data={beepBoop} {options} type="line" />
+		<Chart
+			data={beepBoop.apply((x: ChartData) => {
+				return x;
+			})}
+			{options}
+			type="line"
+		/>
 	{/if}
 </section>
