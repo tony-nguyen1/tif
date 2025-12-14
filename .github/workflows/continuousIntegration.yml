@@ -41,5 +41,5 @@ jobs:
         run: |
           cd app
           ls
-          npx playwright install
+          npx playwright install --with-deps
           npx playwright test
