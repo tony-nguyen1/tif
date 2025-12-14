@@ -2,7 +2,8 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [dev/*]
+    branches-ignore:
+      - "main"
   workflow_dispatch:
 
 jobs:
