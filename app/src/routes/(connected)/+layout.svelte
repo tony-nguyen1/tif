@@ -6,7 +6,6 @@
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import SolarDumbbellLargeMinimalisticOutline from '@iconify-svelte/solar/dumbbell-large-minimalistic-outline';
-	import SolarHome2Outline from '@iconify-svelte/solar/home-2-outline';
 	import SolarDonutBittenOutline from '@iconify-svelte/solar/donut-bitten-outline';
 	import SolarMoonSleepOutline from '@iconify-svelte/solar/moon-sleep-outline';
 	import SolarUserIdOutline from '@iconify-svelte/solar/user-id-outline';
@@ -37,7 +36,7 @@
 		</div>
 	{/if}
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
-		<a href={resolve('/')}><SolarHome2Outline class="size-9" /></a>
+		<!-- <a href={resolve('/')}><SolarHome2Outline class="size-9" /></a> -->
 		<a href={resolve('/(connected)/meal')}><SolarDonutBittenOutline class="size-9" /></a>
 		<a href={resolve('/(connected)/sleep')}><SolarMoonSleepOutline class="size-9" /></a>
 		<a href={resolve('/(connected)/workout')}>
