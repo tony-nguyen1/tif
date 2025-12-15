@@ -89,5 +89,5 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
 
-      # - name: Run Playwright
-      #   run: EBUG=pw:webserver npx playwright test
+      - name: Run Playwright
+        run: npx playwright test
