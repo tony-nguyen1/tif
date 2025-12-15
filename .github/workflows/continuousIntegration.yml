@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: test
+    environment: test
     defaults:
       run:
         working-directory: app
