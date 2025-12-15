@@ -30,6 +30,21 @@ jobs:
       - name: Build app
         run: cd app && npm run build
 
+      - name: Generate .env.test file
+        working-directory: app
+        run: |
+          pwd
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.test
+          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.test
+          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.test
+          ls -l .env.test
+
+      - name: Database setup
+        working-directory: app
+        run: |
+          pwd
+          npm run migrate:test
+
       - name: Start preview server
         run: |
           cd app
