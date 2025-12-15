@@ -10,7 +10,8 @@ export default defineConfig({
 	webServer: {
 		command: 'npm run preview:test',
 		reuseExistingServer: false,
-		port: 4173
+		port: 4173,
+		timeout: 2000
 	},
 	testDir: 'e2e'
 });
