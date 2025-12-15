@@ -43,6 +43,52 @@ jobs:
           pwd
           npm run db:migrate:test
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build-testE2E
+          retention-days: 3
+          path: |
+            build
+            ecosystem.config.cjs
+            svelte.config.js
+            package.json
+            package-lock.json
+            node_modules
+            script
+            .svelte-kit
+            *.db
+
+  test:
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      DATABASE_URL: ${{ vars.DATABASE_URL }}
+      ORIGIN: ${{ vars.ORIGIN }}
+      APP_ENV: ${{ vars.APP_ENV }}
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: app
+
+      - name: Install dependencies
+        run: npm ci
+
+      # - name: Generate .env.test file
+      #   run: |
+      #     ls
+      #     pwd
+      #     echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
+      #     echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
+      #     echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
+      #     ls -l .env.test
+
       - name: Start preview server
         run: |
           npm run preview:test &
