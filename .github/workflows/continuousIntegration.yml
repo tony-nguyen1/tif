@@ -1,0 +1,45 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      DATABASE_URL: file:localTestE2E.db
+      ORIGIN: http://localhost:4173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: cd app && npm ci
+
+      - name: Build app
+        run: cd app && npm run build
+
+      - name: Start preview server
+        run: |
+          cd app
+          npm run preview:test &
+
+      - name: Wait for app
+        run: npx wait-on http://localhost:4173
+
+      - name: Run Playwright
+        run: |
+          cd app
+          npx playwright install --with-deps
+          npx playwright test
