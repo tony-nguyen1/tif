@@ -93,5 +93,6 @@ jobs:
 
       - name: Run Playwright
         run: |
+          ls
           npx playwright install --with-deps
           npx playwright test
