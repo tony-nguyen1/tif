@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build app
-        run: npm run build
-
       - name: Generate .env.test file
         run: |
           pwd
@@ -37,6 +34,9 @@ jobs:
           echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
           echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
           ls -l .env.test
+
+      - name: Build app
+        run: npm run build
 
       - name: Database setup
         run: |
