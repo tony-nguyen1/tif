@@ -36,7 +36,7 @@ jobs:
           ls -l .env.test
 
       - name: Build app
-        run: npm run build
+        run: npm run build:test
 
       - name: Database setup
         run: |
