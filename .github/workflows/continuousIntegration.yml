@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      APP_ENV: test
-      DATABASE_URL: file:localTestE2E.db
-      ORIGIN: http://localhost:4173
+    env: test
+    defaults:
+      run:
+        working-directory: app
 
     steps:
       - uses: actions/checkout@v4
@@ -22,32 +22,29 @@ jobs:
         with:
           node-version: 22
           cache: "npm"
-          cache-dependency-path: app/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: cd app && npm ci
+        run: npm ci
 
       - name: Build app
-        run: cd app && npm run build
+        run: npm run build
 
       - name: Generate .env.test file
-        working-directory: app
         run: |
           pwd
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.test
-          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.test
-          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.test
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
+          echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
+          echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
           ls -l .env.test
 
       - name: Database setup
-        working-directory: app
         run: |
           pwd
-          npm run migrate:test
+          npm run db:migrate:test
 
       - name: Start preview server
         run: |
-          cd app
           npm run preview:test &
 
       - name: Wait for app
@@ -55,6 +52,5 @@ jobs:
 
       - name: Run Playwright
         run: |
-          cd app
           npx playwright install --with-deps
           npx playwright test
