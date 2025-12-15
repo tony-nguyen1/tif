@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      APP_ENV: test
-      DATABASE_URL: file:localTestE2E.db
-      ORIGIN: http://localhost:4173
+    environment: test
+    defaults:
+      run:
+        working-directory: app
 
     steps:
       - uses: actions/checkout@v4
@@ -25,21 +25,69 @@ jobs:
           cache-dependency-path: app/package-lock.json
 
       - name: Install dependencies
-        run: cd app && npm ci
+        run: npm ci
+
+      - name: Generate .env.test file
+        run: |
+          pwd
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
+          echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
+          echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
+          ls -l .env.test
 
       - name: Build app
-        run: cd app && npm run build
-
-      - name: Start preview server
         run: |
-          cd app
-          npm run preview:test &
+          npm run build:test
+          ls
 
-      - name: Wait for app
-        run: npx wait-on http://localhost:4173
+      - name: Setup test database
+        run: |
+          pwd
+          npm run db:migrate:test
+
+      #   - name: Upload build artifact
+      #     uses: actions/upload-artifact@v4
+      #     with:
+      #       name: app-build-testE2E
+      #       retention-days: 3
+      #       path: |
+      #         app/build
+      #         app/ecosystem.config.cjs
+      #         app/svelte.config.js
+      #         app/package.json
+      #         app/package-lock.json
+      #         app/node_modules
+      #         app/script
+      #         app/.svelte-kit
+      #         app/*.db
+      #         app/e2e
+      #         app/playwright.config.ts
+      #       if-no-files-found: error
+
+      # steps:
+      #   - uses: actions/download-artifact@v4
+      #     with:
+      #       name: app-build-testE2E
+      #       path: app
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate .env.test
+        run: |
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
+          echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
+          echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
+          pwd
+          ls
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
 
       - name: Run Playwright
-        run: |
-          cd app
-          npx playwright install --with-deps
-          npx playwright test
+        run: npx playwright test

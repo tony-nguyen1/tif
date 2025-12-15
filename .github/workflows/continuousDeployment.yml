@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "app/"
-      - .github/
   workflow_dispatch:
 
 jobs:
@@ -48,12 +45,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: app/package-lock.json
 
-      - name: Install mkcert
-        run: |
-          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-          chmod +x mkcert-v*-linux-amd64
-          cd app && ../mkcert-*-linux-amd64 localhost
-
       - name: Install dependencies
         run: cd app && npm ci
 
@@ -73,8 +64,6 @@ jobs:
             app/package-lock.json
             app/node_modules
             app/script
-            app/localhost-key.pem
-            app/localhost.pem
             app/.svelte-kit
 
   deploy:
