@@ -2,7 +2,10 @@ name: Continuous Deployment
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths:
+      - 'app/'
   workflow_dispatch:
 
 jobs:
@@ -33,6 +36,7 @@ jobs:
       DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
       DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
       ORIGIN: ${{ secrets.ORIGIN }}
+      APP_ENV: ${{ secrets.APP_ENV }}
 
     steps:
       - uses: actions/checkout@v4
@@ -102,6 +106,7 @@ jobs:
           echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
           echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
           echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.production
+          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.production
           ls -l .env.production
 
       - name: Upload build to server
