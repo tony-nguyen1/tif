@@ -9,7 +9,7 @@ export default defineConfig({
 	},
 	webServer: {
 		command: 'npm run preview:test',
-		reuseExistingServer: true,
+		reuseExistingServer: false,
 		port: 4173
 	},
 	testDir: 'e2e'

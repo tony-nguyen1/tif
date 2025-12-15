@@ -84,14 +84,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Start preview server
-        run: |
-          npm run preview:test &
+      # - name: Start preview server
+      #   run: |
+      #     npm run preview:test & > preview.log 2>&1
+      #     ps aux | grep vite
 
-      - name: Wait for app
-        run: npx wait-on http://localhost:4173
+      # - name: Check preview process
+      #   run: ps aux | grep vite
+
+      # - name: Wait for app
+      #   run: npx wait-on http://localhost:4173 --timeout 60000
 
       - name: Run Playwright
         run: |
           npx playwright install --with-deps
           npx playwright test
+
+      # - name: Show preview logs
+      #   if: failure()
+      #   run: cat preview.log
