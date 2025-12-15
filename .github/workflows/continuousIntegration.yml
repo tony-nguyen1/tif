@@ -64,6 +64,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: build
     environment: test
     env:
       DATABASE_URL: ${{ vars.DATABASE_URL }}
@@ -82,15 +83,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      # - name: Generate .env.test file
-      #   run: |
-      #     ls
-      #     pwd
-      #     echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
-      #     echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
-      #     echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
-      #     ls -l .env.test
 
       - name: Start preview server
         run: |
