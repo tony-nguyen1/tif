@@ -73,8 +73,7 @@ jobs:
         working-directory: app
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: app-build-testE2E
           path: app
@@ -92,6 +91,8 @@ jobs:
           echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
           echo "ORIGIN=${{ vars.ORIGIN }}" >> .env.test
           echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
+          pwd
+          ls
 
       - name: Install Playwright
         run: npx playwright install --with-deps
