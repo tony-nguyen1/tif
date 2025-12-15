@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'app/'
+      - "app/"
   workflow_dispatch:
 
 jobs:
@@ -35,7 +35,6 @@ jobs:
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
       DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
       DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
-      ORIGIN: ${{ secrets.ORIGIN }}
       APP_ENV: ${{ secrets.APP_ENV }}
 
     steps:
@@ -105,7 +104,6 @@ jobs:
           echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
           echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
           echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
-          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.production
           echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.production
           ls -l .env.production
 
