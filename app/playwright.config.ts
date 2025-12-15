@@ -9,12 +9,8 @@ export default defineConfig({
 	},
 	webServer: {
 		command: 'npm run preview:test',
-		reuseExistingServer: true,
-		// timeout: 60000,
+		reuseExistingServer: false,
 		url: 'http://localhost:4173'
-		// wait: {
-		// 	// stdout: '/Listening on port (?<my_server_port>\\d+)/'
-		// }
 	},
 	testDir: 'e2e'
 });
