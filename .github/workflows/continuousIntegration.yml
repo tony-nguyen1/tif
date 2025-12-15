@@ -91,6 +91,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Try to run server
+        run: npm run preview:test
+
       - name: Run Playwright
         run: |
           ls
