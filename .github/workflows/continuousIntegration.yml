@@ -60,7 +60,8 @@ jobs:
             app/script
             app/.svelte-kit
             app/*.db
-            app/e2E
+            app/e2e
+            app/playwright.config.ts
           if-no-files-found: error
 
   test:
