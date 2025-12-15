@@ -10,7 +10,7 @@ export default defineConfig({
 	webServer: {
 		command: 'npm run preview:test',
 		reuseExistingServer: true,
-		timeout: 2000,
+		timeout: 30000,
 		url: 'http://localhost:4173'
 		// wait: {
 		// 	// stdout: '/Listening on port (?<my_server_port>\\d+)/'
