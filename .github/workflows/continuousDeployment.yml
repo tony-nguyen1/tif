@@ -72,6 +72,8 @@ jobs:
       - name: Output info
         id: infoOutput
         run: |
+          echo "APP_VERSION=$VERSION"
+          echo "COMMIT_SHA=${GITHUB_SHA::7}"
           echo "APP_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           echo "COMMIT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
@@ -111,6 +113,8 @@ jobs:
           echo "APP_VERSION=$APP_VERSION" >> .env.production
           echo "BUILD_DATE=$(date -u +"%Y-%m-%d")" >> .env.production
           echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
+          echo "APP_VERSION=$APP_VERSION"
+          echo "COMMIT_SHA=$COMMIT_SHA"
           ls -l .env.production
 
       - name: Upload build to server
