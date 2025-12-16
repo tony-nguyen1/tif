@@ -148,11 +148,15 @@ jobs:
       - env:
           APP_VERSION: ${{ needs.build.outputs.APP_VERSION }}
           COMMIT_SHA: ${{ needs.build.outputs.COMMIT_SHA }}
+        working-directory: app
         run: |
+          pwd
+          ls -l | grep env
           echo "$APP_VERSION ($COMMIT_SHA)"
           echo "APP_VERSION=$APP_VERSION" >> .env.production
           echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
           cat .env.production
+          ls -l .env.production
 
       - name: Upload build to server
         run: rsync -az --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
