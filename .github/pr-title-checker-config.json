@@ -1,0 +1,14 @@
+{
+  "LABEL": {
+    "name": "title has bad format",
+    "color": "9814F5"
+  },
+  "CHECKS": {
+    "regexp": "^(feat|fix|chore|docs|refactor|test|perf)(\\(.+\\))?: .+"
+  },
+  "MESSAGES": {
+    "success": "All OK",
+    "failure": "Failing CI test",
+    "notice": ""
+  }
+}
