@@ -89,10 +89,6 @@ jobs:
     environment: production
 
     steps:
-      - env:
-          APP_VERSION: ${{ needs.build.outputs.APP_VERSION }}
-          COMMIT_SHA: ${{ needs.build.outputs.COMMIT_SHA }}
-        run: echo "$APP_VERSION ($COMMIT_SHA)"
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -113,16 +109,19 @@ jobs:
         run: |
           cd app
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
-          # echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
-          # echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
-          # echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
           echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.production
-          echo "APP_VERSION=$APP_VERSION" >> .env.production
           echo "BUILD_DATE=$(date -u +"%Y-%m-%d")" >> .env.production
           echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
-          echo "APP_VERSION=$APP_VERSION"
-          echo "COMMIT_SHA=$COMMIT_SHA"
           ls -l .env.production
+
+      - env:
+          APP_VERSION: ${{ needs.build.outputs.APP_VERSION }}
+          COMMIT_SHA: ${{ needs.build.outputs.COMMIT_SHA }}
+        run: |
+          echo "$APP_VERSION ($COMMIT_SHA)"
+          echo "APP_VERSION=$APP_VERSION" >> .env.production
+          echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
+          cat .env.production
 
       - name: Upload build to server
         run: rsync -az --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
