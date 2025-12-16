@@ -4,6 +4,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getUser, editUser } from '$lib/server/db/repo';
 import { goalEnum, type Goal } from '$lib/customType';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -13,7 +14,14 @@ export const load: PageServerLoad = async () => {
 		fail(404, 'User info not found');
 	}
 
-	return { user, userInfo };
+	const deployInfo = {
+		appVersion: env.APP_VERSION ?? 'N/A',
+		buildDate: env.BUILD_DATE ?? 'N/A',
+		sha: env.COMMIT_SHA ?? 'N/A',
+		appEnv: env.APP_ENV ?? 'N/A'
+	};
+
+	return { user, userInfo, deployInfo };
 };
 
 export const actions: Actions = {

@@ -69,6 +69,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment: production
 
     steps:
       - name: Download build artifact
@@ -91,10 +92,13 @@ jobs:
         run: |
           cd app
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
-          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
-          echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
-          echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
+          # echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
+          # echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
+          # echo "DATABASE_SYNC=${{ secrets.DATABSE_SYNC }}" >> .env.production
           echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.production
+          echo "APP_VERSION=$(git describe --tags --abbrev=0)" >> .env.production
+          echo "BUILD_DATE=$(date -u +"%Y-%m-%d")" >> .env.production
+          echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> .env.production
           ls -l .env.production
 
       - name: Upload build to server

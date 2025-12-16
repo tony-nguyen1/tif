@@ -115,3 +115,14 @@
 		</div>
 	</form>
 </section>
+<footer>
+	<p>
+		{data.deployInfo.appVersion} ({data.deployInfo.sha})
+	</p>
+	<p>
+		Build and release date: {data.deployInfo.buildDate}
+	</p>
+	<p>
+		Application environment: {data.deployInfo.appEnv}
+	</p>
+</footer>
