@@ -8,7 +8,7 @@ jobs:
   pr-title-check:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      pull-requests: write
 
     steps:
       - name: Check PR title follows Conventional Commit
