@@ -1,0 +1,50 @@
+name: "PR Title Checker"
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  pr-title-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Check PR title follows Conventional Commit
+        id: title_check
+        uses: thehanimo/pr-title-checker@v1.4.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pass_on_octokit_error: false
+
+      - name: Comment on PR if title is invalid
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-title-checker
+          message: |
+            ❌ **Invalid PR title**
+
+            Your pull request title must follow the **Conventional Commit** format:
+
+            ```
+            type(scope): short description
+            ```
+
+            **Allowed types:**
+            - feat
+            - fix
+            - chore
+            - docs
+            - refactor
+            - test
+            - perf
+
+            **Examples:**
+            - `feat(auth): add login endpoint`
+            - `fix(db): handle null user`
+            - `chore: update dependencies`
+
+            Please update the PR title to continue 🚀
