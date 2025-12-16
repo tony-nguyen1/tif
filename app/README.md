@@ -88,3 +88,5 @@ rsync -az --progress -e ssh ~/dir/src ubuntu@ip_adress:~/dir/target
 
 Check if i really need env var in build phase
 pipeline only for main branch
+
+https://deepakkamboj.github.io/getting-started/advanced-configuration.html#visual-testing-configuration

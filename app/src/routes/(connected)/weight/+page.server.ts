@@ -1,6 +1,11 @@
 import { _requireLogin } from '../workout/+page.server';
 import type { Actions, PageServerLoad } from './$types';
-import { findWeightOfUser, createWeight } from '$lib/server/db/weightRepo';
+import {
+	findWeightOfUser,
+	createWeight,
+	deleteWeight,
+	findWeightByIdAndUserId
+} from '$lib/server/db/weightRepo';
 import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async () => {
@@ -15,8 +20,6 @@ export const actions: Actions = {
 	addWeight: async ({ request }) => {
 		const user = _requireLogin();
 		const data = await request.formData();
-
-		console.info(data);
 
 		const tmpWeight: number | null = data.get('weight') ? Number(data.get('weight')) : null;
 		if (!tmpWeight) {
@@ -41,5 +44,44 @@ export const actions: Actions = {
 			};
 		}
 		return fail(500, { success: false, message: `${result.rowsAffected} rows were affected` });
+	},
+	deleteWeight: async ({ request }) => {
+		await sleep(1000);
+		const user = _requireLogin();
+		const data = await request.formData();
+
+		const tmpWeightId: number | null = data.get('weightId') ? Number(data.get('weightId')) : null;
+		if (!tmpWeightId) {
+			return fail(400, { missing: true, message: 'Form is missing weightId input' });
+		}
+
+		const res = await findWeightByIdAndUserId(tmpWeightId, user.id);
+		if (!res) {
+			return fail(403, {
+				incorrect: true,
+				message: "Either this weight entry doesn't exist or it doesn't belong to this user"
+			});
+		}
+
+		const deletionPromise = deleteWeight(res.id);
+		return await deletionPromise.then(
+			// onfulfilled
+			() => {
+				return {
+					success: true
+				};
+			},
+			// onrejected
+			() => {
+				return fail(403, {
+					success: false,
+					message: 'Delete weight has failed'
+				});
+			}
+		);
 	}
 };
+
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}

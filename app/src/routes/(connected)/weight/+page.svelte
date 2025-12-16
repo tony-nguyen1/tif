@@ -5,22 +5,15 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { EllipsisVertical } from '@lucide/svelte';
+	import { dateToStringCustomFormat, createDeferred } from '$lib/util.js';
+	import { WeightDropdownMenu } from '$lib/components/custom/weight/WeightDropdownMenu';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
-
-	// FIXME : extract to util lib
-	function createDeferred<T>() {
-		let resolve!: (value: T | PromiseLike<T>) => void;
-		let reject!: (reason?: unknown) => void;
-
-		const promise = new Promise<T>((res, rej) => {
-			resolve = res;
-			reject = rej;
-		});
-
-		return { promise, resolve, reject };
-	}
 </script>
 
 <Toaster position="top-center" richColors />
@@ -92,23 +85,145 @@
 		Send
 	</Button>
 </form>
+
 <section id="weightsDisplay">
-	<h2>Weight log</h2>
+	<h2 class="mb-1.5 text-2xl">Weight log</h2>
 	{#await data.weightArray}
 		Waiting
 	{:then weightArray}
 		{#if weightArray.length === 0}
 			<p>Empty</p>
 		{:else}
-			{#each weightArray as aWeightEntry (aWeightEntry.id)}
-				<p>
-					{aWeightEntry.id} <br />
-					{aWeightEntry.date} <br />
-					{aWeightEntry.weight}
-				</p>
-			{/each}
+			<div class="flex flex-col gap-y-3">
+				{#each weightArray as aWeightEntry (aWeightEntry.id)}
+					<article>
+						<Card.Root>
+							<Card.Header>
+								<Card.Title class="text-xl font-semibold">
+									{dateToStringCustomFormat(aWeightEntry.date)}
+								</Card.Title>
+								<Card.CardAction>
+									<DropdownMenu.Root>
+										<DropdownMenu.Trigger>
+											<!-- | -->
+											<EllipsisVertical />
+										</DropdownMenu.Trigger>
+										<DropdownMenu.Content>
+											<DropdownMenu.Item onSelect={(e) => e.preventDefault()}></DropdownMenu.Item>
+											<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+												<!-- why use data property ? can't remember -->
+												<form
+													method="post"
+													action="?/deleteWeight"
+													data-weight-id={aWeightEntry.id}
+													class="w-full"
+													use:enhance={() => {
+														console.info('Deletion form submitted');
+														const deferred = createDeferred();
+														toast.promise(deferred.promise, {
+															loading: 'Processing deletion ...',
+															success: (val) => {
+																return val as string;
+															},
+															error: (reason) => reason as string
+														});
+
+														return async ({ result, update }) => {
+															// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
+															await update();
+
+															// `result` is the object returned by the action of the server
+															if (result.type === 'success') {
+																deferred.resolve(`Deleted !`);
+															} else if (result.type === 'failure') {
+																deferred.reject(form!.message);
+															} else if (result.type === 'error') {
+																deferred.reject('Something went wrong');
+															} else {
+																deferred.resolve('Redirect');
+															}
+
+															console.info('Deletion form processed');
+														};
+													}}
+												>
+													<input name="weightId" value={aWeightEntry.id} hidden />
+													<button type="submit" class="w-full text-left text-red-500">Delete</button
+													>
+												</form>
+											</DropdownMenu.Item>
+										</DropdownMenu.Content>
+									</DropdownMenu.Root>
+								</Card.CardAction>
+							</Card.Header>
+							<Card.CardContent>
+								<p class="">
+									{aWeightEntry.weight}
+								</p>
+							</Card.CardContent>
+						</Card.Root>
+					</article>
+				{/each}
+			</div>
 		{/if}
 	{:catch error}
 		<p>error loading comments: {error.message}</p>
 	{/await}
 </section>
+
+{#snippet deleteWeight(aWeightEntry)}
+	<form
+		method="post"
+		action="?/deleteWeight"
+		data-weight-id={aWeightEntry.id}
+		class="w-full"
+		use:enhance={() => {
+			console.info('Deletion form submitted');
+			const deferred = createDeferred();
+			toast.promise(deferred.promise, {
+				loading: 'Processing deletion ...',
+				success: (val) => {
+					return val as string;
+				},
+				error: (reason) => reason as string
+			});
+
+			return async ({ result, update }) => {
+				// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
+				await update();
+
+				// `result` is the object returned by the action of the server
+				if (result.type === 'success') {
+					deferred.resolve(`Deleted !`);
+				} else if (result.type === 'failure') {
+					deferred.reject(form!.message);
+				} else if (result.type === 'error') {
+					deferred.reject('Something went wrong');
+				} else {
+					deferred.resolve('Redirect');
+				}
+
+				console.info('Deletion form processed');
+			};
+		}}
+	>
+		<input name="weightId" value={aWeightEntry.id} hidden />
+		<button type="submit" class="w-full text-left text-red-500">Delete</button>
+	</form>
+{/snippet}
+
+{#snippet editDialog(aWeightEntry)}
+	<Dialog.Root>
+		<Dialog.Trigger class="w-full text-left">Edit</Dialog.Trigger>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title class="text-xl">
+					Edit weight entry {aWeightEntry.id}
+				</Dialog.Title>
+				<Dialog.DialogDescription>
+					{dateToStringCustomFormat(aWeightEntry.date)}
+				</Dialog.DialogDescription>
+			</Dialog.Header>
+		</Dialog.Content>
+	</Dialog.Root>
+{/snippet}
