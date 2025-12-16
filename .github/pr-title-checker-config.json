@@ -1,0 +1,14 @@
+{
+  "LABEL": {
+    "name": "bad formatting",
+    "color": "9814F5"
+  },
+  "CHECKS": {
+    "regexp": "^(feat|fix|chore|docs|refactor|test|perf)(\\(.+\\))?: .+"
+  },
+  "MESSAGES": {
+    "success": "All OK",
+    "failure": "PR title is not following Conventional Commits specification - https://www.conventionalcommits.org",
+    "notice": ""
+  }
+}
