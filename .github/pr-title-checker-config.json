@@ -1,6 +1,6 @@
 {
   "LABEL": {
-    "name": "title has bad format",
+    "name": "bad formatting",
     "color": "9814F5"
   },
   "CHECKS": {
@@ -8,7 +8,7 @@
   },
   "MESSAGES": {
     "success": "All OK",
-    "failure": "Failing CI test",
+    "failure": "PR title is not following Conventional Commits specification - https://www.conventionalcommits.org",
     "notice": ""
   }
 }
