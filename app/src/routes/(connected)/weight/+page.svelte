@@ -7,10 +7,9 @@
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { EllipsisVertical } from '@lucide/svelte';
 	import { dateToStringCustomFormat, createDeferred } from '$lib/util.js';
-	import { WeightDropdownMenu } from '$lib/components/custom/weight/WeightDropdownMenu';
+	import WeightDropdownMenu from '$lib/components/custom/weight/DropdownMenu/WeightDropdownMenu.svelte';
+	import type { Weight } from '$lib/server/db/schema';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
@@ -103,57 +102,7 @@
 									{dateToStringCustomFormat(aWeightEntry.date)}
 								</Card.Title>
 								<Card.CardAction>
-									<DropdownMenu.Root>
-										<DropdownMenu.Trigger>
-											<!-- | -->
-											<EllipsisVertical />
-										</DropdownMenu.Trigger>
-										<DropdownMenu.Content>
-											<DropdownMenu.Item onSelect={(e) => e.preventDefault()}></DropdownMenu.Item>
-											<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
-												<!-- why use data property ? can't remember -->
-												<form
-													method="post"
-													action="?/deleteWeight"
-													data-weight-id={aWeightEntry.id}
-													class="w-full"
-													use:enhance={() => {
-														console.info('Deletion form submitted');
-														const deferred = createDeferred();
-														toast.promise(deferred.promise, {
-															loading: 'Processing deletion ...',
-															success: (val) => {
-																return val as string;
-															},
-															error: (reason) => reason as string
-														});
-
-														return async ({ result, update }) => {
-															// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
-															await update();
-
-															// `result` is the object returned by the action of the server
-															if (result.type === 'success') {
-																deferred.resolve(`Deleted !`);
-															} else if (result.type === 'failure') {
-																deferred.reject(form!.message);
-															} else if (result.type === 'error') {
-																deferred.reject('Something went wrong');
-															} else {
-																deferred.resolve('Redirect');
-															}
-
-															console.info('Deletion form processed');
-														};
-													}}
-												>
-													<input name="weightId" value={aWeightEntry.id} hidden />
-													<button type="submit" class="w-full text-left text-red-500">Delete</button
-													>
-												</form>
-											</DropdownMenu.Item>
-										</DropdownMenu.Content>
-									</DropdownMenu.Root>
+									<WeightDropdownMenu {aWeightEntry} {editDialog} {deleteForm} />
 								</Card.CardAction>
 							</Card.Header>
 							<Card.CardContent>
@@ -171,7 +120,7 @@
 	{/await}
 </section>
 
-{#snippet deleteWeight(aWeightEntry)}
+{#snippet deleteForm(aWeightEntry: Weight)}
 	<form
 		method="post"
 		action="?/deleteWeight"
@@ -212,7 +161,7 @@
 	</form>
 {/snippet}
 
-{#snippet editDialog(aWeightEntry)}
+{#snippet editDialog(aWeightEntry: Weight)}
 	<Dialog.Root>
 		<Dialog.Trigger class="w-full text-left">Edit</Dialog.Trigger>
 		<Dialog.Content>
