@@ -35,8 +35,8 @@ jobs:
       DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
       APP_ENV: ${{ secrets.APP_ENV }}
     outputs:
-      APP_VERSION: ${{ steps.infoOutput.outputs.APP_VERSION }}
-      COMMIT_SHA: ${{ steps.infoOutput.outputs.COMMIT_SHA }}
+      APP_VERSION: ${{ steps.infoOutput1.outputs.APP_VERSION }}
+      COMMIT_SHA: ${{ steps.infoOutput2.outputs.COMMIT_SHA }}
 
     steps:
       - uses: actions/checkout@v4
@@ -69,12 +69,15 @@ jobs:
             app/script
             app/.svelte-kit
 
-      - name: Output info
-        id: infoOutput
+      - name: Output tag version
+        id: infoOutput1
         run: |
           echo "APP_VERSION=$VERSION"
-          echo "COMMIT_SHA=${GITHUB_SHA::7}"
           echo "APP_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Output sha
+        id: infoOutput2
+        run: |
+          echo "COMMIT_SHA=${GITHUB_SHA::7}"
           echo "COMMIT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
   deploy:
@@ -86,6 +89,10 @@ jobs:
     environment: production
 
     steps:
+      - env:
+          APP_VERSION: ${{ steps.infoOutput.outputs.APP_VERSION }}
+          COMMIT_SHA: ${{ steps.infoOutput.outputs.COMMIT_SHA }}
+        run: echo "$APP_VERSION ($COMMIT_SHA)"
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
