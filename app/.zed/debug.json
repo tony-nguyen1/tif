@@ -1,0 +1,10 @@
+[
+	{
+		"label": "Toto",
+		"adapter": "JavaScript",
+		"command": "npm run dev",
+		"name": "Run development server",
+		"request": "launch",
+		"type": "node-terminal"
+	}
+]
