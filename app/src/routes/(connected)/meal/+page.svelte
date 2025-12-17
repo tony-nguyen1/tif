@@ -9,7 +9,6 @@
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import { EllipsisVertical } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 
@@ -34,7 +33,7 @@
 	}
 </script>
 
-<Toaster position="top-center" richColors />
+<!-- <Toaster position="top-center" richColors /> -->
 <h1 class="text-5xl">Meal</h1>
 <div></div>
 <section id="addMealForm">

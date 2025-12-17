@@ -5,7 +5,6 @@
 	import { goalEnum } from '$lib/customType';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 
@@ -19,7 +18,7 @@
 	const triggerContent = $derived(goalEnum.find((f) => f === selecteGoalValue) ?? 'Select a goal');
 </script>
 
-<Toaster position="top-center" richColors />
+<!-- <Toaster position="top-center" richColors /> -->
 <header class="grid grid-cols-2">
 	<h1 class="text-5xl">Profile</h1>
 	<aside class="justify-self-end text-right text-muted-foreground">

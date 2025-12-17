@@ -7,7 +7,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import { toast } from 'svelte-sonner';
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
 
 	let value: CalendarDate | undefined = $state(undefined);
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
@@ -31,7 +30,7 @@
 	}
 </script>
 
-<Toaster position="top-center" richColors />
+<!-- <Toaster position="top-center" richColors /> -->
 <h1 class="text-5xl">Sleep</h1>
 <section class="mt-2 grid">
 	<Calendar
