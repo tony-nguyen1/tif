@@ -5,10 +5,9 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { dateToStringCustomFormat, createDeferred } from '$lib/util.js';
-	import WeightDropdownMenu from '$lib/components/custom/weight/DropdownMenu/WeightDropdownMenu.svelte';
+	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
+	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
 	import type { Weight } from '$lib/server/db/schema';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
@@ -21,40 +20,11 @@
 	method="post"
 	class="grid gap-2"
 	action="?/addWeight"
-	use:enhance={() => {
-		console.info('Form submitted');
-		formProcessing = true;
-		const deferred = createDeferred();
-		toast.promise(deferred.promise, {
-			loading: 'Processing ...',
-			success: (val) => {
-				return val as string;
-			},
-			error: (reason) => reason as string
-		});
-
-		return async ({ result, update }) => {
-			// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
-			await update();
-
-			// `result` is the object returned by the action of the server
-			if (result.type === 'success') {
-				// lastMealPlace = form?.lastMealPlace ?? '';
-				deferred.resolve(
-					`Weight entry registered !  ${form!.inserted!.weight} kg - ${form!.inserted!.date}`
-				);
-			} else if (result.type === 'failure') {
-				deferred.reject(form!.message);
-			} else if (result.type === 'error') {
-				deferred.reject('Something went wrong');
-			} else {
-				deferred.resolve('Redirect');
-			}
-
-			console.info('Form processed');
-			formProcessing = false;
-		};
-	}}
+	use:enhance={enhanceWithParam(
+		formProcessing,
+		() => `Weight entry registered !  ${form!.inserted!.weight} kg - ${form!.inserted!.date}`,
+		() => `${form!.message}`
+	)}
 >
 	<div class="grid gap-1">
 		<label for="weightInput" class="text-sm">Weight mesured :</label>
@@ -94,25 +64,7 @@
 			<p>Empty</p>
 		{:else}
 			<div class="flex flex-col gap-y-3">
-				{#each weightArray as aWeightEntry (aWeightEntry.id)}
-					<article>
-						<Card.Root>
-							<Card.Header>
-								<Card.Title class="text-xl font-semibold">
-									{dateToStringCustomFormat(aWeightEntry.date)}
-								</Card.Title>
-								<Card.CardAction>
-									<WeightDropdownMenu {aWeightEntry} {editDialog} {deleteForm} />
-								</Card.CardAction>
-							</Card.Header>
-							<Card.CardContent>
-								<p class="">
-									{aWeightEntry.weight}
-								</p>
-							</Card.CardContent>
-						</Card.Root>
-					</article>
-				{/each}
+				<WeightListDisplay weightList={weightArray} {editDialog} {deleteForm} />
 			</div>
 		{/if}
 	{:catch error}

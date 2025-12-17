@@ -6,7 +6,8 @@ import {
 	deleteWeight,
 	findWeightByIdAndUserId
 } from '$lib/server/db/weightRepo';
-import { fail } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit'; // , redirect
+// import { resolve } from '$app/paths';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -18,6 +19,7 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
 	addWeight: async ({ request }) => {
+		await sleep(1000);
 		const user = _requireLogin();
 		const data = await request.formData();
 
