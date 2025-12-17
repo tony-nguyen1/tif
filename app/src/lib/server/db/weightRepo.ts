@@ -20,11 +20,11 @@ export async function findWeightByIdAndUserId(weightId: number, userId: string) 
 export async function deleteWeight(weightId: number) {
 	await db.delete(table.weight).where(eq(table.weight.id, weightId));
 }
-// export async function editWeight(input: Omit<table.weight, 'date'>) {
-// 	const result = await db
-// 		.update(table.weight)
-// 		.set(input)
-// 		.where(eq(table.weight.id, input.id))
-// 		.returning();
-// 	return result;
-// }
+export async function editWeight(newVal: table.Weight) {
+	const result = await db
+		.update(table.weight)
+		.set(newVal)
+		.where(eq(table.weight.id, newVal.id))
+		.returning();
+	return result;
+}

@@ -23,6 +23,7 @@
 </svelte:head>
 
 <ModeWatcher />
+<!-- <Toaster position="top-center" richColors /> -->
 <!-- test -->
 <div class="flex w-full flex-col">
 	<main class="grid grow auto-rows-min gap-y-2 overflow-y-auto px-3 py-3">

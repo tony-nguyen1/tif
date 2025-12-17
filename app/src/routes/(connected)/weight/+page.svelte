@@ -4,7 +4,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
+	// import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
@@ -14,46 +14,46 @@
 	let formProcessing = $state(false);
 </script>
 
-<Toaster position="top-center" richColors />
 <h1 class="text-5xl">Weight</h1>
-<form
-	method="post"
-	class="grid gap-2"
-	action="?/addWeight"
-	use:enhance={enhanceWithParam(
-		formProcessing,
-		() => `Weight entry registered !  ${form!.inserted!.weight} kg - ${form!.inserted!.date}`,
-		() => `${form!.message}`
-	)}
->
-	<div class="grid gap-1">
-		<label for="weightInput" class="text-sm">Weight mesured :</label>
-		<InputGroup.Root>
-			<!--   -->
-			<!-- bind:value={goalWeightValue} -->
-			<InputGroup.Input
-				aria-invalid={form?.missing || form?.incorrect}
-				id="weightInput"
-				name="weight"
-				placeholder="60"
-				inputmode="numeric"
-				pattern="[0-9][0-9][0-9]?"
-			/>
-			<InputGroup.Addon align="inline-end">
-				<InputGroup.Text>Kilo</InputGroup.Text>
-			</InputGroup.Addon>
-		</InputGroup.Root>
-	</div>
-
-	<Button
-		type="submit"
-		variant="outline"
-		class={['w-fit justify-self-end']}
-		bind:disabled={formProcessing}
+<section id="addWeight">
+	<h2 class="text-2xl">Add new log entry</h2>
+	<form
+		method="post"
+		class="grid gap-2"
+		action="?/addWeight"
+		use:enhance={enhanceWithParam(
+			formProcessing,
+			() => `Weight entry registered !  ${form!.inserted!.weight} kg - ${form!.inserted!.date}`,
+			() => `${form!.message}`
+		)}
 	>
-		Send
-	</Button>
-</form>
+		<div class="grid gap-1">
+			<label for="weightInput" class="text-sm">Weight mesured :</label>
+			<InputGroup.Root>
+				<InputGroup.Input
+					aria-invalid={form?.missing || form?.incorrect}
+					id="weightInput"
+					name="weight"
+					placeholder="60"
+					inputmode="numeric"
+					pattern="[0-9][0-9][0-9]?"
+				/>
+				<InputGroup.Addon align="inline-end">
+					<InputGroup.Text>Kilo</InputGroup.Text>
+				</InputGroup.Addon>
+			</InputGroup.Root>
+		</div>
+
+		<Button
+			type="submit"
+			variant="outline"
+			class={['w-fit justify-self-end']}
+			bind:disabled={formProcessing}
+		>
+			Send
+		</Button>
+	</form>
+</section>
 
 <section id="weightsDisplay">
 	<h2 class="mb-1.5 text-2xl">Weight log</h2>
@@ -125,6 +125,28 @@
 					{dateToStringCustomFormat(aWeightEntry.date)}
 				</Dialog.DialogDescription>
 			</Dialog.Header>
+			<form method="post" action="?/putWeight" class="grid gap-2">
+				<label for="weightInput" class="text-sm">Weight mesured :</label>
+				<InputGroup.Root>
+					<InputGroup.Input
+						aria-invalid={form?.missing || form?.incorrect}
+						value={aWeightEntry.weight}
+						id="weightInput"
+						name="weight"
+						placeholder="60"
+						inputmode="numeric"
+						pattern="[0-9][0-9][0-9]?"
+					/>
+					<InputGroup.Addon align="inline-end">
+						<InputGroup.Text>Kilo</InputGroup.Text>
+					</InputGroup.Addon>
+				</InputGroup.Root>
+
+				<input name="weightId" value={aWeightEntry.id} hidden />
+				<input name="date" value={aWeightEntry.date} hidden />
+
+				<Button variant="outline" type="submit" class="justify-self-end">Send</Button>
+			</form>
 		</Dialog.Content>
 	</Dialog.Root>
 {/snippet}
