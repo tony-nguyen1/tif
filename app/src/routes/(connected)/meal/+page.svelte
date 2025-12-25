@@ -150,7 +150,7 @@
 
 <section id="mealList" class="">
 	<h2 class="text-2xl">Past meals</h2>
-	<div class="mt-1.5 flex flex-col gap-y-3">
+	<div class="mt-1.5 flex flex-col-reverse gap-y-3">
 		{#each data.mealArray as aMeal (aMeal.id)}
 			<article>
 				<Card.Root>

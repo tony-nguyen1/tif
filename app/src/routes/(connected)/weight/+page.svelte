@@ -4,7 +4,6 @@
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
-	// import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
@@ -36,7 +35,7 @@
 					name="weight"
 					placeholder="60"
 					inputmode="numeric"
-					pattern="[0-9][0-9][0-9]?"
+					pattern="^[0-9][0-9][0-9]?(\.[0-9][0-9][0-9]?)?$"
 				/>
 				<InputGroup.Addon align="inline-end">
 					<InputGroup.Text>Kilo</InputGroup.Text>
@@ -63,7 +62,7 @@
 		{#if weightArray.length === 0}
 			<p>Empty</p>
 		{:else}
-			<div class="flex flex-col gap-y-3">
+			<div class="flex flex-col-reverse gap-y-3">
 				<WeightListDisplay weightList={weightArray} {editDialog} {deleteForm} />
 			</div>
 		{/if}
