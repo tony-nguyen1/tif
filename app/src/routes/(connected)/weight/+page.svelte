@@ -8,9 +8,46 @@
 	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
 	import type { Weight } from '$lib/server/db/schema';
+	import Chart from '$lib/components/Chart.svelte';
+	import { createContext } from 'svelte';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
+
+	let [get, set] = createContext<Weight[]>(); // index 0 is the get function, 1 is the set function
+	set((() => data.weightArrayNotPromised)());
+	get = () => data.weightArrayNotPromised;
+	// let ddd = $state(data.weightArrayNotPromised);
+	// let d = $derived.by(() => {
+	// 	Array.from(ddd, (w: Weight) => w.date.toLocaleDateString());
+	// });
+	// let dd = $derived.by(() => {
+	// 	Array.from(ddd, (w: Weight) => w.weight);
+	// });
+	// setContext('foo', () => data.weightArrayNotPromised);
+	// const x = d;
+	// const y = dd;
+	const x = Array.from(get(), (w) => w.date.toLocaleDateString());
+	const y = Array.from(get(), (w) => w.weight);
+	const chartDataDerived = {
+		labels: x,
+		datasets: [
+			{
+				label: 'Weight',
+				data: y,
+				backgroundColor: 'rgba(75, 192, 192, 0.4)',
+				borderColor: 'rgba(75, 192, 192, 1)',
+				borderWidth: 1
+			}
+		]
+	};
+
+	const options = {
+		responsive: true,
+		scales: {
+			y: { beginAtZero: false }
+		}
+	};
 </script>
 
 <h1 class="text-5xl">Weight</h1>
@@ -149,3 +186,5 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {/snippet}
+
+<Chart data={chartDataDerived} {options} type="line" />

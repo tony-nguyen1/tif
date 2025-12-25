@@ -24,3 +24,5 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = handleAuth;
+
+console.info('[hooks.server.ts] here, syncing db once for lifetime of server');

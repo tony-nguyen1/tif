@@ -16,7 +16,7 @@ export const load: PageServerLoad = async () => {
 
 	const weightArray = findWeightOfUser(user.id);
 
-	return { weightArray };
+	return { weightArray, weightArrayNotPromised: await weightArray };
 };
 
 export const actions: Actions = {
