@@ -52,7 +52,7 @@ export const actions: Actions = {
 			});
 		}
 
-		const tmpProtein = Number(data.get('fullness')!.toString());
+		const tmpProtein = Number(data.get('protein')!.toString());
 		if (tmpProtein < 0) {
 			return fail(400, {
 				incorrect: true,
