@@ -10,13 +10,15 @@ import {
 import { fail } from '@sveltejs/kit'; // , redirect
 import type { Weight } from '$lib/server/db/schema.ts';
 // import { resolve } from '$app/paths';
+import { getUser } from '$lib/server/db/repo';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
+	const userInfo = await getUser(user.id);
 
 	const weightArray = findWeightOfUser(user.id);
 
-	return { weightArray, weightArrayNotPromised: await weightArray };
+	return { weightArray, weightArrayNotPromised: await weightArray, userInfo };
 };
 
 export const actions: Actions = {

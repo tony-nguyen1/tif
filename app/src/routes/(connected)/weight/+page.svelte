@@ -5,11 +5,48 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
+	import {
+		dateToStringChartTimeScaleFormatted,
+		dateToStringCustomFormat,
+		createDeferred,
+		enhanceWithParam
+	} from '$lib/util.js';
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
 	import type { Weight } from '$lib/server/db/schema';
-	import Chart from '$lib/components/Chart.svelte';
+	// import CustomChart from '$lib/components/CustomChart.svelte';
 	import { createContext } from 'svelte';
+	import 'chartjs-adapter-date-fns';
+
+	import { onMount } from 'svelte';
+	// import { type ChartConfiguration } from 'chart.js';
+	import {
+		Chart,
+		BarController,
+		LineController,
+		BarElement,
+		PointElement,
+		CategoryScale,
+		LinearScale,
+		TimeScale,
+		Title,
+		Tooltip,
+		Legend,
+		LineElement
+	} from 'chart.js';
+
+	Chart.register(
+		LineElement,
+		PointElement,
+		LineController,
+		BarController,
+		BarElement,
+		TimeScale,
+		CategoryScale,
+		LinearScale,
+		Title,
+		Tooltip,
+		Legend
+	);
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
@@ -17,6 +54,10 @@
 	let [get, set] = createContext<Weight[]>(); // index 0 is the get function, 1 is the set function
 	set((() => data.weightArrayNotPromised)());
 	get = () => data.weightArrayNotPromised;
+	const dataArrayState = $derived(() => {
+		console.info('in derived');
+		return data.weightArrayNotPromised;
+	});
 	// let ddd = $state(data.weightArrayNotPromised);
 	// let d = $derived.by(() => {
 	// 	Array.from(ddd, (w: Weight) => w.date.toLocaleDateString());
@@ -27,30 +68,133 @@
 	// setContext('foo', () => data.weightArrayNotPromised);
 	// const x = d;
 	// const y = dd;
-	const x = Array.from(get(), (w) => w.date.toLocaleDateString());
-	const y = Array.from(get(), (w) => w.weight);
-	const chartDataDerived = {
-		labels: x,
-		datasets: [
-			{
-				label: 'Weight',
-				data: y,
-				backgroundColor: 'rgba(75, 192, 192, 0.4)',
-				borderColor: 'rgba(75, 192, 192, 1)',
-				borderWidth: 1
-			}
-		]
-	};
-
-	const options = {
-		responsive: true,
-		scales: {
-			y: { beginAtZero: false }
+	// const x = Array.from(get(), (w) => w.date.toLocaleDateString());
+	const y = Array.from(
+		() => dataArrayState(),
+		(w) => w.weight
+	);
+	const dataArray = () =>
+		Array.from(dataArrayState(), (w) => {
+			return { x: dateToStringChartTimeScaleFormatted(w.date), y: w.weight };
+		});
+	const test: Map<string, number[]> = new Map();
+	dataArrayState().forEach((val) => {
+		const strDate = dateToStringChartTimeScaleFormatted(val.date);
+		let foo = test.get(strDate);
+		// console.info(foo);
+		if (!foo) {
+			// console.info('in if block');
+			foo = [];
+			test.set(strDate, foo);
 		}
-	};
+		// console.info('out of if block');
+		foo!.push(val.weight);
+	});
+	// test.forEach((val) => console.info(val));
+	// console.info(test);
+	const firstInput = { x: dataArray().at(0)?.x, y: data.userInfo!.goalWeight! };
+	const lastInput = { x: dataArray().at(-1)?.x, y: data.userInfo!.goalWeight! };
+	const goalWeightDataArray = [firstInput, lastInput];
+	// console.info(dataArray);
+	const cst: [number] = [-1];
+	y.forEach(() => cst.push(data.userInfo!.goalWeight!));
+	cst.shift();
+
+	let canvas: HTMLCanvasElement;
+	let myChart = null;
+	onMount(() => {
+		myChart = createMyChart(dataArray());
+	});
+
+	$effect(() => {
+		console.info('in effect');
+		console.info(dataArrayState().length);
+		if (myChart) {
+			myChart.destroy();
+			myChart = createMyChart(dataArray());
+			myChart.render();
+			console.info('re-rendered chart');
+		}
+	});
+
+	function createMyChart(input) {
+		return new Chart(canvas, {
+			type: 'line',
+			data: {
+				datasets: [
+					{
+						label: 'Weight',
+						data: input,
+						backgroundColor: 'rgba(255, 255, 255, 1)',
+						borderColor: '#36A2EB',
+						borderWidth: 1,
+						pointStyle: 'rectRot',
+						pointRadius: 3,
+						tension: 0.3
+					},
+					{
+						label: 'Goal weight',
+						data: goalWeightDataArray,
+						backgroundColor: 'rgba(114, 190, 0, 1)',
+						borderColor: 'rgba(114, 190, 0, 1)',
+						borderWidth: 1,
+						pointStyle: false
+					}
+				]
+			},
+			options: {
+				scales: {
+					x: {
+						type: 'time',
+						time: {
+							unit: 'day'
+						},
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: 'rgba(255,255,255, 0.6)',
+							font: {
+								size: 16
+							}
+						}
+					},
+					y: {
+						beginAtZero: false,
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: '#36A2EB',
+							font: {
+								size: 12
+							}
+						}
+					}
+				},
+				plugins: {
+					title: {
+						text: 'Weight graph',
+						display: false
+					},
+					legend: {
+						labels: {
+							usePointStyle: true,
+							font: {
+								// size: 16
+							}
+						}
+					},
+					tooltip: {
+						usePointStyle: true
+					}
+				}
+			}
+		});
+	}
 </script>
 
 <h1 class="text-5xl">Weight</h1>
+<!-- <CustomChart data={chartDataDerived} {options} type="line" /> -->
+
+<canvas bind:this={canvas}></canvas>
+
 <section id="addWeight">
 	<h2 class="text-2xl">Add new log entry</h2>
 	<form
@@ -72,7 +216,7 @@
 					name="weight"
 					placeholder="60"
 					inputmode="numeric"
-					pattern="^[0-9][0-9][0-9]?(\.[0-9][0-9][0-9]?)?$"
+					pattern="^[0-9][0-9][0-9]?(\.[0-9][0-9]?)?$"
 				/>
 				<InputGroup.Addon align="inline-end">
 					<InputGroup.Text>Kilo</InputGroup.Text>
@@ -186,5 +330,3 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {/snippet}
-
-<Chart data={chartDataDerived} {options} type="line" />
