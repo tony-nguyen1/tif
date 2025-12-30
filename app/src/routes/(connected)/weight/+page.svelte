@@ -14,7 +14,6 @@
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
 	import type { Weight } from '$lib/server/db/schema';
 	// import CustomChart from '$lib/components/CustomChart.svelte';
-	import { createContext } from 'svelte';
 	import 'chartjs-adapter-date-fns';
 
 	import { onMount } from 'svelte';
@@ -51,28 +50,10 @@
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
 
-	let [get, set] = createContext<Weight[]>(); // index 0 is the get function, 1 is the set function
-	set((() => data.weightArrayNotPromised)());
-	get = () => data.weightArrayNotPromised;
 	const dataArrayState = $derived(() => {
-		console.info('in derived');
 		return data.weightArrayNotPromised;
 	});
-	// let ddd = $state(data.weightArrayNotPromised);
-	// let d = $derived.by(() => {
-	// 	Array.from(ddd, (w: Weight) => w.date.toLocaleDateString());
-	// });
-	// let dd = $derived.by(() => {
-	// 	Array.from(ddd, (w: Weight) => w.weight);
-	// });
-	// setContext('foo', () => data.weightArrayNotPromised);
-	// const x = d;
-	// const y = dd;
-	// const x = Array.from(get(), (w) => w.date.toLocaleDateString());
-	const y = Array.from(
-		() => dataArrayState(),
-		(w) => w.weight
-	);
+
 	const dataArray = () =>
 		Array.from(dataArrayState(), (w) => {
 			return { x: dateToStringChartTimeScaleFormatted(w.date), y: w.weight };
@@ -90,34 +71,39 @@
 		// console.info('out of if block');
 		foo!.push(val.weight);
 	});
-	// test.forEach((val) => console.info(val));
-	// console.info(test);
-	const firstInput = { x: dataArray().at(0)?.x, y: data.userInfo!.goalWeight! };
-	const lastInput = { x: dataArray().at(-1)?.x, y: data.userInfo!.goalWeight! };
-	const goalWeightDataArray = [firstInput, lastInput];
-	// console.info(dataArray);
-	const cst: [number] = [-1];
-	y.forEach(() => cst.push(data.userInfo!.goalWeight!));
-	cst.shift();
+	const dataArrayAvgState = [];
+	for (let [a, b] of test.entries()) {
+		console.info(a, b);
+		let sum = 0;
+		b.forEach((val) => (sum += val));
+		dataArrayAvgState.push({ x: a, y: sum / b.length });
+	}
+
+	const firstInput = $derived(() => {
+		return { x: dataArray().at(0)?.x, y: data.userInfo!.goalWeight! };
+	});
+	const lastInput = $derived(() => {
+		return { x: dataArray().at(-1)?.x, y: data.userInfo!.goalWeight! };
+	});
+	const goalWeightDataArray = $derived([firstInput(), lastInput()]);
+
+	console.info(goalWeightDataArray);
 
 	let canvas: HTMLCanvasElement;
 	let myChart = null;
 	onMount(() => {
-		myChart = createMyChart(dataArray());
+		myChart = createMyChart(dataArray(), goalWeightDataArray);
 	});
 
 	$effect(() => {
-		console.info('in effect');
-		console.info(dataArrayState().length);
 		if (myChart) {
 			myChart.destroy();
-			myChart = createMyChart(dataArray());
+			myChart = createMyChart(dataArray(), goalWeightDataArray);
 			myChart.render();
-			console.info('re-rendered chart');
 		}
 	});
 
-	function createMyChart(input) {
+	function createMyChart(input, goalWeightDataArray) {
 		return new Chart(canvas, {
 			type: 'line',
 			data: {
