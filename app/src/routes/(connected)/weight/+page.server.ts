@@ -27,7 +27,9 @@ export const actions: Actions = {
 		const user = _requireLogin();
 		const data = await request.formData();
 
-		const tmpWeight: number | null = data.get('weight') ? Number(data.get('weight')) : null;
+		const tmpWeight: number | null = data.get('weight')
+			? Number(data.get('weight')!.toString().replace(',', '.'))
+			: null;
 		if (!tmpWeight) {
 			return fail(400, { missing: true, message: 'Form is missing weight input' });
 		}
