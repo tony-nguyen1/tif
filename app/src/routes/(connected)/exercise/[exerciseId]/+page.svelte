@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
-	import Chart from '$lib/components/Chart.svelte';
+	import Chart from '$lib/components/CustomChart.svelte';
 	import { resolve } from '$app/paths';
 	import type { ChartData } from 'chart.js';
 
