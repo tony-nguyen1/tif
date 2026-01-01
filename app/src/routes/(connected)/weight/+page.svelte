@@ -1,56 +1,215 @@
 <script lang="ts">
-	import type { PageServerData, ActionData } from './$types.js';
 	import { enhance } from '$app/forms';
-	import * as InputGroup from '$lib/components/ui/input-group/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { toast } from 'svelte-sonner';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { dateToStringCustomFormat, createDeferred, enhanceWithParam } from '$lib/util.js';
 	import WeightListDisplay from '$lib/components/custom/weight/WeightListDisplay.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import type { Weight } from '$lib/server/db/schema';
-	import Chart from '$lib/components/Chart.svelte';
-	import { createContext } from 'svelte';
+	import {
+		createDeferred,
+		dateToStringChartTimeScaleFormatted,
+		dateToStringCustomFormat,
+		enhanceWithParam
+	} from '$lib/util.js';
+	import {
+		BarController,
+		BarElement,
+		CategoryScale,
+		Chart,
+		Legend,
+		LinearScale,
+		LineController,
+		LineElement,
+		PointElement,
+		TimeScale,
+		Title,
+		Tooltip
+	} from 'chart.js';
+	import 'chartjs-adapter-date-fns';
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { SvelteMap } from 'svelte/reactivity';
+	import type { ActionData, PageServerData } from './$types.js';
+
+	Chart.register(
+		LineElement,
+		PointElement,
+		LineController,
+		BarController,
+		BarElement,
+		TimeScale,
+		CategoryScale,
+		LinearScale,
+		Title,
+		Tooltip,
+		Legend
+	);
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	let formProcessing = $state(false);
 
-	let [get, set] = createContext<Weight[]>(); // index 0 is the get function, 1 is the set function
-	set((() => data.weightArrayNotPromised)());
-	get = () => data.weightArrayNotPromised;
-	// let ddd = $state(data.weightArrayNotPromised);
-	// let d = $derived.by(() => {
-	// 	Array.from(ddd, (w: Weight) => w.date.toLocaleDateString());
-	// });
-	// let dd = $derived.by(() => {
-	// 	Array.from(ddd, (w: Weight) => w.weight);
-	// });
-	// setContext('foo', () => data.weightArrayNotPromised);
-	// const x = d;
-	// const y = dd;
-	const x = Array.from(get(), (w) => w.date.toLocaleDateString());
-	const y = Array.from(get(), (w) => w.weight);
-	const chartDataDerived = {
-		labels: x,
-		datasets: [
-			{
-				label: 'Weight',
-				data: y,
-				backgroundColor: 'rgba(75, 192, 192, 0.4)',
-				borderColor: 'rgba(75, 192, 192, 1)',
-				borderWidth: 1
-			}
-		]
-	};
+	// FIXME : do proper input validation : is data null ? is there enough data ?
+	const dataArray = $derived.by(() =>
+		Array.from(data.weightArrayNotPromised, (w) => {
+			return { x: dateToStringChartTimeScaleFormatted(w.date), y: w.weight };
+		})
+	);
 
-	const options = {
-		responsive: true,
-		scales: {
-			y: { beginAtZero: false }
+	const dataArrayAvgState = $derived.by(() => {
+		const map = new SvelteMap<string, { sum: number; count: number }>();
+
+		for (const val of data.weightArrayNotPromised) {
+			const key = dateToStringChartTimeScaleFormatted(val.date);
+
+			const entry = map.get(key) ?? { sum: 0, count: 0 };
+			entry.sum += val.weight;
+			entry.count++;
+			map.set(key, entry);
 		}
-	};
+
+		return [...map.entries()].map(([x, { sum, count }]) => ({
+			x,
+			y: sum / count
+		}));
+	});
+
+	const firstInput = $derived(() => {
+		return { x: dataArray.at(0)!.x, y: data.userInfo!.goalWeight! };
+	});
+	const lastInput = $derived(() => {
+		return { x: dataArray.at(-1)!.x, y: data.userInfo!.goalWeight! };
+	});
+	const goalWeightDataArray = $derived([firstInput(), lastInput()]);
+	// console.info(goalWeightDataArray);
+
+	let canvas: HTMLCanvasElement;
+	let myChart: Chart | null = null;
+	onMount(() => {
+		myChart = createMyChart(dataArrayAvgState, goalWeightDataArray);
+	});
+
+	$effect(() => {
+		if (myChart) {
+			myChart.destroy();
+			myChart = createMyChart(dataArrayAvgState, goalWeightDataArray);
+			myChart.render();
+		}
+	});
+
+	function createMyChart(
+		input: {
+			x: string;
+			y: number;
+		}[],
+		goalWeightDataArray: {
+			x: string;
+			y: number;
+		}[]
+	) {
+		return new Chart(canvas, {
+			type: 'line',
+			data: {
+				datasets: [
+					{
+						label: 'Weight',
+						data: input,
+						backgroundColor: 'rgba(255, 255, 255, 1)',
+						borderColor: '#36A2EB',
+						borderWidth: 1.2,
+						pointStyle: 'rectRot',
+						pointRadius: 4,
+						tension: 0.3
+					},
+					{
+						label: 'Goal weight',
+						data: goalWeightDataArray,
+						backgroundColor: 'rgba(114, 190, 0, 1)',
+						borderColor: 'rgba(114, 190, 0, 1)',
+						borderWidth: 1,
+						pointStyle: 'line'
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					x: {
+						title: {
+							display: true,
+							text: 'Date',
+							color: 'rgba(255,255,255, 0.6)'
+						},
+						type: 'time',
+						time: {
+							unit: 'day'
+						},
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: 'rgba(255,255,255, 0.6)',
+							font: {
+								size: 16
+							}
+						}
+					},
+					y: {
+						title: {
+							display: false,
+							text: 'Kilogrammes'
+						},
+						beginAtZero: false,
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: '#36A2EB',
+							font: {
+								size: 14
+							}
+						}
+					}
+				},
+				plugins: {
+					title: {
+						text: 'Weight graph over time',
+						display: false,
+						color: 'white',
+						font: {
+							size: 20
+						}
+					},
+					legend: {
+						labels: {
+							usePointStyle: true,
+							// pointStyleWidth: 32,
+							font: {
+								// size: 16
+							}
+						}
+					},
+					tooltip: {
+						usePointStyle: true,
+						callbacks: {
+							title: (tooltipItems) => {
+								const formatted = new Intl.DateTimeFormat('en-US', {
+									month: 'short',
+									day: '2-digit',
+									year: 'numeric'
+								}).format(new Date(tooltipItems[0].parsed.x!));
+								return formatted;
+							}
+						}
+					}
+				}
+			}
+		});
+	}
 </script>
 
 <h1 class="text-5xl">Weight</h1>
+<!-- h-[175.5px]  -->
+<section class="relative flex h-[35dvh] w-full justify-center">
+	<canvas bind:this={canvas} class="max-w-full"></canvas>
+</section>
+
 <section id="addWeight">
 	<h2 class="text-2xl">Add new log entry</h2>
 	<form
@@ -71,8 +230,9 @@
 					id="weightInput"
 					name="weight"
 					placeholder="60"
-					inputmode="numeric"
-					pattern="^[0-9][0-9][0-9]?(\.[0-9][0-9][0-9]?)?$"
+					inputmode="decimal"
+					pattern="^[0-9][0-9][0-9]?(\[,.][0-9][0-9]?)?$"
+					autocomplete="off"
 				/>
 				<InputGroup.Addon align="inline-end">
 					<InputGroup.Text>Kilo</InputGroup.Text>
@@ -186,5 +346,3 @@
 		</Dialog.Content>
 	</Dialog.Root>
 {/snippet}
-
-<Chart data={chartDataDerived} {options} type="line" />

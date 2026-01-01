@@ -53,6 +53,14 @@ export function dateToStringCustomFormat(aDate: Date) {
 	return `${aDate.toLocaleDateString()} ${aDate.getHours()}:${aDate.getMinutes() < 10 ? '0' + aDate.getMinutes() : aDate.getMinutes()}`;
 }
 
+export function dateToStringChartTimeScaleFormattedWithTime(aDate: Date) {
+	return `${aDate.getFullYear()}-${aDate.getMonth() < 10 ? '0' + (aDate.getMonth() + 1) : aDate.getMonth() + 1}-${aDate.getDate() < 10 ? '0' + aDate.getDate() : aDate.getDate()} ${aDate.getHours() < 10 ? '0' + aDate.getHours() : aDate.getHours()}:${aDate.getMinutes() < 10 ? '0' + aDate.getMinutes() : aDate.getMinutes()}:${aDate.getMinutes() < 10 ? '0' + aDate.getMinutes() : aDate.getMinutes()}`;
+}
+
+export function dateToStringChartTimeScaleFormatted(aDate: Date) {
+	return `${aDate.getFullYear()}-${aDate.getMonth() < 10 ? '0' + (aDate.getMonth() + 1) : aDate.getMonth() + 1}-${aDate.getDate() < 10 ? '0' + aDate.getDate() : aDate.getDate()}`;
+}
+
 export function createDeferred<T>() {
 	let resolve!: (value: T | PromiseLike<T>) => void;
 	let reject!: (reason?: unknown) => void;
