@@ -19,8 +19,6 @@ export const actions: Actions = {
 	meal: async ({ request }) => {
 		const data = await request.formData();
 
-		await sleep(2000);
-
 		if (!data.get('description')) {
 			return fail(400, { missing: true, message: 'Form is missing description input' });
 		}
@@ -42,9 +40,6 @@ export const actions: Actions = {
 		}
 
 		const tmpFullness = Number(data.get('fullness')!.toString());
-		console.info(tmpFullness);
-		console.info(tmpFullness > 0);
-		console.info(tmpFullness <= 10);
 		if (!(tmpFullness > 0 && tmpFullness <= 10)) {
 			return fail(400, {
 				incorrect: true,

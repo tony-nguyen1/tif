@@ -277,7 +277,7 @@
 						</Card.CardAction>
 					</Card.Header>
 					<Card.CardContent>
-						<p class="">
+						<p class="whitespace-pre-wrap">
 							{aMeal.description}
 						</p>
 					</Card.CardContent>

@@ -7,7 +7,7 @@ module.exports = {
 			name: 'nyx',
 			script: './build/index.js',
 			env: {
-				PORT: 3000,
+				PORT: 4000,
 				HOST: '0.0.0.0',
 				NODE_ENV: 'production',
 
