@@ -18,7 +18,6 @@ export const actions: Actions = {
 	login: async (event) => {
 		console.log('Origin:', event.request.headers.get('origin'));
 		const formData = await event.request.formData();
-		console.info(formData);
 		const username = formData.get('username');
 		const password = formData.get('password');
 
@@ -37,9 +36,7 @@ export const actions: Actions = {
 		// console.info('ez querry of user');
 		// const results2 = await db.select().from(table.user);
 		// console.info(results2);
-		console.info('before result');
 		const results = await db.select().from(table.user).where(eq(table.user.username, username));
-		console.info('after result');
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
