@@ -80,7 +80,6 @@
 		return { x: dataArray.at(-1)!.x, y: data.userInfo!.goalWeight! };
 	});
 	const goalWeightDataArray = $derived([firstInput(), lastInput()]);
-	// console.info(goalWeightDataArray);
 
 	let canvas: HTMLCanvasElement;
 	let myChart: Chart | null = null;

@@ -10,7 +10,6 @@ export const load: PageServerLoad = async () => {
 	const mealArray: table.Meal[] = await findMealOfUser(user.id);
 
 	const lastMeal: table.Meal | undefined = await findLatestMealOf(user.id);
-	console.info(lastMeal ?? 'N/A');
 
 	return { mealArray, lastMeal };
 };
@@ -78,7 +77,6 @@ export const actions: Actions = {
 	deleteMeal: async ({ request }) => {
 		const data = await request.formData();
 		const mealId: number = Number(data.get('mealId')!.toString());
-		console.log(mealId);
 		await deleteMeal(mealId);
 
 		return { success: true };
@@ -109,7 +107,6 @@ export const actions: Actions = {
 			return fail(400, { missing: true, message: 'Form is missing place input' });
 		}
 
-		console.info(data);
 		const tmpFullness = Number(data.get('fullness')!.toString());
 		if (tmpFullness > 0 && tmpFullness <= 10) {
 			return fail(400, {

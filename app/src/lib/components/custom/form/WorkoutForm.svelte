@@ -51,7 +51,6 @@
 		]}
 		onclick={() => {
 			formDisplayStateValue.mutateFormDisplayStateTo(FormState.AddTag);
-			console.info('hi');
 		}}
 	>
 		Add tag
