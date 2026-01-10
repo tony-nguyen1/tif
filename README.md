@@ -1,23 +1,30 @@
-# tif
+[![Continuous Deployment](https://github.com/tony-nguyen1/tif/actions/workflows/continuousDeployment.yml/badge.svg?branch=main)](https://github.com/tony-nguyen1/tif/actions/workflows/continuousDeployment.yml)
+# Nyx
 Webapp to track my progress at the gym, weight, sleep and eating habits
 
 # Stack
-Built with SvelteKit and Turso
 
-# Features
-- [x] Authentication
-    - [ ] Switch to JWT
-- [ ] User Profile
-- [x] Workout
-    - [ ] Create component for displaying sets
-    - [ ] Create component for forms
-    - [ ] Add form component in exercise/[slug]
-- [ ] Weight tracker
-    - [ ] Add a data point
-    - [ ] Line chart with prediction
-- [ ] Sleep tracker (calendar) like a bullet journal + see the repartition of long period of sleep, medium, short ...
-- [ ] Meal tracker, log entry, date and time, description, fullness, protein estimation
-text + protein counter
+Built with [SvelteKit](https://svelte.dev/), [Tailwindcss](https://tailwindcss.com/) and [Turso](https://turso.tech/)
+
+External libraries include but not limited to :
+- [Drizzle](https://orm.drizzle.team/)
+- [Shadcn](https://shadcn-svelte.com/)
+- [Lucide](https://lucide.dev/)
+- [Sonner](https://sonner.emilkowal.ski/)
+- [Chart.js](https://www.chartjs.org/)
+
+# Usage
+
+To run this project, install the dependencies with:
+```bash
+npm install
+```
+
+Then, start the web server by running this:
+```bash
+npm run dev
+```
+
 
 https://developer.mozilla.org/en-US/docs/Glossary/Semantics
 
