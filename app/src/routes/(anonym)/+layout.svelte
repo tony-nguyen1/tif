@@ -26,7 +26,7 @@
 <ModeWatcher />
 <!-- test -->
 <div class="flex w-full flex-col">
-	<main class="grid grow auto-rows-min gap-y-2 overflow-y-auto px-3 py-3">
+	<main class="grid grow overflow-y-auto">
 		{@render children?.()}
 	</main>
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
