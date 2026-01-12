@@ -72,3 +72,17 @@ export function createDeferred<T>() {
 
 	return { promise, resolve, reject };
 }
+
+export function toInputDate(d: Date): string {
+	return d.toISOString().slice(0, 10);
+}
+
+export function toInputTime(d: Date): string {
+	const hours = String(d.getHours()).padStart(2, '0');
+	const minutes = String(d.getMinutes()).padStart(2, '0');
+	return `${hours}:${minutes}`;
+}
+
+export function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}

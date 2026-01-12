@@ -4,10 +4,11 @@ import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import { findMealOfUser, editMeal } from '$lib/server/db/mealRepo.js';
 import { fail } from '@sveltejs/kit';
+import { sleep } from '$lib/util';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
-	const mealArray: table.Meal[] = await findMealOfUser(user.id);
+	const mealArray: Promise<table.Meal[]> = findMealOfUser(user.id);
 
 	const lastMeal: table.Meal | undefined = await findLatestMealOf(user.id);
 
@@ -107,16 +108,21 @@ export const actions: Actions = {
 			return fail(400, { missing: true, message: 'Form is missing place input' });
 		}
 
+		const tmpDatetime = new Date(data.get('datetime')!.toString());
+		if (!data.get('datetime') || tmpDatetime.toString() === 'Invalid Date') {
+			return fail(400, { missing: true, message: 'Form is missing datetime-local input' });
+		}
+
 		const tmpFullness = Number(data.get('fullness')!.toString());
-		if (tmpFullness > 0 && tmpFullness <= 10) {
+		if (!(tmpFullness > 0 && tmpFullness <= 10)) {
 			return fail(400, {
 				incorrect: true,
 				message: 'Fulness input must be between 1 and 10 included'
 			});
 		}
 
-		const tmpProtein = Number(data.get('fullness')!.toString());
-		if (tmpProtein >= 0) {
+		const tmpProtein = Number(data.get('protein')!.toString());
+		if (tmpProtein < 0) {
 			return fail(400, {
 				incorrect: true,
 				message: 'Protein input must be positive'
@@ -136,7 +142,7 @@ export const actions: Actions = {
 		}
 
 		const input = {
-			// date: new Date(data.get('date')!.toString()),
+			date: tmpDatetime,
 			id: mealId,
 			userId: userId,
 			description: data.get('description')!.toString(),
@@ -145,12 +151,17 @@ export const actions: Actions = {
 			fullness: tmpFullness
 		};
 
-		await editMeal(input);
-
-		return { success: true };
+		const res = await editMeal(input);
+		if (res.length === 1) {
+			return { success: true, message: 'Meal updated successfully' };
+		} else if (res.length < 0) {
+			return fail(500, {
+				message: 'No row were affected'
+			});
+		} else {
+			return fail(500, {
+				message: 'Somehow multiple rows were affected'
+			});
+		}
 	}
 };
-
-function sleep(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
