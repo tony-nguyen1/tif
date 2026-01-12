@@ -9,31 +9,14 @@
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import { EllipsisVertical } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import { createDeferred, dateToStringCustomFormat } from '$lib/util.js';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 
 	let formStateDisplay = $state(true);
 	let lastMealPlace = $derived(data.lastMeal?.place ?? '');
-
-	function dateToStringCustomFormat(aDate: Date) {
-		return `${aDate.toLocaleDateString()} ${aDate.getHours()}:${aDate.getMinutes()}`;
-	}
-
-	// FIXME : extract to util lib
-	function createDeferred<T>() {
-		let resolve!: (value: T | PromiseLike<T>) => void;
-		let reject!: (reason?: unknown) => void;
-
-		const promise = new Promise<T>((res, rej) => {
-			resolve = res;
-			reject = rej;
-		});
-
-		return { promise, resolve, reject };
-	}
 </script>
 
-<!-- <Toaster position="top-center" richColors /> -->
 <h1 class="text-5xl">Meal</h1>
 <div></div>
 <section id="addMealForm">
@@ -151,138 +134,167 @@
 <section id="mealList" class="">
 	<h2 class="text-2xl">Past meals</h2>
 	<div class="mt-1.5 flex flex-col-reverse gap-y-3">
-		{#each data.mealArray as aMeal (aMeal.id)}
-			<article>
-				<Card.Root>
-					<Card.Header>
-						<Card.Title class="text-xl font-semibold">
-							{dateToStringCustomFormat(aMeal.date)}
-						</Card.Title>
-						<span class="text-sm text-muted-foreground italic">
-							At {aMeal.place} – {aMeal.fullness}/10 fullness – {aMeal.protein}g of protein
-						</span>
+		{#await data.mealArray}
+			Waiting
+		{:then mealArray}
+			{#each mealArray as aMeal (aMeal.id)}
+				<article>
+					<Card.Root>
+						<Card.Header>
+							<Card.Title class="text-xl font-semibold">
+								{dateToStringCustomFormat(aMeal.date)}
+							</Card.Title>
+							<span class="text-sm text-muted-foreground italic">
+								At {aMeal.place} – {aMeal.fullness}/10 fullness – {aMeal.protein}g of protein
+							</span>
 
-						<Card.CardAction>
-							<DropdownMenu.Root>
-								<DropdownMenu.Trigger>
-									<!-- | -->
-									<EllipsisVertical />
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Content>
-									<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
-										<Dialog.Root>
-											<Dialog.Trigger class="w-full text-left">Edit</Dialog.Trigger>
-											<Dialog.Content>
-												<Dialog.Header>
-													<Dialog.Title class="text-xl">Edit meal {aMeal.id}</Dialog.Title>
-													<Dialog.DialogDescription>
-														{dateToStringCustomFormat(aMeal.date)}
-													</Dialog.DialogDescription>
-												</Dialog.Header>
-												<form
-													method="post"
-													action="?/putMeal"
-													onsubmit={() => {
-														// wait(1000).then(() => (open = false));
-													}}
-													class="grid gap-2"
-												>
-													<input name="mealId" value={aMeal.id} hidden />
-													<div class="grid gap-1">
-														<label for="place" class="text-sm">Place</label>
-														<InputGroup.Root>
-															<InputGroup.Input
-																name="place"
-																autocomplete="on"
-																type="text"
-																placeholder="Home"
-																value={aMeal.place}
-																required
+							<Card.CardAction>
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										<EllipsisVertical />
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content>
+										<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+											<Dialog.Root>
+												<Dialog.Trigger class="w-full text-left">Edit</Dialog.Trigger>
+												<Dialog.Content>
+													<Dialog.Header>
+														<Dialog.Title class="text-xl">Edit meal {aMeal.id}</Dialog.Title>
+													</Dialog.Header>
+													<form
+														method="post"
+														action="?/putMeal"
+														class="grid gap-2"
+														use:enhance={() => {
+															const deferred = createDeferred();
+															toast.promise(deferred.promise, {
+																loading: 'Processing ...',
+																success: (val) => {
+																	return val as string;
+																},
+																error: (reason) => reason as string
+															});
+
+															return async ({ result, update }) => {
+																await update();
+
+																if (result.type === 'success') {
+																	lastMealPlace = form?.lastMealPlace ?? '';
+																	deferred.resolve(`Meal updated !`);
+																} else if (result.type === 'failure') {
+																	deferred.reject(form!.message);
+																} else if (result.type === 'error') {
+																	deferred.reject('Something went wrong');
+																} else {
+																	deferred.resolve('Redirect');
+																}
+															};
+														}}
+													>
+														<input name="mealId" value={aMeal.id} hidden />
+														<div class="flex justify-center">
+															<input
+																name="datetime"
+																type="datetime-local"
+																value={aMeal.date.toISOString().slice(0, 16)}
+																class="w-fit text-sm text-muted-foreground"
 															/>
-														</InputGroup.Root>
-													</div>
-
-													<div class="grid grid-cols-2 gap-4">
+														</div>
 														<div class="grid gap-1">
-															<label for="protein" class="text-sm">Protein estimation (g)</label>
+															<label for="place" class="text-sm">Place</label>
 															<InputGroup.Root>
 																<InputGroup.Input
+																	name="place"
+																	autocomplete="on"
+																	type="text"
+																	placeholder="Home"
+																	value={aMeal.place}
 																	required
-																	name="protein"
-																	autocomplete="off"
-																	inputmode="numeric"
-																	min="0"
-																	placeholder="35 grammes"
-																	value={aMeal.protein}
 																/>
 															</InputGroup.Root>
 														</div>
+
+														<div class="grid grid-cols-2 gap-4">
+															<div class="grid gap-1">
+																<label for="protein" class="text-sm">Protein</label>
+																<InputGroup.Root>
+																	<InputGroup.Input
+																		required
+																		name="protein"
+																		autocomplete="off"
+																		inputmode="numeric"
+																		min="0"
+																		placeholder="35 grammes"
+																		value={aMeal.protein}
+																	/>
+																</InputGroup.Root>
+															</div>
+															<div class="grid gap-1">
+																<label for="fullness" class="text-sm">Fullness</label>
+																<InputGroup.Root>
+																	<InputGroup.Input
+																		required
+																		name="fullness"
+																		autocomplete="off"
+																		inputmode="numeric"
+																		min="0"
+																		placeholder="5"
+																		value={aMeal.fullness}
+																	/>
+																	<InputGroup.Addon align="inline-end">
+																		<InputGroup.Text>/ 10</InputGroup.Text>
+																	</InputGroup.Addon>
+																</InputGroup.Root>
+															</div>
+														</div>
+
 														<div class="grid gap-1">
-															<label for="fullness" class="text-sm">Fullness</label>
+															<label for="description" class="text-sm">Description</label>
 															<InputGroup.Root>
-																<InputGroup.Input
+																<InputGroup.Textarea
 																	required
-																	name="fullness"
+																	name="description"
 																	autocomplete="off"
-																	inputmode="numeric"
-																	min="0"
-																	placeholder="5"
-																	value={aMeal.fullness}
+																	placeholder="Fish & chips"
+																	value={aMeal.description}
+																	rows={3}
 																/>
-																<InputGroup.Addon align="inline-end">
-																	<InputGroup.Text>/ 10</InputGroup.Text>
-																</InputGroup.Addon>
 															</InputGroup.Root>
 														</div>
-													</div>
 
-													<div class="grid gap-1">
-														<label for="description" class="text-sm">Description</label>
-														<InputGroup.Root>
-															<InputGroup.Textarea
-																required
-																name="description"
-																autocomplete="off"
-																placeholder="Fish & chips"
-																value={aMeal.description}
-																rows={3}
-															/>
-														</InputGroup.Root>
-													</div>
-
-													<input name="mealId" value={aMeal.id} hidden />
-													<!-- <input name="date" value={aMeal.date} hidden /> -->
-
-													<Button variant="outline" type="submit" class="justify-self-end">
-														Send
-													</Button>
-												</form>
-											</Dialog.Content>
-										</Dialog.Root>
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
-										<form
-											method="post"
-											action="?/deleteMeal"
-											data-meal-id={aMeal.id}
-											use:enhance
-											class="w-full"
-										>
-											<input name="mealId" value={aMeal.id} hidden />
-											<button type="submit" class="w-full text-left text-red-500">Delete</button>
-										</form>
-									</DropdownMenu.Item>
-								</DropdownMenu.Content>
-							</DropdownMenu.Root>
-						</Card.CardAction>
-					</Card.Header>
-					<Card.CardContent>
-						<p class="whitespace-pre-wrap">
-							{aMeal.description}
-						</p>
-					</Card.CardContent>
-				</Card.Root>
-			</article>
-		{/each}
+														<Button variant="outline" type="submit" class="justify-self-end">
+															Send
+														</Button>
+													</form>
+												</Dialog.Content>
+											</Dialog.Root>
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+											<form
+												method="post"
+												action="?/deleteMeal"
+												data-meal-id={aMeal.id}
+												use:enhance
+												class="w-full"
+											>
+												<input name="mealId" value={aMeal.id} hidden />
+												<button type="submit" class="w-full text-left text-red-500">Delete</button>
+											</form>
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+							</Card.CardAction>
+						</Card.Header>
+						<Card.CardContent>
+							<p class="whitespace-pre-wrap">
+								{aMeal.description}
+							</p>
+						</Card.CardContent>
+					</Card.Root>
+				</article>
+			{/each}
+		{:catch error}
+			<p>error loading comments: {error.message}</p>
+		{/await}
 	</div>
 </section>

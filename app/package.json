@@ -46,7 +46,7 @@
 		"@types/lodash.isequal": "^4.5.8",
 		"@types/node": "^24",
 		"@vitest/browser": "^4.0.15",
-		"bits-ui": "^2.14.3",
+		"bits-ui": "^2.15.4",
 		"clsx": "^2.1.1",
 		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.4",
