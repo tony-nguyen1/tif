@@ -5,12 +5,7 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
-	// import SolarDumbbellLargeMinimalisticOutline from '@iconify-svelte/solar/dumbbell-large-minimalistic-outline';
 	import SolarHome2Outline from '@iconify-svelte/solar/home-2-outline';
-	// import SolarDonutBittenOutline from '@iconify-svelte/solar/donut-bitten-outline';
-	// import SolarMoonSleepOutline from '@iconify-svelte/solar/moon-sleep-outline';
-	// import SolarUserIdOutline from '@iconify-svelte/solar/user-id-outline';
-	// import SolarWeigherOutline from '@iconify-svelte/solar/weigher-outline';
 
 	import { toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -30,7 +25,9 @@
 		{@render children?.()}
 	</main>
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
-		<a href={resolve('/')}><SolarHome2Outline class="size-9" /></a>
+		<Button variant="link" href={resolve('/')} aria-label="Home"
+			><SolarHome2Outline class="size-9" /></Button
+		>
 		<!-- <a href={resolve('/(anonym)/login')}>Login</a> -->
 		<Button variant="link" href={resolve('/(anonym)/login')}>Login</Button>
 

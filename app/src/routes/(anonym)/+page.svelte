@@ -66,20 +66,23 @@
 	<article class="flex h-[500px] snap-x snap-mandatory flex-row gap-x-3 overflow-x-scroll">
 		<img
 			height="500px"
+			width="231"
 			src={mealPage}
 			alt="Screenshot of the meal page"
 			class="snap-start"
-			loading="lazy"
+			fetchpriority="high"
 		/>
 		<img
 			height="500px"
+			width="231"
 			src={sleepPage}
 			alt="Screenshot of the sleep page"
 			class="snap-start"
-			loading="lazy"
+			fetchpriority="high"
 		/>
 		<img
 			height="500px"
+			width="231"
 			src={weightPage}
 			alt="Screenshot of the weight page"
 			class="snap-start"
@@ -87,6 +90,7 @@
 		/>
 		<img
 			height="500px"
+			width="231"
 			src={loginPage}
 			alt="Screenshot of the weight page"
 			class="snap-start"
@@ -108,7 +112,7 @@
 			<img src={githubLogoDark} class="hidden h-7 dark:block" alt="Logo Github" />
 		</a>
 		<a href="https://forgejo.nguyentony.fr">
-			<img src={forgejoLogo} alt="Logo Forgejo" class="h-7" />
+			<img src={forgejoLogo} alt="Logo Forgejo" class="h-7" title="Self-hosted Forgejo instance" />
 		</a>
 		<a href="https://www.linkedin.com/in/nguyentoony/">
 			<img src={linkedInLogo} alt="Logo LinkedIn" class="h-7" />
