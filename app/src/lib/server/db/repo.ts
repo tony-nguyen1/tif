@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq, and, sum, desc } from 'drizzle-orm';
+import { eq, and, sum, desc, gte, lt } from 'drizzle-orm';
 import type { BuildQueryResult, DBQueryConfig, ExtractTablesWithRelations } from 'drizzle-orm';
 import * as schema from '$lib/server/db/schema';
 import { type Goal } from '$lib/customType';
@@ -180,7 +180,23 @@ export async function addASet(input: {
 }
 
 export async function createWorkout(userId: string) {
-	return await db.insert(table.workout).values({ userId, date: new Date() }).returning();
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const tomorrow = new Date(today);
+	tomorrow.setDate(today.getDate() + 1);
+
+	const workoutAlreadyExisting = await db.query.workout.findFirst({
+		where: (w) => gte(w.date, today) && lt(w.date, tomorrow)
+	});
+
+	if (workoutAlreadyExisting) return workoutAlreadyExisting.id;
+	console.info('...no workout found for today\n...creating a new one');
+
+	const foo = await db.insert(table.workout).values({ userId, date: new Date() });
+
+	if (foo.rowsAffected !== 1) return undefined;
+	else return foo.lastInsertRowid;
 }
 
 export async function deleteWorkoutCascade(workoutId: number) {

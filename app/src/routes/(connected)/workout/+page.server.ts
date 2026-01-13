@@ -27,10 +27,13 @@ export const actions: Actions = {
 	},
 	createNewTrainingSession: async ({ request }) => {
 		const data = await request.formData();
-		const insertedWorkout = (await createWorkout(data.get('userId')!.toString()))[0];
+		const insertedWorkoutId = await createWorkout(data.get('userId')!.toString());
+		if (!insertedWorkoutId) {
+			return fail(500, { sucess: false, message: 'Inserting a workout into DB went wrong' });
+		}
 		return redirect(
 			302,
-			resolve('/(connected)/workout/[workoutId]', { workoutId: insertedWorkout.id.toString() })
+			resolve('/(connected)/workout/[workoutId]', { workoutId: insertedWorkoutId.toString() })
 		);
 	},
 	deleteTrainingSession: async ({ request }) => {
