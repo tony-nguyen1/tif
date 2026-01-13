@@ -41,7 +41,7 @@
 
 	let { data }: { data: PageServerData } = $props();
 
-	let formDisplayStateValue: FormStateUnion = $state(new FormStateUnion(data.lastExercise));
+	let formDisplayStateValue: FormStateUnion = $derived(new FormStateUnion(data.lastExercise));
 	// let formOptionsAuthorized: Array<boolean | undefined> = data.formOptionsAuthorized;
 </script>
 
@@ -114,7 +114,5 @@
 
 <form method="POST" action="?/deleteWorkout" class="justify-self-center">
 	<input name="trainingSessionId" value={data.trainingSessionInfo.id} hidden />
-	<Button class="bg-red-600 text-white transition hover:bg-red-700"
-		>Delete this training session</Button
-	>
+	<Button variant="destructive" type="submit">Delete this training session</Button>
 </form>
