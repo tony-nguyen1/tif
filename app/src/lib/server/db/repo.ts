@@ -187,10 +187,8 @@ export async function createWorkout(userId: string) {
 	tomorrow.setDate(today.getDate() + 1);
 
 	const workoutAlreadyExisting = await db.query.workout.findFirst({
-		where: (w) => gte(w.date, today) && lt(w.date, tomorrow)
+		where: (w) => and(gte(w.date, today), lt(w.date, tomorrow), eq(w.userId, userId))
 	});
-	console.info(`workout of ${userId}`);
-	console.info(workoutAlreadyExisting);
 
 	if (workoutAlreadyExisting) return workoutAlreadyExisting.id;
 	console.info('...no workout found for today\n...creating a new one');
