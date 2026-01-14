@@ -90,8 +90,8 @@ export const taggedWorkout = sqliteTable(
 		unique('no_multiple_identical_tag_per_workout').on(table.tagId, table.workoutId)
 	]
 );
-export const taggedWorkoutRelation = relations(taggedWorkout, ({ one, many }) => ({
-	workout: many(workout),
+export const taggedWorkoutRelation = relations(taggedWorkout, ({ one }) => ({
+	workout: one(workout, { fields: [taggedWorkout.workoutId], references: [workout.id] }),
 	tag: one(tag, { fields: [taggedWorkout.tagId], references: [tag.id] })
 }));
 
@@ -111,7 +111,7 @@ export const workoutRelation = relations(workout, ({ one, many }) => ({
 		fields: [workout.userId],
 		references: [user.id]
 	}),
-	taggedWorkout: one(taggedWorkout, { fields: [workout.id], references: [taggedWorkout.workoutId] })
+	taggedWorkout: many(taggedWorkout)
 }));
 
 export const set = sqliteTable('set', {

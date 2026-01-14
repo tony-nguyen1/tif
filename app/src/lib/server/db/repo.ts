@@ -189,6 +189,8 @@ export async function createWorkout(userId: string) {
 	const workoutAlreadyExisting = await db.query.workout.findFirst({
 		where: (w) => gte(w.date, today) && lt(w.date, tomorrow)
 	});
+	console.info(`workout of ${userId}`);
+	console.info(workoutAlreadyExisting);
 
 	if (workoutAlreadyExisting) return workoutAlreadyExisting.id;
 	console.info('...no workout found for today\n...creating a new one');
@@ -209,7 +211,16 @@ export async function deleteSet(setId: number) {
 }
 
 export async function findWorkoutOfUser(userId: string) {
-	return await db.query.workout.findMany({ where: eq(table.workout.userId, userId) });
+	return await db.query.workout.findMany({
+		where: eq(table.workout.userId, userId),
+		with: {
+			taggedWorkout: {
+				with: {
+					tag: true
+				}
+			}
+		}
+	});
 }
 
 // Tag
