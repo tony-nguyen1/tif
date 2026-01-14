@@ -10,7 +10,7 @@ import { resolve } from '$app/paths';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
-	const trainingSessionData: table.Workout[] = await findWorkoutOfUser(user.id);
+	const trainingSessionData = await findWorkoutOfUser(user.id);
 	const userExercise = await getAllExercises(user.id);
 	return { user, trainingSessionData, userExercise };
 };
