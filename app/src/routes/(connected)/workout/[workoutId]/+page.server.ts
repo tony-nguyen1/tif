@@ -3,13 +3,14 @@ import { _requireLogin } from '../+page.server.js';
 import type { Actions } from './$types.js';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { error } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import {
 	getAllExercises,
 	getLastSeriesBis,
 	getWorkoutSet,
-	getTagOfUser
+	getTagOfUser,
+	getTag
 } from '$lib/server/db/repo.js';
 import {
 	editSet,
@@ -26,6 +27,7 @@ import {
 	getAllTagOfWorkout
 } from '$lib/server/db/repo.js';
 import { resolve } from '$app/paths';
+import { FormState } from '$lib/components/custom/form/myEnum.js';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -33,9 +35,10 @@ export async function load({ params }) {
 	const userExercise = await getAllExercises(user.id);
 	const workoutId: number = Number(params.workoutId);
 	const workoutDone = await getWorkoutSet(user.id, workoutId);
-	const userTag = await getTagOfUser(user.id);
-	const workoutTag = await getAllTagOfWorkout(workoutId);
-	const tagIds = new Set(workoutTag.map((obj) => obj.tagId));
+	const tagUserAll = await getTagOfUser(user.id);
+
+	const tagWorkoutObject = await getAllTagOfWorkout(workoutId);
+	const tagWorkoutId = new Set(tagWorkoutObject.map((obj) => obj.tagId));
 
 	const cleanMap: Map<number, Array<table.Set>> = new Map();
 	const volumeMap: Map<number, number> = new Map();
@@ -72,8 +75,8 @@ export async function load({ params }) {
 
 	return {
 		trainingSessionInfo: {
-			...workoutDone,
-			formattedDateFromNow: dayjs(workoutDone?.date).fromNow()
+			...workoutDone
+			// formattedDateFromNow: dayjs(workoutDone?.date).fromNow()
 		},
 		user,
 		userExercise,
@@ -81,16 +84,17 @@ export async function load({ params }) {
 		volumeMap,
 		exerciseIdToNameMap,
 		lastExercise: lastSet?.exerciseId ?? -1,
-		userTag,
-		tagIds
+		tagUserAll,
+		tagWorkoutId
 	};
 }
 
 export const actions: Actions = {
-	addASet: async ({ request }) => {
+	addASet: async ({ request, params }) => {
+		const workoutId = params.workoutId;
 		const data = await request.formData();
 		const input = {
-			workoutId: Number(data.get('trainingSessionId')!.toString()),
+			workoutId: Number(workoutId),
 			exerciseId: Number(data.get('exerciseId')!.toString()),
 			repNumber: Number(data.get('rep')!.toString()),
 			weight: Number(data.get('weight')!.toString()),
@@ -99,9 +103,12 @@ export const actions: Actions = {
 		};
 
 		const success = await addASet(input);
-		return { success };
+		return { success, workoutId: input.workoutId };
 	},
 	editASet: async ({ request }) => {
+		// const user = _requireLogin();
+		// check if this set belongs to user
+
 		const data = await request.formData();
 		const setData = {
 			id: Number(data.get('setId')!.toString()),
@@ -115,10 +122,13 @@ export const actions: Actions = {
 		};
 
 		await editSet(setData);
+		// FIXME : proper checking if db write is ok or went wrong
+		return { success: true, workoutId: setData.workoutId };
 	},
 	editWorkout: async ({ request }) => {
+		const user = _requireLogin();
 		const data = await request.formData();
-		const userId: string = data.get('userId')!.toString();
+		// FIXME : proper input validation
 		const workoutId = Number(data.get('trainingSessionId')!.toString());
 		const inputData = {
 			comment: data.get('comment') ? data.get('comment')!.toString() : null,
@@ -126,7 +136,8 @@ export const actions: Actions = {
 			duration: data.get('duration') ? Number(data.get('duration')!.toString()) : null
 		};
 
-		await editWorkout(userId, workoutId, inputData);
+		await editWorkout(user.id, workoutId, inputData);
+		return { success: true, workoutId: workoutId };
 	},
 	deleteWorkout: async ({ request }) => {
 		const data = await request.formData();
@@ -138,20 +149,51 @@ export const actions: Actions = {
 		await deleteSet(Number(data.get('gymSetId')!.toString()));
 	},
 	createTag: async ({ request }) => {
+		const user = _requireLogin();
 		const data = await request.formData();
 		const tag = {
 			name: data.get('newTagName')!.toString(),
-			userId: data.get('userId')!.toString()
+			userId: user.id
 		};
-		await addTagToUser(tag);
+
+		try {
+			const res = await addTagToUser(tag);
+			if (res.length === 1) {
+				return {
+					success: true,
+					message:
+						res.length === 1
+							? 'Tag has been inserted into db'
+							: `Error creating the tag ${tag.name} `,
+					lastOperation: FormState.AddTag,
+					tagName: tag.name
+				};
+			}
+
+			return fail(500, {
+				success: false,
+				message: `Error creating the tag ${tag.name} `,
+				lastOperation: FormState.AddTag,
+				tagName: tag.name
+			});
+		} catch (error) {
+			console.error(error);
+			return fail(500, {
+				success: false,
+				message: `Error creating the tag ${tag.name} `,
+				lastOperation: FormState.AddTag,
+				tagName: tag.name
+			});
+		}
 	},
-	toggleTag: async ({ request }) => {
+	toggleTag: async ({ request, params }) => {
+		const user = _requireLogin();
 		const data = await request.formData();
-		const tag = {
-			userId: data.get('userId')!.toString(),
+		const workoutId = params.workoutId;
+		const tagInput = {
+			userId: user.id,
 			tagId: Number(data.get('tagId')!.toString()),
-			workoutId: Number(data.get('workoutId')!.toString()),
-			name: data.get('tagName')!.toString()
+			workoutId: Number(workoutId)
 		};
 
 		// FIXME
@@ -160,25 +202,43 @@ export const actions: Actions = {
 		// check if tag exist
 
 		// check if user can modify this workout
-		if (!(await getWorkout(tag.userId, tag.workoutId))) {
+		if (!(await getWorkout(tagInput.userId, tagInput.workoutId))) {
 			error(403, 'User not authorized to modify this workout');
 		}
 
 		// check if tag belongs to user
 		// If user doesn't exit, 403
 		// If user exist, we always get an answer (not an undefined)
-		const res = await getTagOfUserAndId(tag.userId, tag.tagId);
+		const res = await getTagOfUserAndId(tagInput.userId, tagInput.tagId);
 		if (!res || res!.tag.length < 1) {
 			error(403, 'User not authorized to add this tag');
 		}
 
+		const tag = (await getTag(tagInput.tagId))!;
+
 		// check if workoutId linked to tagId
-		if (await getTagOfWorkout(tag.tagId, tag.workoutId)) {
-			const rmRes = await removeTagToWorkout({ tagId: tag.tagId, workoutId: tag.workoutId });
-			return { success: rmRes.rowsAffected === 1 };
+		if (await getTagOfWorkout(tagInput.tagId, tagInput.workoutId)) {
+			const rmRes = await removeTagToWorkout({
+				tagId: tagInput.tagId,
+				workoutId: tagInput.workoutId
+			});
+			return {
+				success: rmRes.rowsAffected === 1,
+				lastOperation: FormState.AddTag,
+				tagName: tag.name,
+				removed: true
+			};
 		} else {
-			const addRes = await addTagToWorkout({ tagId: tag.tagId, workoutId: tag.workoutId });
-			return { success: addRes.length === 1 };
+			const addRes = await addTagToWorkout({
+				tagId: tagInput.tagId,
+				workoutId: tagInput.workoutId
+			});
+			return {
+				success: addRes.length === 1,
+				lastOperation: FormState.AddTag,
+				tagName: tag.name,
+				removed: false
+			};
 		}
 	}
 };

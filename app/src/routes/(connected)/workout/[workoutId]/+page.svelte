@@ -1,48 +1,15 @@
 <script lang="ts">
 	// TODO : true error handling and redirection to error page
-	import { enhance } from '$app/forms';
-	// import type { PageServerData } from '../../../(connected)/profile/exercise/[exerciseId]/$types';
-	import type { PageServerData } from './$types';
-	import SolarPen2Linear from '@iconify-svelte/solar/pen-2-linear';
-	import SolarCloseSquareLineDuotone from '@iconify-svelte/solar/close-square-line-duotone';
+	// import { enhance } from '$app/forms';
+	import type { ActionData, PageServerData } from './$types';
 	import { resolve } from '$app/paths';
-	import { FormState } from '$lib/components/custom/form/myEnum';
-	import { type Set } from '$lib/server/db/schema';
 	import WorkoutForm from '$lib/components/custom/form/WorkoutForm.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { FormStateUnion } from '$lib/components/custom/form/WorkoutFormState.svelte';
 
-	export class FormStateUnion {
-		formState: FormState;
-		setState: Set | null;
-		selectedExerciseId: number;
-		lastExerciseId: number;
-
-		constructor(n: number) {
-			this.formState = $state(FormState.AddSet);
-			this.setState = $state(null);
-			this.selectedExerciseId = $state(n);
-			this.lastExerciseId = $state(n);
-		}
-
-		edit(getASet: () => Set) {
-			this.formState = FormState.EditSet;
-			this.setState = getASet();
-			this.selectedExerciseId = getASet().exerciseId;
-		}
-
-		mutateFormDisplayStateTo(newSate: FormState) {
-			if (this.formState === FormState.EditSet) {
-				// in the state EditSet, the exercice selected is modified, so we need to revert it back
-				this.selectedExerciseId = this.lastExerciseId;
-			}
-			this.formState = newSate;
-		}
-	}
-
-	let { data }: { data: PageServerData } = $props();
+	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 
 	let formDisplayStateValue: FormStateUnion = $derived(new FormStateUnion(data.lastExercise));
-	// let formOptionsAuthorized: Array<boolean | undefined> = data.formOptionsAuthorized;
 </script>
 
 <header>
@@ -51,7 +18,7 @@
 	</h1>
 </header>
 
-<WorkoutForm {...data} {formDisplayStateValue} />
+<WorkoutForm {...data} {form} bind:formDisplayStateValue />
 
 <section id="setLOfWorkoutist">
 	{#each data.cleanMap.keys() as exerciseId (exerciseId)}
@@ -85,7 +52,7 @@
 						{/if}
 					</div>
 					<div class="flex flex-row gap-x-2">
-						<button
+						<!-- <button
 							onclick={() => {
 								formDisplayStateValue.edit(() => aSet);
 							}}
@@ -103,7 +70,7 @@
 							>
 								<SolarCloseSquareLineDuotone class="size-6" />
 							</button>
-						</form>
+						</form> -->
 					</div>
 				</li>
 			{/each}
