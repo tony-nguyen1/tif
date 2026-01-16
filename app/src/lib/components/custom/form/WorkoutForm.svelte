@@ -5,9 +5,28 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
+	import { createDeferred } from '$lib/util';
+	import { toast } from 'svelte-sonner';
+	// import * as table from '$lib/server/db/schema';
+	import type { FormStateUnion } from './WorkoutFormState.svelte';
 
-	let { userExercise, trainingSessionInfo, user, formDisplayStateValue, userTag, tagIds } =
-		$props();
+	// table.Exercise[]
+	// interface Props {
+	// 	userExercise: table.Exercise[];
+	// 	trainingSessionInfo: table.Workout;
+	// 	formDisplayStateValue: FormStateUnion;
+	// 	tagUserAll: table.Tag[];
+	// 	tagWorkoutId: Set<number>;
+	// }
+
+	let {
+		userExercise,
+		trainingSessionInfo,
+		formDisplayStateValue = $bindable<FormStateUnion>(),
+		tagUserAll,
+		tagWorkoutId,
+		form
+	} = $props();
 </script>
 
 <ButtonGroup.Root id="buttonGroupWorkoutForm">
@@ -56,8 +75,6 @@
 		Add tag
 	</Button>
 </ButtonGroup.Root>
-
-<div id="buttonGroupWorkoutForm" class="flex flex-row gap-x-2"></div>
 
 {#if formDisplayStateValue.formState === FormState.AddSet || formDisplayStateValue.formState === FormState.EditSet}
 	<section id="addSetForm">
@@ -156,9 +173,6 @@
 					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 				/>
 			</div>
-			<input name="userId" bind:value={user.id} hidden />
-			<input name="trainingSessionId" bind:value={trainingSessionInfo.id} hidden />
-
 			{#if formDisplayStateValue.formState === FormState.EditSet}
 				<input name="setId" value={formDisplayStateValue.setState!.id} hidden />
 				<input name="comment" value={formDisplayStateValue.setState!.comment} hidden />
@@ -178,9 +192,37 @@
 		<header>
 			<h2 class="text-2xl">Edit current workout</h2>
 		</header>
-		<form method="POST" action="?/editWorkout" class="grid gap-2" use:enhance>
-			<input name="userId" bind:value={user.id} hidden />
-			<input name="trainingSessionId" bind:value={trainingSessionInfo.id} hidden />
+		<form
+			method="POST"
+			action="?/editWorkout"
+			class="grid gap-2"
+			use:enhance={() => {
+				const deferred = createDeferred();
+				toast.promise(deferred.promise, {
+					loading: 'Processing ...',
+					success: (val) => {
+						return val as string;
+					},
+					error: (reason) => reason as string
+				});
+
+				return async ({ result, update }) => {
+					await update();
+
+					if (result.type === 'success') {
+						deferred.resolve(`Workout information edited successfuly !`);
+						formDisplayStateValue.formState = FormState.EditWorkoutInfo;
+					} else if (result.type === 'failure') {
+						deferred.reject(form!.message);
+					} else if (result.type === 'error') {
+						deferred.reject('Something went wrong');
+					} else {
+						deferred.resolve('Redirect');
+					}
+				};
+			}}
+		>
+			<input name="trainingSessionId" value={trainingSessionInfo.id} hidden />
 
 			<div class="grid gap-1">
 				<label for="place" class="text-sm">Place</label>
@@ -189,7 +231,7 @@
 					type="text"
 					placeholder="Basic Park Fit"
 					autocomplete="on"
-					bind:value={trainingSessionInfo.place}
+					value={trainingSessionInfo.place}
 					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 				/>
 			</div>
@@ -201,7 +243,7 @@
 					type="number"
 					min="0"
 					placeholder="60"
-					bind:value={trainingSessionInfo.duration}
+					value={trainingSessionInfo.duration}
 					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 				/>
 			</div>
@@ -212,7 +254,7 @@
 					name="comment"
 					type="text"
 					placeholder="Trained to failure, good pump"
-					bind:value={trainingSessionInfo.comment}
+					value={trainingSessionInfo.comment}
 					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 				/>
 			</div>
@@ -231,20 +273,43 @@
 		<header>
 			<h2 class="text-2xl">Add tags to current workout</h2>
 		</header>
-		<!-- 			action={formDisplayStateValue.formState === FormState.AddSet ? '?/addASet' : '?/editASet'}
- -->
 		<p>Tags available:</p>
-		{#each userTag as aUserTag (aUserTag.id)}
-			<form method="POST" class="grid w-fit gap-2" use:enhance action="?/toggleTag">
-				<input name="userId" bind:value={user.id} hidden />
-				<!-- <input name="userId" value="15" hidden /> -->
-				<input name="tagId" bind:value={aUserTag.id} hidden />
-				<!-- <input name="tagId" value="999999" hidden /> -->
-				<input name="workoutId" bind:value={trainingSessionInfo.id} hidden />
-				<!-- <input name="workoutId" value="12121212" hidden /> -->
-				<input name="tagName" bind:value={aUserTag.name} hidden />
+		{#each tagUserAll as aUserTag (aUserTag.id)}
+			<form
+				method="POST"
+				class="grid w-fit gap-2"
+				use:enhance={() => {
+					const deferred = createDeferred();
+					toast.promise(deferred.promise, {
+						loading: 'Processing ...',
+						success: (val) => {
+							return val as string;
+						},
+						error: (reason) => reason as string
+					});
+
+					return async ({ result, update }) => {
+						await update();
+
+						if (result.type === 'success') {
+							deferred.resolve(
+								`Tag ${form.tagName} ${form.removed ? 'removed' : 'added'} successfuly !`
+							);
+							formDisplayStateValue.formState = FormState.AddTag;
+						} else if (result.type === 'failure') {
+							deferred.reject(form!.message);
+						} else if (result.type === 'error') {
+							deferred.reject('Something went wrong');
+						} else {
+							deferred.resolve('Redirect');
+						}
+					};
+				}}
+				action="?/toggleTag"
+			>
+				<input name="tagId" value={aUserTag.id} hidden />
 				<Button
-					variant={tagIds.has(aUserTag.id) ? 'secondary' : 'ghost'}
+					variant={tagWorkoutId.has(aUserTag.id) ? 'secondary' : 'ghost'}
 					type="submit"
 					class="py-.5 rounded-full px-2.5 text-sm"
 				>
@@ -252,7 +317,36 @@
 				</Button>
 			</form>
 		{/each}
-		<form class="flex w-full items-center space-x-4" method="post" action="?/createTag">
+		<form
+			class="flex w-full items-center space-x-4"
+			method="post"
+			action="?/createTag"
+			use:enhance={() => {
+				const deferred = createDeferred();
+				toast.promise(deferred.promise, {
+					loading: 'Processing ...',
+					success: (val) => {
+						return val as string;
+					},
+					error: (reason) => reason as string
+				});
+
+				return async ({ result, update }) => {
+					await update();
+
+					if (result.type === 'success') {
+						deferred.resolve(`Tag created !`);
+						formDisplayStateValue.formState = FormState.AddTag;
+					} else if (result.type === 'failure') {
+						deferred.reject(form!.message);
+					} else if (result.type === 'error') {
+						deferred.reject('Something went wrong');
+					} else {
+						deferred.resolve('Redirect');
+					}
+				};
+			}}
+		>
 			<Label for="newTagName" class="basis-1/6">New tag:</Label>
 			<Input
 				id="newTagName"
@@ -262,7 +356,6 @@
 				placeholder="Shoulder"
 				required
 			/>
-			<input name="userId" bind:value={user.id} hidden />
 			<Button type="submit">Create</Button>
 		</form>
 	</section>

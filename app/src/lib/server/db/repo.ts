@@ -59,11 +59,6 @@ export async function getWorkoutSet(userId: string, workoutId: number) {
 				with: {
 					exercise: true
 				}
-			},
-			taggedWorkout: {
-				with: {
-					tag: true
-				}
 			}
 		}
 	});
@@ -267,6 +262,12 @@ export async function getTagOfUserAndId(userId: string, tagId: number) {
 				where: eq(table.tag.id, tagId)
 			}
 		}
+	});
+}
+
+export async function getTag(tagId: number) {
+	return await db.query.tag.findFirst({
+		where: eq(table.tag.id, tagId)
 	});
 }
 

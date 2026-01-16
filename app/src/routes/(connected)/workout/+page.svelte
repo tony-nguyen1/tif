@@ -29,7 +29,7 @@
 
 <section>
 	<h2 class="mb-2 text-3xl">Past workout</h2>
-	<div class="flex flex-col gap-3">
+	<div class="flex flex-col-reverse gap-3">
 		{#each data.trainingSessionData as aTrainingSession (aTrainingSession.id)}
 			<article>
 				<Card.Root>
