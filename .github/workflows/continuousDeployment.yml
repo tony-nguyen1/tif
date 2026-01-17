@@ -32,7 +32,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
       DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
-      DATABASE_SYNC: ${{ secrets.DATABSE_SYNC }}
+      DATABASE_SYNC: ${{ secrets.DATABASE_SYNC }}
       APP_ENV: ${{ secrets.APP_ENV }}
     outputs:
       APP_VERSION: ${{ steps.version.outputs.APP_VERSION }}
