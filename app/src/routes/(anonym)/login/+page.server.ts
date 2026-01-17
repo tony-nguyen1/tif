@@ -88,7 +88,8 @@ export const actions: Actions = {
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
-		} catch {
+		} catch (error) {
+			console.error(error);
 			return fail(500, { message: 'An error has occurred' });
 		}
 		return redirect(302, '/profile');

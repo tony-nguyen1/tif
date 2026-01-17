@@ -9,6 +9,7 @@
 	import { toast } from 'svelte-sonner';
 	// import * as table from '$lib/server/db/schema';
 	import type { FormStateUnion } from './WorkoutFormState.svelte';
+	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 
 	// table.Exercise[]
 	// interface Props {
@@ -250,13 +251,16 @@
 
 			<div class="grid gap-1">
 				<label for="comment" class="text-sm">Comment</label>
-				<input
-					name="comment"
-					type="text"
-					placeholder="Trained to failure, good pump"
-					value={trainingSessionInfo.comment}
-					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<InputGroup.Textarea
+						required
+						name="comment"
+						autocomplete="off"
+						placeholder="Trained to failure, good pump"
+						value={trainingSessionInfo.comment}
+						rows={3}
+					/>
+				</InputGroup.Root>
 			</div>
 
 			<button
@@ -273,50 +277,52 @@
 		<header>
 			<h2 class="text-2xl">Add tags to current workout</h2>
 		</header>
-		<p>Tags available:</p>
-		{#each tagUserAll as aUserTag (aUserTag.id)}
-			<form
-				method="POST"
-				class="grid w-fit gap-2"
-				use:enhance={() => {
-					const deferred = createDeferred();
-					toast.promise(deferred.promise, {
-						loading: 'Processing ...',
-						success: (val) => {
-							return val as string;
-						},
-						error: (reason) => reason as string
-					});
+		<p class="mb-1">Tags available:</p>
+		<div class="mb-1.5 flex w-full max-w-dvw flex-row flex-wrap gap-x-2">
+			{#each tagUserAll as aUserTag (aUserTag.id)}
+				<form
+					method="POST"
+					class="w-fit"
+					use:enhance={() => {
+						const deferred = createDeferred();
+						toast.promise(deferred.promise, {
+							loading: 'Processing ...',
+							success: (val) => {
+								return val as string;
+							},
+							error: (reason) => reason as string
+						});
 
-					return async ({ result, update }) => {
-						await update();
+						return async ({ result, update }) => {
+							await update();
 
-						if (result.type === 'success') {
-							deferred.resolve(
-								`Tag ${form.tagName} ${form.removed ? 'removed' : 'added'} successfuly !`
-							);
-							formDisplayStateValue.formState = FormState.AddTag;
-						} else if (result.type === 'failure') {
-							deferred.reject(form!.message);
-						} else if (result.type === 'error') {
-							deferred.reject('Something went wrong');
-						} else {
-							deferred.resolve('Redirect');
-						}
-					};
-				}}
-				action="?/toggleTag"
-			>
-				<input name="tagId" value={aUserTag.id} hidden />
-				<Button
-					variant={tagWorkoutId.has(aUserTag.id) ? 'secondary' : 'ghost'}
-					type="submit"
-					class="py-.5 rounded-full px-2.5 text-sm"
+							if (result.type === 'success') {
+								deferred.resolve(
+									`Tag ${form.tagName} ${form.removed ? 'removed' : 'added'} successfuly !`
+								);
+								formDisplayStateValue.formState = FormState.AddTag;
+							} else if (result.type === 'failure') {
+								deferred.reject(form!.message);
+							} else if (result.type === 'error') {
+								deferred.reject('Something went wrong');
+							} else {
+								deferred.resolve('Redirect');
+							}
+						};
+					}}
+					action="?/toggleTag"
 				>
-					{aUserTag.name}
-				</Button>
-			</form>
-		{/each}
+					<input name="tagId" value={aUserTag.id} hidden />
+					<Button
+						variant={tagWorkoutId.has(aUserTag.id) ? 'secondary' : 'ghost'}
+						type="submit"
+						class="py-.5 w-fit rounded-full border px-2.5 text-sm"
+					>
+						{aUserTag.name}
+					</Button>
+				</form>
+			{/each}
+		</div>
 		<form
 			class="flex w-full items-center space-x-4"
 			method="post"
@@ -356,7 +362,7 @@
 				placeholder="Shoulder"
 				required
 			/>
-			<Button type="submit">Create</Button>
+			<Button type="submit" variant="outline">Create</Button>
 		</form>
 	</section>
 {:else}
