@@ -45,13 +45,14 @@ export const actions: Actions = {
 		};
 
 		const result = await createWeight(input);
-		if (result.rowsAffected === 1) {
-			return {
-				success: true,
-				inserted: { weight: input.weight, date: input.date }
-			};
+		if (!result.lastInsertRowid) {
+			return fail(500, { success: false, message: `Insert failed` });
 		}
-		return fail(500, { success: false, message: `${result.rowsAffected} rows were affected` });
+
+		return {
+			success: true,
+			inserted: { weight: input.weight, date: input.date }
+		};
 	},
 	deleteWeight: async ({ request }) => {
 		await sleep(1000);

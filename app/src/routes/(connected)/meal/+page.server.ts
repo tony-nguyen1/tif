@@ -67,13 +67,13 @@ export const actions: Actions = {
 		};
 
 		const res = await createMeal(input);
-		if (res.rowsAffected === 1) {
-			return { success: true, lastMealPlace: input.place, message: 'Meal inserted successfully' };
-		} else {
+		if (!res.lastInsertRowid) {
 			return fail(500, {
 				message: 'Somehow multiple rows were affected'
 			});
 		}
+
+		return { success: true, lastMealPlace: input.place, message: 'Meal inserted successfully' };
 	},
 	deleteMeal: async ({ request }) => {
 		const data = await request.formData();

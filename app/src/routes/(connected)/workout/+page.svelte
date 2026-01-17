@@ -70,7 +70,7 @@
 							<div class="flex flex-row gap-2">
 								{#each aTrainingSession.taggedWorkout as aTaggedWorkout (aTaggedWorkout.tag.id)}
 									<span
-										class="block w-fit rounded-full border border-white bg-black px-2 py-0.5 text-sm"
+										class="block w-fit rounded-full border px-2 py-0.5 text-sm dark:border-white dark:bg-black"
 										>{aTaggedWorkout.tag.name}</span
 									>
 								{/each}
