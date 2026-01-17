@@ -91,14 +91,9 @@ pipeline only for main branch
 
 https://deepakkamboj.github.io/getting-started/advanced-configuration.html#visual-testing-configuration
 
-
-
-
 sqlite3 my_local_db.db .dump > test.sql
 ssh user@host "cat ~/path/test.sql" | xclip -selection clipboard
 
-
 turso db shell dbName < ./script.sql
-
 
 npm run build && npm run db:migrate:test && npm run preview:test
