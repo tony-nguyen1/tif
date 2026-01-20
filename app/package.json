@@ -32,7 +32,7 @@
 		"@eslint/compat": "^2.0.0",
 		"@eslint/js": "^9.36.0",
 		"@internationalized/date": "^3.10.0",
-		"@libsql/client": "^0.15.15",
+		"@libsql/client": "^0.17.0",
 		"@lucide/svelte": "^0.544.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
@@ -77,7 +77,7 @@
 	"dependencies": {
 		"@iconify-svelte/material-symbols": "^1.0.10",
 		"@iconify-svelte/solar": "^1.0.1",
-		"@libsql/client": "^0.7.0",
+		"@libsql/client": "^0.17.0",
 		"@libsql/linux-x64-gnu": "^0.5.22",
 		"@node-rs/argon2": "^2.0.2",
 		"chart.js": "^4.5.1",
