@@ -35,10 +35,6 @@ export const actions: Actions = {
 			return fail(400, { missing: true, message: 'Form is missing place input' });
 		}
 
-		if (!data.get('place')) {
-			return fail(400, { missing: true, message: 'Form is missing place input' });
-		}
-
 		const tmpFullness = Number(data.get('fullness')!.toString());
 		if (!(tmpFullness > 0 && tmpFullness <= 10)) {
 			return fail(400, {

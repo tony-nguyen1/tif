@@ -162,7 +162,6 @@ export async function editWorkout(
 	return result;
 }
 
-// FIXME : use an omit type to exclude id
 export async function addASet(input: {
 	workoutId: number;
 	exerciseId: number;
