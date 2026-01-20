@@ -5,11 +5,14 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import fs from 'fs';
 import path from 'path';
 import commonjs from '@rollup/plugin-commonjs';
+import { loadEnv } from 'vite';
 
-export default defineConfig(({ command }) => {
-	// command is "serve" during `npm run dev`
+export default defineConfig(({ command, mode }) => {
+	// command is "serve" during `npm run dev` or npm run preview
 	// and "build" during `npm run build`
 	const isDev = command === 'serve';
+	const env = loadEnv(mode, process.cwd(), ''); // prefix filter optional
+	// console.log('Loaded env:', env);
 
 	let httpsConfig = undefined;
 
@@ -17,8 +20,8 @@ export default defineConfig(({ command }) => {
 		const keyPath = path.resolve('./localhost-key.pem');
 		const certPath = path.resolve('./localhost.pem');
 
-		// Load cert files only if present (to avoid errors)
-		if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+		// Load cert files only if present or if not in e2e test
+		if (env.APP_ENV !== 'test' && fs.existsSync(keyPath) && fs.existsSync(certPath)) {
 			httpsConfig = {
 				key: fs.readFileSync(keyPath),
 				cert: fs.readFileSync(certPath)

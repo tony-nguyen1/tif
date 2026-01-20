@@ -10,6 +10,7 @@
 	// import * as table from '$lib/server/db/schema';
 	import type { FormStateUnion } from './WorkoutFormState.svelte';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	// table.Exercise[]
 	// interface Props {
@@ -28,6 +29,12 @@
 		tagWorkoutId,
 		form
 	} = $props();
+
+	const triggerContent = $derived(
+		userExercise.find(
+			(f: { id: number; name: string }) => f.id === formDisplayStateValue.selectedExerciseId
+		).name ?? 'Select an exrcise'
+	);
 </script>
 
 <ButtonGroup.Root id="buttonGroupWorkoutForm">
@@ -92,87 +99,100 @@
 		>
 			<div class="grid gap-1">
 				<label for="exerciseId" class="text-sm">The exercise : </label>
-				<select
+				<Select.Root
 					name="exerciseId"
-					id="exercise"
+					type="single"
 					bind:value={formDisplayStateValue.selectedExerciseId}
-					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-					required
-					disabled={formDisplayStateValue.formState === FormState.EditSet}
 				>
-					<!-- <option value={-1}>Choose an exercise</option> -->
-					{#each userExercise as anExercise (anExercise.id)}
-						<option value={anExercise.id}>
-							{anExercise.name}
-						</option>
-					{/each}
-				</select>
+					<Select.Trigger class="w-full">{triggerContent}</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="">None</Select.Item>
+						{#each userExercise as anExercise (anExercise.id)}
+							<Select.Item value={anExercise.id}>{anExercise.name}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="grid w-full gap-1">
 					<label for="rep" class="w-full text-sm">Number of rep :</label>
-					<input
-						id="rep"
-						type="number"
-						name="rep"
-						step=".5"
-						min="0"
-						placeholder="8"
-						value={formDisplayStateValue.formState === FormState.EditSet
-							? formDisplayStateValue.setState?.repNumber
-							: null}
-						class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-						required
-					/>
+					<InputGroup.Root>
+						<!-- aria-invalid={form?.missing || form?.incorrect} -->
+						<InputGroup.Input
+							id="rep"
+							type="number"
+							name="rep"
+							step=".5"
+							min="0"
+							placeholder="8"
+							value={formDisplayStateValue.formState === FormState.EditSet
+								? formDisplayStateValue.setState?.repNumber
+								: null}
+							required
+							inputmode="numeric"
+						/>
+					</InputGroup.Root>
 				</div>
 
-				<div class="grid w-full">
+				<div class="grid w-full gap-1">
 					<label for="weight" class="w-fit text-sm"> Weight used : </label>
-					<input
-						name="weight"
-						autocomplete="off"
-						type="number"
-						step=".125"
-						min="0"
-						placeholder="12.5"
-						value={formDisplayStateValue.formState === FormState.EditSet
-							? formDisplayStateValue.setState?.weight
-							: null}
-						class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-						required
-					/>
+					<InputGroup.Root>
+						<!-- aria-invalid={form?.missing || form?.incorrect} -->
+						<InputGroup.Input
+							name="weight"
+							autocomplete="off"
+							type="number"
+							step=".125"
+							min="0"
+							placeholder="12.5"
+							value={formDisplayStateValue.formState === FormState.EditSet
+								? formDisplayStateValue.setState?.weight
+								: null}
+							required
+							inputmode="decimal"
+						/>
+						<InputGroup.Addon align="inline-end">
+							<InputGroup.Text>Kg</InputGroup.Text>
+						</InputGroup.Addon>
+					</InputGroup.Root>
 				</div>
 			</div>
 
 			<div class="grid gap-1">
 				<label for="rir" class="text-sm"> Repetition in reserve : </label>
-				<input
-					name="rir"
-					autocomplete="off"
-					type="number"
-					min="0"
-					max="10"
-					placeholder="2"
-					value={formDisplayStateValue.formState === FormState.EditSet
-						? formDisplayStateValue.setState?.repInReserve
-						: null}
-					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<!-- aria-invalid={form?.missing || form?.incorrect} -->
+					<InputGroup.Input
+						name="rir"
+						autocomplete="off"
+						type="number"
+						inputmode="numeric"
+						min="0"
+						max="10"
+						placeholder="2"
+						value={formDisplayStateValue.formState === FormState.EditSet
+							? formDisplayStateValue.setState?.repInReserve
+							: null}
+					></InputGroup.Input>
+				</InputGroup.Root>
 			</div>
 
 			<div class="grid gap-1">
 				<label for="comment" class="text-sm"> Remark : </label>
-				<input
-					name="comment"
-					autocomplete="off"
-					type="text"
-					placeholder="Good range of motion"
-					value={formDisplayStateValue.formState === FormState.EditSet
-						? formDisplayStateValue.setState?.comment
-						: null}
-					class="rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<!-- aria-invalid={form?.missing || form?.incorrect} -->
+					<InputGroup.Input
+						name="comment"
+						autocomplete="off"
+						type="text"
+						inputmode="text"
+						placeholder="Good range of motion"
+						value={formDisplayStateValue.formState === FormState.EditSet
+							? formDisplayStateValue.setState?.comment
+							: null}
+					></InputGroup.Input>
+				</InputGroup.Root>
 			</div>
 			{#if formDisplayStateValue.formState === FormState.EditSet}
 				<input name="setId" value={formDisplayStateValue.setState!.id} hidden />
@@ -227,38 +247,56 @@
 
 			<div class="grid gap-1">
 				<label for="place" class="text-sm">Place</label>
-				<input
-					name="place"
-					type="text"
-					placeholder="Basic Park Fit"
-					autocomplete="on"
-					value={trainingSessionInfo.place}
-					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				<InputGroup.Root>
+					<!-- aria-invalid={form?.missing || form?.incorrect} -->
+					<InputGroup.Input
+						name="place"
+						type="text"
+						placeholder="Basic Park Fit"
+						autocomplete="on"
+						value={trainingSessionInfo.place}
+						inputmode="text"
+					/>
+				</InputGroup.Root>
 			</div>
 
 			<div class="grid gap-1">
-				<label for="duration" class="text-sm">Duration (in minutes)</label>
-				<input
+				<label for="duration" class="text-sm">Duration</label>
+				<InputGroup.Root>
+					<!-- aria-invalid={form?.missing || form?.incorrect} -->
+					<InputGroup.Input
+						placeholder="60"
+						inputmode="numeric"
+						name="duration"
+						type="number"
+						min="0"
+						value={trainingSessionInfo.duration}
+						pattern="[0-9][0-9]?[0-9]?"
+					/>
+					<InputGroup.Addon align="inline-end">
+						<InputGroup.Text>minutes</InputGroup.Text>
+					</InputGroup.Addon>
+				</InputGroup.Root>
+				<!-- <input
 					name="duration"
 					type="number"
 					min="0"
 					placeholder="60"
 					value={trainingSessionInfo.duration}
 					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/>
+				/> -->
 			</div>
 
 			<div class="grid gap-1">
 				<label for="comment" class="text-sm">Comment</label>
 				<InputGroup.Root>
 					<InputGroup.Textarea
-						required
 						name="comment"
 						autocomplete="off"
 						placeholder="Trained to failure, good pump"
 						value={trainingSessionInfo.comment}
 						rows={3}
+						inputmode="text"
 					/>
 				</InputGroup.Root>
 			</div>

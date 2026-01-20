@@ -65,7 +65,9 @@
 					<Card.Content>
 						<div class="grid gap-2">
 							{#if aTrainingSession.comment && aTrainingSession.comment!.length !== 0}
-								<p class="text-blue-600 dark:text-blue-100">{aTrainingSession.comment}</p>
+								<p class="whitespace-pre-wrap text-blue-600 dark:text-blue-100">
+									{aTrainingSession.comment}
+								</p>
 							{/if}
 							<div class="flex flex-row gap-2">
 								{#each aTrainingSession.taggedWorkout as aTaggedWorkout (aTaggedWorkout.tag.id)}

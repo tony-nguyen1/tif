@@ -88,8 +88,6 @@
 					<Select.Content>
 						<Select.Item value="">None</Select.Item>
 						{#each goalEnum as aGoal, i (i)}
-							<!-- {@const latestGoal: Goal|null = form?.success ? form?.updatedValues?.goal as Goal | null : userInfo!.goal as Goal | null} -->
-							<!-- {@const selectedGoal = latestGoal ? goalEnum.findIndex((g) => g === latestGoal) : -1} -->
 							<Select.Item value={aGoal}>{aGoal}</Select.Item>
 						{/each}
 					</Select.Content>

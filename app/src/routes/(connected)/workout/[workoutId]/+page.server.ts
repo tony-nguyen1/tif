@@ -28,6 +28,12 @@ import {
 } from '$lib/server/db/repo.js';
 import { resolve } from '$app/paths';
 import { FormState } from '$lib/components/custom/form/myEnum.js';
+import {
+	exerciseBelongToUser,
+	exerciseExist,
+	workoutBelongsToUser,
+	workoutExist
+} from '$lib/server/db/workoutRepo.js';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -91,34 +97,81 @@ export async function load({ params }) {
 
 export const actions: Actions = {
 	addASet: async ({ request, params }) => {
+		const user = _requireLogin();
 		const workoutId = params.workoutId;
 		const data = await request.formData();
+
+		// syntax check
+		const tmpExerciseId = Number(data.get('exerciseId')?.toString());
+		if (!data.get('exerciseId') || tmpExerciseId < 0) {
+			return fail(400, { missing: true, message: 'Form is missing exerciseId input' });
+		}
+
+		const tmpRep = Number(data.get('rep')?.toString());
+		if (!data.get('rep') || tmpRep < 0) {
+			return fail(400, { missing: true, message: 'Form is missing rep input' });
+		}
+
+		const tmpWeight = Number(data.get('weight')?.toString());
+		if (!data.get('weight') || tmpWeight < 0) {
+			return fail(400, { missing: true, message: 'Form is missing weight input' });
+		}
+
 		const input = {
 			workoutId: Number(workoutId),
-			exerciseId: Number(data.get('exerciseId')!.toString()),
-			repNumber: Number(data.get('rep')!.toString()),
-			weight: Number(data.get('weight')!.toString()),
+			exerciseId: tmpExerciseId,
+			repNumber: tmpRep,
+			weight: tmpWeight,
 			repInReserve: data.get('rir') ? Number(data.get('rir')!.toString()) : 10,
 			comment: data.get('comment') ? data.get('comment')!.toString() : null
 		};
 
+		// semantic check
+		if (!(await workoutExist(input.workoutId))) {
+			return fail(422, {
+				message: `Exercise ${input.workoutId} does not exist`
+			});
+		}
+
+		if (!(await exerciseExist(input.exerciseId))) {
+			return fail(422, {
+				message: `Exercise ${input.exerciseId} does not exist`
+			});
+		}
+
+		// authorization checks
+		if (!(await workoutBelongsToUser(input.workoutId, user.id))) {
+			return fail(403, {
+				message: `User ${user.id} not authorized to access workout ${input.workoutId}`
+			});
+		}
+
+		if (!(await exerciseBelongToUser(input.exerciseId, user.id))) {
+			return fail(403, {
+				message: `User ${user.id} not authorized to user exercise ${input.workoutId}`
+			});
+		}
+
 		const success = await addASet(input);
+		if (!success) {
+			return fail(500, { message: 'Insertion of a set went wrong' });
+		}
 		return { success, workoutId: input.workoutId };
 	},
-	editASet: async ({ request }) => {
+	editASet: async ({ request, params }) => {
 		// const user = _requireLogin();
+		const workoutId = params.workoutId;
 		// check if this set belongs to user
 
 		const data = await request.formData();
+
 		const setData = {
 			id: Number(data.get('setId')!.toString()),
-			workoutId: Number(data.get('trainingSessionId')!.toString()),
-			exerciseId: Number(data.get('exerciseId')!.toString()),
+			workoutId: workoutId,
 			repNumber: Number(data.get('rep')!.toString()),
 			weight: Number(data.get('weight')!.toString()),
 			repInReserve: Number(data.get('rir')!.toString()),
 			comment: data.get('comment')!.toString()
-			// volume: Number(data.get('volume')!.toString())
 		};
 
 		await editSet(setData);
@@ -128,7 +181,7 @@ export const actions: Actions = {
 	editWorkout: async ({ request }) => {
 		const user = _requireLogin();
 		const data = await request.formData();
-		// FIXME : proper input validation
+
 		const workoutId = Number(data.get('trainingSessionId')!.toString());
 		const inputData = {
 			comment: data.get('comment') ? data.get('comment')!.toString() : null,
@@ -136,8 +189,11 @@ export const actions: Actions = {
 			duration: data.get('duration') ? Number(data.get('duration')!.toString()) : null
 		};
 
-		await editWorkout(user.id, workoutId, inputData);
-		return { success: true, workoutId: workoutId };
+		const res = await editWorkout(user.id, workoutId, inputData);
+		if (res.length === 1) {
+			return { success: true, workoutId: workoutId };
+		}
+		return fail(500, { workoutId: workoutId, message: `Editing workout ${workoutId} went wrong` });
 	},
 	deleteWorkout: async ({ request }) => {
 		const data = await request.formData();

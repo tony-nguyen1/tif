@@ -5,11 +5,12 @@ export default defineConfig({
 		headless: true,
 		viewport: { width: 1280, height: 720 },
 		actionTimeout: 2000,
-		baseURL: 'http://localhost:4173' // process.env.ORIGIN // Vite dev server URL
+		baseURL: 'http://localhost:4173'
 	},
 	webServer: {
 		command: 'npm run preview:test',
 		reuseExistingServer: false,
+		timeout: 120 * 1000,
 		url: 'http://localhost:4173'
 	},
 	testDir: 'e2e'
