@@ -152,11 +152,11 @@ export const actions: Actions = {
 			});
 		}
 
-		const success = await addASet(input);
-		if (!success) {
+		const lastInsertRowid = await addASet(input);
+		if (!lastInsertRowid) {
 			return fail(500, { message: 'Insertion of a set went wrong' });
 		}
-		return { success, workoutId: input.workoutId };
+		return { success: true, workoutId: input.workoutId };
 	},
 	editASet: async ({ request, params }) => {
 		// const user = _requireLogin();

@@ -169,8 +169,8 @@ export async function addASet(input: {
 	weight: number;
 	repInReserve: number;
 	comment: string | null;
-}): Promise<boolean> {
-	return (await db.insert(table.set).values(input)).rowsAffected === 1;
+}) {
+	return (await db.insert(table.set).values(input)).lastInsertRowid;
 }
 
 export async function createWorkout(userId: string) {
