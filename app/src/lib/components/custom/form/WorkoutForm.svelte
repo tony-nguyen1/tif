@@ -33,7 +33,7 @@
 	const triggerContent = $derived(
 		userExercise.find(
 			(f: { id: number; name: string }) => f.id === formDisplayStateValue.selectedExerciseId
-		).name ?? 'Select an exrcise'
+		)?.name ?? 'Select an exrcise'
 	);
 </script>
 
