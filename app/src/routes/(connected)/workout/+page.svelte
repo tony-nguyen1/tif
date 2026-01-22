@@ -22,7 +22,6 @@
 <section class="grid place-items-center gap-y-3">
 	<Button variant="outline" href={resolve('/(connected)/exercise')}>My exercises</Button>
 	<form method="post" action="?/createNewTrainingSession">
-		<input name="userId" value={data.user.id} hidden />
 		<Button type="submit" variant="outline">Begin new training session</Button>
 	</form>
 </section>

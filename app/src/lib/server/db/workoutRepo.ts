@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lt } from 'drizzle-orm';
 
 export async function workoutBelongsToUser(workoutId: number, userId: string) {
 	const res = await db.query.user.findFirst({
@@ -34,4 +34,23 @@ export async function workoutExist(workoutId: number) {
 	});
 
 	return res ? true : false;
+}
+
+export async function userAlreadyHasWorkoutToday(userId: string) {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const tomorrow = new Date(today);
+	tomorrow.setDate(today.getDate() + 1);
+
+	const workoutAlreadyExisting = await db.query.workout.findFirst({
+		where: (w) => and(gte(w.date, today), lt(w.date, tomorrow), eq(w.userId, userId))
+	});
+
+	return workoutAlreadyExisting;
+}
+
+export async function createWorkout(userId: string) {
+	const newWorkout = await db.insert(table.workout).values({ userId, date: new Date() });
+	return newWorkout.lastInsertRowid;
 }
