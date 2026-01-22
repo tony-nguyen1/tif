@@ -3,6 +3,7 @@
 	import Chart from '$lib/components/CustomChart.svelte';
 	import { resolve } from '$app/paths';
 	import type { ChartData } from 'chart.js';
+	import FormAddSet from '$lib/components/custom/exercise/FormAddSet.svelte';
 
 	let { data }: { data: PageServerData } = $props();
 
@@ -29,6 +30,9 @@
 
 <section class="w-full">
 	<h1 class="text-5xl">{data.exerciseInfo.name}</h1>
+	{#if data.workoutAlreadyExisting}
+		<FormAddSet workout={data.workoutAlreadyExisting}></FormAddSet>
+	{/if}
 	{#if data.workoutList.length === 0}
 		No data
 	{:else}

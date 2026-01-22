@@ -5,8 +5,9 @@ import * as table from '$lib/server/db/schema';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { getAllExercises, createWorkout, findWorkoutOfUser } from '$lib/server/db/repo';
+import { getAllExercises, findWorkoutOfUser } from '$lib/server/db/repo';
 import { resolve } from '$app/paths';
+import { userAlreadyHasWorkoutToday, createWorkout } from '$lib/server/db/workoutRepo';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -25,15 +26,26 @@ export const actions: Actions = {
 
 		return redirect(302, '/login');
 	},
-	createNewTrainingSession: async ({ request }) => {
-		const data = await request.formData();
-		const insertedWorkoutId = await createWorkout(data.get('userId')!.toString());
-		if (!insertedWorkoutId) {
+	createNewTrainingSession: async () => {
+		const user = _requireLogin();
+		const alreadyExistingWorkout = await userAlreadyHasWorkoutToday(user.id);
+		if (alreadyExistingWorkout) {
+			return redirect(
+				302,
+				resolve('/(connected)/workout/[workoutId]', {
+					workoutId: alreadyExistingWorkout.id.toString()
+				})
+			);
+		}
+
+		console.info('...no workout found for today\n...creating a new one');
+		const newWorkout = await createWorkout(user.id);
+		if (!newWorkout) {
 			return fail(500, { sucess: false, message: 'Inserting a workout into DB went wrong' });
 		}
 		return redirect(
 			302,
-			resolve('/(connected)/workout/[workoutId]', { workoutId: insertedWorkoutId.toString() })
+			resolve('/(connected)/workout/[workoutId]', { workoutId: newWorkout.toString() })
 		);
 	},
 	deleteTrainingSession: async ({ request }) => {
