@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, eq, gte, lt } from 'drizzle-orm';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 
 export async function workoutBelongsToUser(workoutId: number, userId: string) {
 	const res = await db.query.user.findFirst({
@@ -53,4 +53,59 @@ export async function userAlreadyHasWorkoutToday(userId: string) {
 export async function createWorkout(userId: string) {
 	const newWorkout = await db.insert(table.workout).values({ userId, date: new Date() });
 	return newWorkout.lastInsertRowid;
+}
+
+// export async function workoutOfUserWithExerciseId(
+// 	userId: string,
+// 	exerciseId: number,
+// 	limit: number
+// ) {
+// 	return await db.query.workout.findMany({
+// 		where: and(eq(table.workout.userId, userId)),
+// 		with: {
+// 			set: { where: eq(table.set.exerciseId, exerciseId) }
+// 		},
+// 		limit
+// 	});
+// }
+
+// export async function workoutOfUserWithExerciseId(
+// 	userId: string,
+// 	exerciseId: number,
+// 	limit: number
+// ) {
+// 	return await db.query.workout.findMany({
+// 		where: and(
+// 			eq(table.workout.userId, userId),
+// 			exists(
+// 				db
+// 					.select({ id: table.set.id })
+// 					.from(table.set)
+// 					.where(
+// 						and(eq(table.set.workoutId, table.workout.id), eq(table.set.exerciseId, exerciseId))
+// 					)
+// 			)
+// 		),
+// 		with: {
+// 			set: {
+// 				where: eq(table.set.exerciseId, exerciseId)
+// 			}
+// 		},
+// 		limit
+// 	});
+// }
+
+export async function workoutSummaryForExercise(userId: string, exerciseId: number) {
+	return await db
+		.select({
+			x: table.workout.date,
+			y: sql<number>`sum(${table.set.volume})`
+		})
+		.from(table.workout)
+		.innerJoin(
+			table.set,
+			and(eq(table.set.workoutId, table.workout.id), eq(table.set.exerciseId, exerciseId))
+		)
+		.where(eq(table.workout.userId, userId))
+		.groupBy(table.workout.id);
 }

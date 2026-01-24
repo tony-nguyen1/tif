@@ -1,31 +1,126 @@
 <script lang="ts">
 	import type { PageServerData } from '../../exercise/[exerciseId]/$types';
-	import Chart from '$lib/components/CustomChart.svelte';
+	// import Chart from '$lib/components/CustomChart.svelte';
 	import { resolve } from '$app/paths';
-	import type { ChartData } from 'chart.js';
 	import FormAddSet from '$lib/components/custom/exercise/FormAddSet.svelte';
+	import { onMount } from 'svelte';
+	import {
+		BarController,
+		BarElement,
+		CategoryScale,
+		Chart,
+		Legend,
+		LinearScale,
+		LineController,
+		LineElement,
+		PointElement,
+		TimeScale,
+		Title,
+		Tooltip
+	} from 'chart.js';
+
+	import 'chartjs-adapter-date-fns';
+	Chart.register(
+		LineElement,
+		PointElement,
+		LineController,
+		BarController,
+		BarElement,
+		TimeScale,
+		CategoryScale,
+		LinearScale,
+		Title,
+		Tooltip,
+		Legend
+	);
 
 	let { data }: { data: PageServerData } = $props();
-
-	const beepBoop = $derived<() => ChartData<'bar'>>(() => ({
-		labels: data.x,
-		datasets: [
-			{
-				label: 'Volume',
-				data: data.y,
-				backgroundColor: 'rgba(75, 192, 192, 0.4)',
-				borderColor: 'rgba(75, 192, 192, 1)',
-				borderWidth: 1
-			}
-		]
-	}));
-
-	const options = {
-		responsive: true,
-		scales: {
-			y: { beginAtZero: true }
-		}
+	type TimePoint = {
+		x: Date; // or Date
+		y: number;
 	};
+	// const beepBoop = $derived<() => ChartData<'line', TimePoint[]>>(() => ({
+	// 	// labels: data.x,
+	// 	datasets: [
+	// 		{
+	// 			label: 'Volume',
+	// 			data: data.workoutSummary,
+	// 			backgroundColor: 'rgba(255, 255, 255, 1)',
+	// 			borderColor: '#36A2EB',
+	// 			borderWidth: 1.3,
+	// 			pointStyle: 'triangle',
+	// 			pointRadius: 8,
+	// 			tension: 0.3
+	// 		}
+	// 	]
+	// }));
+
+	let input = $derived(data.workoutSummary);
+	let canvas: HTMLCanvasElement;
+	let myChart: Chart<'line', TimePoint[]> | null = null;
+	onMount(() => {
+		myChart = createMyChart(input);
+	});
+
+	$effect(() => {
+		if (myChart) {
+			myChart.destroy();
+			myChart = createMyChart(input);
+			myChart.render();
+		}
+	});
+
+	function createMyChart(input: TimePoint[]) {
+		return new Chart(canvas, {
+			type: 'line',
+			data: {
+				datasets: [
+					{
+						label: 'Volume',
+						data: input,
+						backgroundColor: 'rgba(255, 255, 255, 1)',
+						borderColor: '#36A2EB',
+						borderWidth: 1.3,
+						pointStyle: 'triangle',
+						pointRadius: 8,
+						tension: 0.3
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					x: {
+						type: 'time',
+						time: {
+							unit: 'day'
+						},
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: 'rgba(255,255,255, 0.6)',
+							font: {
+								size: 16
+							}
+						}
+					},
+					y: {
+						beginAtZero: true,
+						grid: { color: 'rgba(255,255,255, 0.1)' },
+						ticks: {
+							color: '#36A2EB',
+							font: {
+								size: 16
+							}
+						}
+					}
+				},
+				plugins: {
+					legend: { labels: { usePointStyle: true } }
+				}
+			}
+		});
+	}
 </script>
 
 <section class="w-full">
@@ -75,12 +170,9 @@
 			{/each}
 		</div>
 
-		<Chart
-			data={beepBoop.apply((x: ChartData) => {
-				return x;
-			})}
-			{options}
-			type="line"
-		/>
+		<!-- <Chart data={data.workoutSummary} {options} type="line" /> -->
+		<section class="relative flex h-[35dvh] w-full justify-center">
+			<canvas bind:this={canvas} class="max-w-full"></canvas>
+		</section>
 	{/if}
 </section>

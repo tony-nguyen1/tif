@@ -4,7 +4,6 @@ import type { Actions } from './$types.js';
 import {
 	addASet,
 	getAnExercise,
-	getSeriesByWorkout,
 	getSet,
 	getSetBis,
 	type WorkoutWithExercise
@@ -14,21 +13,23 @@ import {
 	exerciseBelongToUser,
 	exerciseExist,
 	userAlreadyHasWorkoutToday,
-	workoutBelongsToUser
+	workoutBelongsToUser,
+	workoutSummaryForExercise
 } from '$lib/server/db/workoutRepo';
 
 export async function load({ params }) {
 	const user = _requireLogin();
+	const exerciseId: number = Number(params.exerciseId);
 
-	const exerciseInfo = await getAnExercise(Number(params.exerciseId));
+	const exerciseInfo = await getAnExercise(exerciseId);
 	if (!exerciseInfo || exerciseInfo!.userId !== user.id) {
 		// Do something better than this
 		redirect(307, '/');
 	}
 
-	const seriesDone = await getSet(user.id, Number(params.exerciseId));
+	const seriesDone = await getSet(user.id, exerciseId);
 
-	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, Number(params.exerciseId));
+	const workoutList: WorkoutWithExercise[] = await getSetBis(user.id, exerciseId);
 
 	const cleanedData: table.Set[] = [];
 	seriesDone.forEach(({ set }) => {
@@ -37,28 +38,17 @@ export async function load({ params }) {
 		}
 	});
 
-	const seriesByWorkout = await getSeriesByWorkout(user.id, Number(params.exerciseId));
-	const x: Array<string> = [];
-	const y: Array<number> = [];
-	const nbWorkout = seriesByWorkout.length;
-	let i = 0;
-	seriesByWorkout.forEach((val) => {
-		// x.push(`W-${val.id!}`);
-		x.push(`W-${nbWorkout - i}`);
-		y.push(Number(val.total!));
-		i++;
-	});
-
 	const workoutAlreadyExisting = await userAlreadyHasWorkoutToday(user.id);
+
+	const workoutSummary = await workoutSummaryForExercise(user.id, exerciseId);
 
 	return {
 		user,
 		workoutList,
 		cleanedData,
 		exerciseInfo,
-		x,
-		y,
-		workoutAlreadyExisting
+		workoutAlreadyExisting,
+		workoutSummary
 	};
 }
 
