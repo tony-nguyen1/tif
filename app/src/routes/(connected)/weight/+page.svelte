@@ -81,8 +81,13 @@
 	});
 	const goalWeightDataArray = $derived([firstInput(), lastInput()]);
 
+	type TimePoint = {
+		x: string; // or Date
+		y: number;
+	};
+
 	let canvas: HTMLCanvasElement;
-	let myChart: Chart | null = null;
+	let myChart: Chart<'line', TimePoint[]> | null = null;
 	onMount(() => {
 		myChart = createMyChart(dataArrayAvgState, goalWeightDataArray);
 	});
@@ -95,16 +100,7 @@
 		}
 	});
 
-	function createMyChart(
-		input: {
-			x: string;
-			y: number;
-		}[],
-		goalWeightDataArray: {
-			x: string;
-			y: number;
-		}[]
-	) {
+	function createMyChart(input: TimePoint[], goalWeightDataArray: TimePoint[]) {
 		return new Chart(canvas, {
 			type: 'line',
 			data: {
