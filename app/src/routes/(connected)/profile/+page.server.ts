@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { getUser, editUser } from '$lib/server/db/repo';
 import { goalEnum, type Goal } from '$lib/customType';
 import { env } from '$env/dynamic/private';
+import { mealOfUserInRangeGroupedByDay } from '$lib/server/db/mealRepo';
 
 export const load: PageServerLoad = async () => {
 	const user = _requireLogin();
@@ -14,6 +15,13 @@ export const load: PageServerLoad = async () => {
 		fail(404, 'User info not found');
 	}
 
+	const xDaysBefore = 6;
+	const endDate = new Date();
+	const beginDate = new Date();
+	beginDate.setHours(0, 0, 0, 0);
+	beginDate.setDate(endDate.getDate() - xDaysBefore >= 0 ? endDate.getDate() - xDaysBefore : 0);
+	const mealInRange = await mealOfUserInRangeGroupedByDay(user.id, beginDate, endDate);
+
 	const deployInfo = {
 		appVersion: env.APP_VERSION ?? 'N/A',
 		buildDate: env.BUILD_DATE ?? 'N/A',
@@ -21,7 +29,7 @@ export const load: PageServerLoad = async () => {
 		appEnv: env.APP_ENV ?? 'N/A'
 	};
 
-	return { user, userInfo, deployInfo };
+	return { user, userInfo, deployInfo, mealInRange };
 };
 
 export const actions: Actions = {

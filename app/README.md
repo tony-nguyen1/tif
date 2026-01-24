@@ -97,3 +97,5 @@ ssh user@host "cat ~/path/test.sql" | xclip -selection clipboard
 turso db shell dbName < ./script.sql
 
 npm run build && npm run db:migrate:test && npm run preview:test
+
+https://colordesigner.io/convert/hsltohex
