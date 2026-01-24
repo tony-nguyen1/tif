@@ -7,6 +7,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
+	import ProteinChart from '$lib/components/custom/profile/ProteinChart.svelte';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	// svelte-ignore state_referenced_locally
@@ -112,6 +113,7 @@
 		</div>
 	</form>
 </section>
+<ProteinChart mealInRange={data.mealInRange}></ProteinChart>
 <footer>
 	<p>
 		{data.deployInfo.appVersion} ({data.deployInfo.sha})

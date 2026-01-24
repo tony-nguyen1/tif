@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 
 // Types
 export type MealValue = Omit<table.Meal, 'id'>;
@@ -31,4 +31,26 @@ export async function findLatestMealOf(userId: string) {
 		where: eq(table.meal.userId, userId),
 		orderBy: (t) => sql`${t.date} desc`
 	});
+}
+
+export async function mealOfUserInRangeGroupedByDay(
+	userId: string,
+	beginDate: Date,
+	endDate: Date
+) {
+	return await db
+		.select({
+			day: table.meal.date,
+			totalProtein: sql<number>`sum(${table.meal.protein})`
+		})
+		.from(table.meal)
+		.where(
+			and(
+				eq(table.meal.userId, userId),
+				gte(table.meal.date, beginDate),
+				lt(table.meal.date, endDate)
+			)
+		)
+		.groupBy(sql`date(${table.meal.date}, 'unixepoch', 'localtime')`)
+		.orderBy(sql`date(${table.meal.date}, 'unixepoch', 'localtime')`);
 }
