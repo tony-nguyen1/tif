@@ -7,22 +7,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import { toast } from 'svelte-sonner';
+	import { createDeferred } from '$lib/util';
 
 	let value: CalendarDate | undefined = $state(undefined);
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
-
-	// FIXME : extract to util lib
-	function createDeferred<T>() {
-		let resolve!: (value: T | PromiseLike<T>) => void;
-		let reject!: (reason?: unknown) => void;
-
-		const promise = new Promise<T>((res, rej) => {
-			resolve = res;
-			reject = rej;
-		});
-
-		return { promise, resolve, reject };
-	}
 
 	// FIXME : extract to util lib
 	function toCalendarDate(date: Date): CalendarDate {
@@ -30,7 +18,6 @@
 	}
 </script>
 
-<!-- <Toaster position="top-center" richColors /> -->
 <h1 class="text-5xl">Sleep</h1>
 <section class="mt-2 grid">
 	<Calendar
@@ -116,8 +103,4 @@
 
 		<Button variant="outline" type="submit" class="mt-2 w-fit justify-self-end">Send</Button>
 	</form>
-
-	<!-- {#if form?.missing || form?.incorrect}
-		<p class="text-sm text-red-500">{form!.message}</p>
-	{/if} -->
 </section>

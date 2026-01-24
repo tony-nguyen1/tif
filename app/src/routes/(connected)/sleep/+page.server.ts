@@ -50,23 +50,15 @@ export const actions: Actions = {
 		}
 
 		const res = await createSleep(input);
-
-		if (res.rowsAffected === 1) {
-			await sleep(1000);
-			return { success: false, user, input };
-			// return { success: true, user, input };
-		} else {
-			return fail(500, {
-				message: 'Somehow multiple rows were affected'
-			});
+		if (res.lastInsertRowid) {
+			return { success: true, user, input };
 		}
+		return fail(500, {
+			message: 'Insertion failed'
+		});
 	}
 };
 
 function toCalendarDate(date: Date): CalendarDate {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
-}
-
-function sleep(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
 }

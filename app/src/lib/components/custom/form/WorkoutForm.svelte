@@ -2,8 +2,6 @@
 	import { enhance } from '$app/forms';
 	import { FormState } from './myEnum';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
 	import { createDeferred } from '$lib/util';
 	import { toast } from 'svelte-sonner';
@@ -268,8 +266,6 @@
 						placeholder="60"
 						inputmode="numeric"
 						name="duration"
-						type="number"
-						min="0"
 						value={trainingSessionInfo.duration}
 						pattern="[0-9][0-9]?[0-9]?"
 					/>
@@ -277,14 +273,6 @@
 						<InputGroup.Text>minutes</InputGroup.Text>
 					</InputGroup.Addon>
 				</InputGroup.Root>
-				<!-- <input
-					name="duration"
-					type="number"
-					min="0"
-					placeholder="60"
-					value={trainingSessionInfo.duration}
-					class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
-				/> -->
 			</div>
 
 			<div class="grid gap-1">
@@ -361,47 +349,6 @@
 				</form>
 			{/each}
 		</div>
-		<form
-			class="flex w-full items-center space-x-4"
-			method="post"
-			action="?/createTag"
-			use:enhance={() => {
-				const deferred = createDeferred();
-				toast.promise(deferred.promise, {
-					loading: 'Processing ...',
-					success: (val) => {
-						return val as string;
-					},
-					error: (reason) => reason as string
-				});
-
-				return async ({ result, update }) => {
-					await update();
-
-					if (result.type === 'success') {
-						deferred.resolve(`Tag created !`);
-						formDisplayStateValue.formState = FormState.AddTag;
-					} else if (result.type === 'failure') {
-						deferred.reject(form!.message);
-					} else if (result.type === 'error') {
-						deferred.reject('Something went wrong');
-					} else {
-						deferred.resolve('Redirect');
-					}
-				};
-			}}
-		>
-			<Label for="newTagName" class="basis-1/6">New tag:</Label>
-			<Input
-				id="newTagName"
-				name="newTagName"
-				class="basis-3/6"
-				type="text"
-				placeholder="Shoulder"
-				required
-			/>
-			<Button type="submit" variant="outline">Create</Button>
-		</form>
 	</section>
 {:else}
 	<p>Something went wrong</p>

@@ -1,39 +1,37 @@
-import * as table from '$lib/server/db/schema';
-import { _requireLogin } from '../+page.server.js';
-import type { Actions } from './$types.js';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import { error, fail } from '@sveltejs/kit';
-import { redirect } from '@sveltejs/kit';
-import {
-	getAllExercises,
-	getLastSeriesBis,
-	getWorkoutSet,
-	getTagOfUser,
-	getTag
-} from '$lib/server/db/repo.js';
-import {
-	editSet,
-	editWorkout,
-	addASet,
-	deleteWorkoutCascade,
-	deleteSet,
-	addTagToUser,
-	getWorkout,
-	getTagOfUserAndId,
-	getTagOfWorkout,
-	addTagToWorkout,
-	removeTagToWorkout,
-	getAllTagOfWorkout
-} from '$lib/server/db/repo.js';
 import { resolve } from '$app/paths';
 import { FormState } from '$lib/components/custom/form/myEnum.js';
+import {
+	addASet,
+	deleteSet,
+	deleteWorkoutCascade,
+	editSet,
+	editWorkout,
+	getAllExercises,
+	getLastSeriesBis,
+	getWorkout,
+	getWorkoutSet
+} from '$lib/server/db/repo.js';
+import * as table from '$lib/server/db/schema';
+import {
+	addTagToWorkout,
+	getAllTagOfWorkout,
+	getTag,
+	getTagOfUser,
+	getTagOfUserAndId,
+	getTagOfWorkout,
+	removeTagToWorkout
+} from '$lib/server/db/tagRepo.js';
 import {
 	exerciseBelongToUser,
 	exerciseExist,
 	workoutBelongsToUser,
 	workoutExist
 } from '$lib/server/db/workoutRepo.js';
+import { error, fail, redirect } from '@sveltejs/kit';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { _requireLogin } from '../+page.server.js';
+import type { Actions } from './$types.js';
 
 export async function load({ params }) {
 	// no verification for now ...
@@ -203,44 +201,6 @@ export const actions: Actions = {
 	deleteSet: async ({ request }) => {
 		const data = await request.formData();
 		await deleteSet(Number(data.get('gymSetId')!.toString()));
-	},
-	createTag: async ({ request }) => {
-		const user = _requireLogin();
-		const data = await request.formData();
-		const tag = {
-			name: data.get('newTagName')!.toString(),
-			userId: user.id
-		};
-
-		try {
-			const res = await addTagToUser(tag);
-			if (res.length === 1) {
-				return {
-					success: true,
-					message:
-						res.length === 1
-							? 'Tag has been inserted into db'
-							: `Error creating the tag ${tag.name} `,
-					lastOperation: FormState.AddTag,
-					tagName: tag.name
-				};
-			}
-
-			return fail(500, {
-				success: false,
-				message: `Error creating the tag ${tag.name} `,
-				lastOperation: FormState.AddTag,
-				tagName: tag.name
-			});
-		} catch (error) {
-			console.error(error);
-			return fail(500, {
-				success: false,
-				message: `Error creating the tag ${tag.name} `,
-				lastOperation: FormState.AddTag,
-				tagName: tag.name
-			});
-		}
 	},
 	toggleTag: async ({ request, params }) => {
 		const user = _requireLogin();
