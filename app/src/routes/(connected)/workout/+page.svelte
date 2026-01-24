@@ -20,7 +20,10 @@
 	<aside class="justify-self-end text-right text-muted-foreground"></aside>
 </header>
 <section class="grid place-items-center gap-y-3">
-	<Button variant="outline" href={resolve('/(connected)/exercise')}>My exercises</Button>
+	<div class="flex flex-row gap-x-3">
+		<Button variant="outline" href={resolve('/(connected)/exercise')}>My exercises</Button>
+		<Button variant="outline" href={resolve('/(connected)/tag')}>My tags</Button>
+	</div>
 	<form method="post" action="?/createNewTrainingSession">
 		<Button type="submit" variant="outline">Begin new training session</Button>
 	</form>

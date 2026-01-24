@@ -61,11 +61,11 @@ export function dateToStringChartTimeScaleFormatted(aDate: Date) {
 	return `${aDate.getFullYear()}-${aDate.getMonth() < 10 ? '0' + (aDate.getMonth() + 1) : aDate.getMonth() + 1}-${aDate.getDate() < 10 ? '0' + aDate.getDate() : aDate.getDate()}`;
 }
 
-export function createDeferred<T>() {
-	let resolve!: (value: T | PromiseLike<T>) => void;
+export function createDeferred() {
+	let resolve!: (value: string | PromiseLike<string>) => void;
 	let reject!: (reason?: unknown) => void;
 
-	const promise = new Promise<T>((res, rej) => {
+	const promise = new Promise<string>((res, rej) => {
 		resolve = res;
 		reject = rej;
 	});
