@@ -4,6 +4,8 @@
 	import { resolve } from '$app/paths';
 	import FormAddSet from '$lib/components/custom/exercise/FormAddSet.svelte';
 	import { onMount } from 'svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
 	import {
 		BarController,
 		BarElement,
@@ -33,6 +35,7 @@
 		Tooltip,
 		Legend
 	);
+	import { FormState } from './myEnum';
 
 	let { data }: { data: PageServerData } = $props();
 	type TimePoint = {
@@ -55,8 +58,12 @@
 	// 	]
 	// }));
 
+	let interactivitySectionState: FormState = $derived(
+		data.workoutAlreadyExisting ? FormState['AddSet'] : FormState['DisplayGraph']
+	);
+
 	let input = $derived(data.workoutSummary);
-	let canvas: HTMLCanvasElement;
+	let canvas: HTMLCanvasElement | null = $state(null);
 	let myChart: Chart<'line', TimePoint[]> | null = null;
 	onMount(() => {
 		myChart = createMyChart(input);
@@ -71,7 +78,7 @@
 	});
 
 	function createMyChart(input: TimePoint[]) {
-		return new Chart(canvas, {
+		return new Chart(canvas!, {
 			type: 'line',
 			data: {
 				datasets: [
@@ -126,7 +133,34 @@
 <section class="w-full">
 	<h1 class="text-5xl">{data.exerciseInfo.name}</h1>
 	{#if data.workoutAlreadyExisting}
-		<FormAddSet workout={data.workoutAlreadyExisting}></FormAddSet>
+		<ButtonGroup.Root id="buttonGroupWorkoutForm" class="my-2">
+			<Button
+				variant="outline"
+				class={['size-fit', 'px-2', 'py-1']}
+				onclick={() => (interactivitySectionState = FormState['Hide'])}>Hide</Button
+			>
+			<Button
+				hidden={data.workoutAlreadyExisting ? false : true}
+				variant="outline"
+				class={['size-fit', 'px-2', 'py-1']}
+				onclick={() => (interactivitySectionState = FormState['AddSet'])}>Form</Button
+			>
+			<Button
+				variant="outline"
+				class={['size-fit', 'px-2', 'py-1']}
+				onclick={() => (interactivitySectionState = FormState['DisplayGraph'])}>Graph</Button
+			>
+		</ButtonGroup.Root>
+		<FormAddSet
+			workout={data.workoutAlreadyExisting}
+			hidden={interactivitySectionState !== FormState.AddSet}
+		></FormAddSet>
+		<section
+			class="relative flex h-[35dvh] w-full justify-center"
+			hidden={interactivitySectionState !== FormState.DisplayGraph}
+		>
+			<canvas bind:this={canvas} class="max-w-full"></canvas>
+		</section>
 	{/if}
 	{#if data.workoutList.length === 0}
 		No data
@@ -169,10 +203,5 @@
 				{/if}
 			{/each}
 		</div>
-
-		<!-- <Chart data={data.workoutSummary} {options} type="line" /> -->
-		<section class="relative flex h-[35dvh] w-full justify-center">
-			<canvas bind:this={canvas} class="max-w-full"></canvas>
-		</section>
 	{/if}
 </section>
