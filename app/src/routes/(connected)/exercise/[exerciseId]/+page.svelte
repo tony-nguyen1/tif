@@ -132,36 +132,36 @@
 
 <section class="w-full">
 	<h1 class="text-5xl">{data.exerciseInfo.name}</h1>
+	<ButtonGroup.Root id="buttonGroupWorkoutForm" class="my-2">
+		<Button
+			variant="outline"
+			class={['size-fit', 'px-2', 'py-1']}
+			onclick={() => (interactivitySectionState = FormState['Hide'])}>Hide</Button
+		>
+		<Button
+			hidden={data.workoutAlreadyExisting ? false : true}
+			variant="outline"
+			class={['size-fit', 'px-2', 'py-1']}
+			onclick={() => (interactivitySectionState = FormState['AddSet'])}>Form</Button
+		>
+		<Button
+			variant="outline"
+			class={['size-fit', 'px-2', 'py-1']}
+			onclick={() => (interactivitySectionState = FormState['DisplayGraph'])}>Graph</Button
+		>
+	</ButtonGroup.Root>
 	{#if data.workoutAlreadyExisting}
-		<ButtonGroup.Root id="buttonGroupWorkoutForm" class="my-2">
-			<Button
-				variant="outline"
-				class={['size-fit', 'px-2', 'py-1']}
-				onclick={() => (interactivitySectionState = FormState['Hide'])}>Hide</Button
-			>
-			<Button
-				hidden={data.workoutAlreadyExisting ? false : true}
-				variant="outline"
-				class={['size-fit', 'px-2', 'py-1']}
-				onclick={() => (interactivitySectionState = FormState['AddSet'])}>Form</Button
-			>
-			<Button
-				variant="outline"
-				class={['size-fit', 'px-2', 'py-1']}
-				onclick={() => (interactivitySectionState = FormState['DisplayGraph'])}>Graph</Button
-			>
-		</ButtonGroup.Root>
 		<FormAddSet
 			workout={data.workoutAlreadyExisting}
 			hidden={interactivitySectionState !== FormState.AddSet}
 		></FormAddSet>
-		<section
-			class="relative flex h-[35dvh] w-full justify-center"
-			hidden={interactivitySectionState !== FormState.DisplayGraph}
-		>
-			<canvas bind:this={canvas} class="max-w-full"></canvas>
-		</section>
 	{/if}
+	<section
+		class="relative flex h-[35dvh] w-full justify-center"
+		hidden={interactivitySectionState !== FormState.DisplayGraph}
+	>
+		<canvas bind:this={canvas} class="max-w-full"></canvas>
+	</section>
 	{#if data.workoutList.length === 0}
 		No data
 	{:else}
