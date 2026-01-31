@@ -1,8 +1,10 @@
 import { dev } from '$app/environment';
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import * as schema from './schema';
 import { env } from '$env/dynamic/private';
+import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql';
+import { migrate } from 'drizzle-orm/libsql/migrator';
+import * as schema from './schema';
+import fs from 'fs';
 
 console.info('index.ts');
 
@@ -33,6 +35,13 @@ if (dev) {
 		});
 	} else if (isTest) {
 		// for e2e tests
+		const filePath = env.DATABASE_URL!.replace('file:', '');
+		if (fs.existsSync(filePath)) {
+			console.info('... test db already exist');
+			fs.unlinkSync(filePath);
+			console.info('... test db deleted');
+		}
+
 		console.info(`Using Turso file database ${env.DATABASE_URL}`);
 		tmpClient = createClient({
 			url: env.DATABASE_URL
@@ -61,3 +70,10 @@ if (dev) {
 
 export const client = tmpClient;
 export const db = drizzle(tmpClient, { schema });
+
+if (isTest) {
+	console.info('... running migration');
+	await migrate(db, {
+		migrationsFolder: 'drizzle'
+	});
+}

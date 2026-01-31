@@ -37,14 +37,21 @@
 		</div>
 	{/if}
 	<nav class="flex h-fit flex-row place-content-evenly border-t p-3">
-		<!-- <a href={resolve('/')}><SolarHome2Outline class="size-9" /></a> -->
-		<a href={resolve('/(connected)/meal')}><SolarDonutBittenOutline class="size-9" /></a>
-		<a href={resolve('/(connected)/sleep')}><SolarMoonSleepOutline class="size-9" /></a>
-		<a href={resolve('/(connected)/workout')}>
+		<a href={resolve('/(connected)/meal')} aria-label="Meal">
+			<SolarDonutBittenOutline class="size-9" />
+		</a>
+		<a href={resolve('/(connected)/sleep')} aria-label="Sleep">
+			<SolarMoonSleepOutline class="size-9" />
+		</a>
+		<a href={resolve('/(connected)/workout')} aria-label="Workout">
 			<SolarDumbbellLargeMinimalisticOutline class="size-9" />
 		</a>
-		<a href={resolve('/(connected)/weight')}><SolarWeigherOutline class="size-9" /></a>
-		<a href={resolve('/(connected)/profile')}><SolarUserIdOutline class="size-9" /></a>
+		<a href={resolve('/(connected)/weight')} aria-label="Weight">
+			<SolarWeigherOutline class="size-9" />
+		</a>
+		<a href={resolve('/(connected)/profile')} aria-label="Profile">
+			<SolarUserIdOutline class="size-9" />
+		</a>
 		<Button onclick={toggleMode} variant="outline" size="icon">
 			<SunIcon
 				class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all! dark:scale-0 dark:-rotate-90"
