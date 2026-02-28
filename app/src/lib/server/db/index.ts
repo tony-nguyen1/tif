@@ -38,19 +38,24 @@ if (dev) {
 			url: env.DATABASE_URL
 		});
 	} else if (isProd) {
-		if (!env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
-		if (!env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
-		if (!env.DATABASE_SYNC) throw new Error('DATABASE_SYNC is not set');
+		// if (!env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
+		// if (!env.DATABASE_REPLICA) throw new Error('DATABASE_REPLICA is not set');
+		// if (!env.DATABASE_SYNC) throw new Error('DATABASE_SYNC is not set');
 
-		console.info(
-			`Using Turso cloud/Embedded replica database setup\nsyncinterval set at ${Number(env.DATABASE_SYNC)} sec`
-		);
-		// Embedded replica database
+		// console.info(
+		// 	`Using Turso cloud/Embedded replica database setup\nsyncinterval set at ${Number(env.DATABASE_SYNC)} sec`
+		// );
+		// // Embedded replica database
+		// tmpClient = createClient({
+		// 	url: env.DATABASE_REPLICA,
+		// 	authToken: env.DATABASE_AUTH_TOKEN,
+		// 	syncUrl: env.DATABASE_URL,
+		// 	syncInterval: Number(env.DATABASE_SYNC)
+		// });
+		console.info(`Using simple Turso cloud database`);
 		tmpClient = createClient({
-			url: env.DATABASE_REPLICA,
-			authToken: env.DATABASE_AUTH_TOKEN,
-			syncUrl: env.DATABASE_URL,
-			syncInterval: Number(env.DATABASE_SYNC)
+			url: env.DATABASE_URL,
+			authToken: env.DATABASE_AUTH_TOKEN
 		});
 	} else {
 		throw new Error(
