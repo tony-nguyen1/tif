@@ -5,7 +5,10 @@ export default defineConfig({
 		headless: true,
 		viewport: { width: 1280, height: 720 },
 		actionTimeout: 2000,
-		baseURL: 'http://localhost:4173'
+		baseURL: 'http://localhost:4173',
+		launchOptions: {
+			// slowMo: 3000
+		}
 	},
 	webServer: {
 		command: 'npm run preview:test',
