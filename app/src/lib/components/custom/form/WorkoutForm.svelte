@@ -304,7 +304,7 @@
 			<h2 class="text-2xl">Add tags to current workout</h2>
 		</header>
 		<p class="mb-1">Tags available:</p>
-		<div class="mb-1.5 flex w-full max-w-dvw flex-row flex-wrap gap-x-2">
+		<div class="mb-1.5 flex w-full max-w-dvw flex-row flex-wrap gap-x-2 gap-y-1.5">
 			{#each tagUserAll as aUserTag (aUserTag.id)}
 				<form
 					method="POST"

@@ -17,6 +17,7 @@
 				autocomplete="off"
 				type="text"
 				placeholder="Curl"
+				required
 				class="mt-1 rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-neutral-700"
 			/>
 			<input name="userId" value={data.user.id} hidden />

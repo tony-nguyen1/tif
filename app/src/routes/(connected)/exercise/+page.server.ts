@@ -3,6 +3,7 @@ import * as table from '$lib/server/db/schema';
 import { _requireLogin } from '../workout/+page.server';
 import type { Actions } from './$types.js';
 import { getAllExercises } from '$lib/server/db/repo.js';
+import { fail } from '@sveltejs/kit';
 
 export async function load() {
 	const user = _requireLogin();
@@ -22,6 +23,20 @@ export async function load() {
 export const actions: Actions = {
 	exercise: async ({ request }) => {
 		const data = await request.formData();
+
+		const input = {
+			name: data.get('name')?.toString(),
+			userId: data.get('userId')?.toString()
+		};
+
+		if (!input.userId) {
+			return fail(403, { missing: true, message: 'Form is missing userId input' });
+		}
+
+		if (!input.name) {
+			return fail(412, { missing: true, message: "Form is missing name's exercise input" });
+		}
+
 		await db // FIXME extract to lib method
 			.insert(table.exercise)
 			.values({ userId: data.get('userId')!.toString(), name: data.get('name')!.toString() })
