@@ -105,7 +105,7 @@
 						max="10"
 						placeholder="5"
 						inputmode="numeric"
-						pattern="[0-9]"
+						pattern="[0-9][0-9]?"
 					/>
 					<InputGroup.Addon align="inline-end">
 						<InputGroup.Text>/ 10</InputGroup.Text>
