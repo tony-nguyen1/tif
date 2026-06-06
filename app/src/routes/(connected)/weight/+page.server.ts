@@ -5,10 +5,11 @@ import {
 	createWeight,
 	deleteWeight,
 	findWeightByIdAndUserId,
-	editWeight
+	editWeight,
+	findWeightOfUserAfterDate
 } from '$lib/server/db/weightRepo';
 import { fail } from '@sveltejs/kit'; // , redirect
-import type { Weight } from '$lib/server/db/schema.ts';
+import { type Weight } from '$lib/server/db/schema';
 // import { resolve } from '$app/paths';
 import { getUser } from '$lib/server/db/repo';
 
@@ -144,6 +145,30 @@ export const actions: Actions = {
 				message: 'Something went wrong'
 			});
 		}
+	},
+	test: async ({ request }) => {
+		const user = _requireLogin();
+		const data = await request.formData();
+
+		console.info('ici', data);
+		let weightArray;
+		switch (data.get('timeWindow')?.toString()) {
+			case 'lastWeek':
+				weightArray = findWeightOfUserAfterDate(user.id, 7);
+				break;
+			case 'last2Week':
+				weightArray = findWeightOfUserAfterDate(user.id, 14);
+				break;
+			default:
+				console.info('default case');
+				weightArray = findWeightOfUser(user.id);
+				break;
+		}
+		console.info((await weightArray).length);
+		return { weightArray: await weightArray };
+		// TODO:
+		// fix the goal weight line when there is only 1 value: extend it to +/- 1 day
+		// make dot bigger
 	}
 };
 
