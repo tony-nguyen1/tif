@@ -75,15 +75,15 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
-		"@iconify-svelte/material-symbols": "^1.0.28",
-		"@iconify-svelte/solar": "^1.0.2",
+		"@iconify-svelte/material-symbols": "^1.0.36",
+		"@iconify-svelte/solar": "^1.0.3",
 		"@libsql/client": "^0.17.3",
 		"@libsql/linux-x64-gnu": "^0.5.22",
 		"@node-rs/argon2": "^2.0.2",
 		"chart.js": "^4.5.1",
 		"chartjs-adapter-date-fns": "^3.0.0",
-		"date-fns": "^4.1.0",
-		"dayjs": "^1.11.20",
+		"date-fns": "^4.4.0",
+		"dayjs": "^1.11.21",
 		"dotenv": "^17.4.2",
 		"lodash.isequal": "^4.5.0",
 		"mode-watcher": "^1.1.0"
