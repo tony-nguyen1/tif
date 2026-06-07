@@ -116,7 +116,10 @@
 </section>
 <ProteinChart mealInRange={data.mealInRange}></ProteinChart>
 <section>
-	<WorkoutOverview workoutData={data.workoutData}></WorkoutOverview>
+	<WorkoutOverview
+		workoutDataSimple={data.workoutData}
+		workoutDataComplex={data.workoutDataDetailed}
+	></WorkoutOverview>
 </section>
 <footer class="mt-10">
 	<p>

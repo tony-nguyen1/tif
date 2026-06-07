@@ -7,7 +7,10 @@ import { goalEnum, type Goal } from '$lib/customType';
 import { env } from '$env/dynamic/private';
 import { mealOfUserInRangeGroupedByDay } from '$lib/server/db/mealRepo';
 
-import { workoutOfUser } from '$lib/server/db/workoutRepo';
+import {
+	workoutOfUserGroupedByExercise,
+	workoutOfUserGroupedByExerciseAndWorkout
+} from '$lib/server/db/workoutRepo';
 import { startOfWeek } from 'date-fns';
 
 export const load: PageServerLoad = async () => {
@@ -35,9 +38,17 @@ export const load: PageServerLoad = async () => {
 	const mondayDate = startOfWeek(new Date(), {
 		weekStartsOn: 1
 	});
-	const workoutData = await workoutOfUser(user.id, mondayDate);
+	const workoutData = await workoutOfUserGroupedByExercise(user.id, mondayDate);
+	const workoutDataDetailed = await workoutOfUserGroupedByExerciseAndWorkout(user.id, mondayDate);
 
-	return { user, userInfo, deployInfo, mealInRange, workoutData };
+	return {
+		user,
+		userInfo,
+		deployInfo,
+		mealInRange,
+		workoutData,
+		workoutDataDetailed
+	};
 };
 
 export const actions: Actions = {

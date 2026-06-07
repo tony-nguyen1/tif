@@ -110,7 +110,7 @@ export async function workoutSummaryForExercise(userId: string, exerciseId: numb
 		.groupBy(table.workout.id);
 }
 
-export async function workoutOfUser(userId: string, date: Date) {
+export async function workoutOfUserGroupedByExercise(userId: string, date: Date) {
 	return await db
 		.select({
 			exerciseId: table.set.exerciseId,
@@ -124,5 +124,27 @@ export async function workoutOfUser(userId: string, date: Date) {
 		.groupBy(table.set.exerciseId)
 		.orderBy(table.exercise.name);
 }
-export type WorkoutOfUserResult = Awaited<ReturnType<typeof workoutOfUser>>;
-export type WorkoutWithSets = WorkoutOfUserResult[number];
+export type WorkoutOfUserGroupedByExercise = Awaited<
+	ReturnType<typeof workoutOfUserGroupedByExercise>
+>;
+
+export async function workoutOfUserGroupedByExerciseAndWorkout(userId: string, date: Date) {
+	return await db
+		.select({
+			workoutId: table.workout.id,
+			exerciseId: table.set.exerciseId,
+			exerciseName: table.exercise.name,
+			numberbOfSet: count(table.set.exerciseId),
+			date: table.workout.date
+		})
+		.from(table.workout)
+		.innerJoin(table.set, eq(table.set.workoutId, table.workout.id))
+		.innerJoin(table.exercise, eq(table.exercise.id, table.set.exerciseId))
+		.where(and(gte(table.workout.date, date), eq(table.workout.userId, userId)))
+		.groupBy(table.set.exerciseId, table.workout.id)
+		.orderBy(table.workout.id, table.exercise.name);
+}
+export type WorkoutOfUserGroupedByExerciseAndWorkout = Awaited<
+	ReturnType<typeof workoutOfUserGroupedByExerciseAndWorkout>
+>;
+export type ExerciseInfo = WorkoutOfUserGroupedByExerciseAndWorkout[number];
