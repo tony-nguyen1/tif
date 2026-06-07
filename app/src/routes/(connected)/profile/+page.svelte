@@ -8,6 +8,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import ProteinChart from '$lib/components/custom/profile/ProteinChart.svelte';
+	import WorkoutOverview from './components/WorkoutOverview.svelte';
 
 	const { data, form }: { data: PageServerData; form: ActionData } = $props();
 	// svelte-ignore state_referenced_locally
@@ -114,7 +115,13 @@
 	</form>
 </section>
 <ProteinChart mealInRange={data.mealInRange}></ProteinChart>
-<footer>
+<section>
+	<WorkoutOverview
+		workoutDataSimple={data.workoutData}
+		workoutDataComplex={data.workoutDataDetailed}
+	></WorkoutOverview>
+</section>
+<footer class="mt-10">
 	<p>
 		{data.deployInfo.appVersion} ({data.deployInfo.sha})
 	</p>

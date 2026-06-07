@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
 
 export async function workoutBelongsToUser(workoutId: number, userId: string) {
 	const res = await db.query.user.findFirst({
@@ -109,3 +109,42 @@ export async function workoutSummaryForExercise(userId: string, exerciseId: numb
 		.where(eq(table.workout.userId, userId))
 		.groupBy(table.workout.id);
 }
+
+export async function workoutOfUserGroupedByExercise(userId: string, date: Date) {
+	return await db
+		.select({
+			exerciseId: table.set.exerciseId,
+			exerciseName: table.exercise.name,
+			numberbOfSet: count(table.set.exerciseId)
+		})
+		.from(table.workout)
+		.innerJoin(table.set, eq(table.set.workoutId, table.workout.id))
+		.innerJoin(table.exercise, eq(table.exercise.id, table.set.exerciseId))
+		.where(and(gte(table.workout.date, date), eq(table.workout.userId, userId)))
+		.groupBy(table.set.exerciseId)
+		.orderBy(table.exercise.name);
+}
+export type WorkoutOfUserGroupedByExercise = Awaited<
+	ReturnType<typeof workoutOfUserGroupedByExercise>
+>;
+
+export async function workoutOfUserGroupedByExerciseAndWorkout(userId: string, date: Date) {
+	return await db
+		.select({
+			workoutId: table.workout.id,
+			exerciseId: table.set.exerciseId,
+			exerciseName: table.exercise.name,
+			numberbOfSet: count(table.set.exerciseId),
+			date: table.workout.date
+		})
+		.from(table.workout)
+		.innerJoin(table.set, eq(table.set.workoutId, table.workout.id))
+		.innerJoin(table.exercise, eq(table.exercise.id, table.set.exerciseId))
+		.where(and(gte(table.workout.date, date), eq(table.workout.userId, userId)))
+		.groupBy(table.set.exerciseId, table.workout.id)
+		.orderBy(table.workout.id, table.exercise.name);
+}
+export type WorkoutOfUserGroupedByExerciseAndWorkout = Awaited<
+	ReturnType<typeof workoutOfUserGroupedByExerciseAndWorkout>
+>;
+export type ExerciseInfo = WorkoutOfUserGroupedByExerciseAndWorkout[number];
