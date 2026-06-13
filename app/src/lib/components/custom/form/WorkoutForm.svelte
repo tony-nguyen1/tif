@@ -9,6 +9,7 @@
 	import type { FormStateUnion } from './WorkoutFormState.svelte';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { resolve } from '$app/paths';
 
 	// table.Exercise[]
 	// interface Props {
@@ -96,7 +97,9 @@
 			use:enhance
 		>
 			<div class="grid gap-1">
-				<label for="exerciseId" class="text-sm">The exercise : </label>
+				<label for="exerciseId" class="text-sm"
+					>The <a href={resolve('/(connected)/exercise')} aria-label="Meal">exercise</a> :
+				</label>
 				<Select.Root
 					name="exerciseId"
 					type="single"
