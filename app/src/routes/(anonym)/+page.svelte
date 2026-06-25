@@ -52,7 +52,7 @@
 </section>
 <section>
 	<h2 class="mx-4 mb-4 text-2xl">Sneak peek</h2>
-	<article class="flex h-[500px] snap-x snap-mandatory flex-row gap-x-3 overflow-x-scroll">
+	<article class="flex h-125 snap-x snap-mandatory flex-row gap-x-3 overflow-x-scroll">
 		<img
 			height="500px"
 			width="231"

@@ -2,7 +2,41 @@
 # Nyx
 Webapp to track my progress at the gym, weight, sleep and eating habits
 
-# Stack
+A fitness and health tracking webapp for monitoring meals,
+sleep, workouts, body weight, and long-term progress.
+
+## Features
+
+- Nutrition tracking
+- Weight tracking
+- Sleep tracking
+- Workout tracking
+- Progress chart
+- User authentication
+
+## Tech Stack
+
+### Frontend
+- Svelte
+- TypeScript
+- Tailwind CSS
+- Chart.js
+- Shadcn
+- Lucide
+- Sonner
+
+### Backend
+- SvelteKit
+- Drizzle ORM
+- Turso database
+
+### Test
+- Playwright
+
+### Infrastructure
+- PM2
+- GitHub Actions
+
 
 Built with [SvelteKit](https://svelte.dev/), [Tailwindcss](https://tailwindcss.com/) and [Turso](https://turso.tech/)
 
@@ -12,6 +46,16 @@ External libraries include but not limited to :
 - [Lucide](https://lucide.dev/)
 - [Sonner](https://sonner.emilkowal.ski/)
 - [Chart.js](https://www.chartjs.org/)
+
+## Architecture
+
+TODO
+https://excalidraw.com/
+
+## Prerequisites
+
+- Node.js 22+
+- npm 11+
 
 # Usage
 
