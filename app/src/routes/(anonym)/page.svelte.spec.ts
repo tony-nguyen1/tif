@@ -8,6 +8,6 @@ describe('/+page.svelte', () => {
 		render(Page);
 
 		const heading = page.getByRole('heading', { level: 1 });
-		await expect.element(heading).toBeInTheDocument();
+		expect(heading).toHaveTextContent('Nyx');
 	});
 });
