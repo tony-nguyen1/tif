@@ -10,7 +10,6 @@ jobs:
   verification:
     runs-on: ubuntu-latest
     environment: test
-
     defaults:
       run:
         working-directory: app
@@ -24,7 +23,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: "npm"
           cache-dependency-path: app/package-lock.json
 
@@ -36,10 +35,10 @@ jobs:
 
       - name: Check
         run: npm run check
+
   test-fast:
     runs-on: ubuntu-latest
     environment: test
-
     defaults:
       run:
         working-directory: app
@@ -50,7 +49,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: "npm"
           cache-dependency-path: app/package-lock.json
 
@@ -62,6 +61,7 @@ jobs:
 
       - name: Run unit tests
         run: npx vitest run --reporter=default --run
+
   build:
     runs-on: ubuntu-latest
     environment: test
@@ -75,7 +75,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: "npm"
           cache-dependency-path: app/package-lock.json
 
