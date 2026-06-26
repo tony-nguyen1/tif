@@ -32,12 +32,6 @@ export default defineConfig(({ command, mode }) => {
 
 	return {
 		plugins: [tailwindcss(), sveltekit()],
-		// build: {
-		// 	ssr: true, // important for Node backend
-		// 	rollupOptions: {
-		// 		external: ['@libsql/client']
-		// 	}
-		// },
 
 		test: {
 			expect: { requireAssertions: true },
