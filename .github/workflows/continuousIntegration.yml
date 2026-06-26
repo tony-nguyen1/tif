@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Sanity check
+        run: pwd
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
