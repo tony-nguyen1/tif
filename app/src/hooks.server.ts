@@ -1,7 +1,8 @@
-import type { Handle } from '@sveltejs/kit';
-import * as auth from '$lib/server/auth';
 import { env } from '$env/dynamic/private';
-// import { client } from '$lib/server/db';
+import * as auth from '$lib/server/auth';
+import { db, initDb, isTest } from '$lib/server/db';
+import type { Handle } from '@sveltejs/kit';
+import { migrate } from 'drizzle-orm/libsql/migrator';
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
@@ -39,16 +40,24 @@ export async function init() {
 		throw new Error(
 			`APP_ENV environment variable not set properly. Choose either: development, test or production`
 		);
+	initDb();
 }
 
 console.info('[hooks.server.ts] running once');
 export const isProd = env.APP_ENV === 'production';
 if (isProd) {
 	init();
+	if (isTest) {
+		console.info('... running migration');
+		await migrate(db, {
+			migrationsFolder: 'drizzle'
+		});
+	}
 	// console.info('[hooks.server.ts] syncing db');
 	// console.info('... syncing');
 	// const res = await client.sync();
 	// console.info(res);
 	// console.info(`... frames applied=${res?.frames_synced ?? 'N/A'}`);
 	// console.info('... syncing OK');
+	//
 }

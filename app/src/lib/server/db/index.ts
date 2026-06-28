@@ -2,7 +2,6 @@ import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
-import { migrate } from 'drizzle-orm/libsql/migrator';
 import * as schema from './schema';
 import fs from 'fs';
 
@@ -69,11 +68,9 @@ if (dev) {
 }
 
 export const client = tmpClient;
-export const db = drizzle(tmpClient, { schema });
+export let db: ReturnType<typeof drizzle>;
 
-if (isTest) {
-	console.info('... running migration');
-	await migrate(db, {
-		migrationsFolder: 'drizzle'
-	});
+export function initDb() {
+	const tmpClient = createClient({ url: env.DATABASE_URL });
+	db = drizzle(tmpClient, { schema });
 }
