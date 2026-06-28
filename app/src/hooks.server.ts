@@ -32,32 +32,14 @@ export const handle: Handle = handleAuth;
 export async function init() {
 	if (!env.APP_ENV) throw new Error('APP_ENV is not set');
 	if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-	if (
-		!(env.DATABASE_URL != 'production') &&
-		!(env.DATABASE_URL != 'production') &&
-		!(env.DATABASE_URL != 'production')
-	)
-		throw new Error(
-			`APP_ENV environment variable not set properly. Choose either: development, test or production`
-		);
-	initDb();
-}
+	if (!['development', 'test', 'production'].includes(env.APP_ENV)) {
+		throw new Error('APP_ENV must be one of: development, test, production');
+	}
 
-console.info('[hooks.server.ts] running once');
-export const isProd = env.APP_ENV === 'production';
-if (isProd) {
-	init();
+	initDb();
+
 	if (isTest) {
 		console.info('... running migration');
-		await migrate(db, {
-			migrationsFolder: 'drizzle'
-		});
+		await migrate(db, { migrationsFolder: 'drizzle' });
 	}
-	// console.info('[hooks.server.ts] syncing db');
-	// console.info('... syncing');
-	// const res = await client.sync();
-	// console.info(res);
-	// console.info(`... frames applied=${res?.frames_synced ?? 'N/A'}`);
-	// console.info('... syncing OK');
-	//
 }
