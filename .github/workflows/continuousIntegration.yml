@@ -71,7 +71,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t my-image .
       - name: Start app
-        run: docker compose -f docker-compose.test.yml up -d
+        run: docker compose -f docker-compose.test.yml --env-file .env.test up -d
       # - name: Setup test database
       #   run: npm run db:migrate:test
       - name: Install Playwright
@@ -80,4 +80,4 @@ jobs:
         run: npm run test:e2e:ci
       - name: Tear down
         if: always()
-        run: docker compose -f docker-compose.test.yml down
+        run: docker compose -f docker-compose.test.yml --env-file .env.test down

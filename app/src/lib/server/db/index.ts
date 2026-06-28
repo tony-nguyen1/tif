@@ -1,7 +1,7 @@
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
+import { drizzle, LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from './schema';
 import fs from 'fs';
 
@@ -12,7 +12,7 @@ export const isTest = env.APP_ENV === 'test';
 export const isDev = env.APP_ENV === 'development';
 
 export let client: ReturnType<typeof createClient>;
-export let db: ReturnType<typeof drizzle>;
+export let db: LibSQLDatabase<typeof schema>;
 
 export function initDb() {
 	console.info('initDb running');
