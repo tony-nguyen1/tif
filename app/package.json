@@ -18,6 +18,7 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
+		"test:e2e:ci": "dotenv -e .env.test -- playwright test",
 		"db:push": "drizzle-kit push",
 		"db:push:prod": "dotenv -e .env.production -- drizzle-kit push",
 		"db:generate": "drizzle-kit generate",

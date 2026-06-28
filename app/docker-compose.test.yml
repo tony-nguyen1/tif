@@ -1,0 +1,9 @@
+services:
+  app:
+    image: my-image
+    ports:
+      - '${HOST_PORT}:3000'
+    env_file:
+      - .env.test
+    environment:
+      - ORIGIN=http://localhost:${HOST_PORT}
