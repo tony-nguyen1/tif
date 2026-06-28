@@ -27,9 +27,16 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 export const handle: Handle = handleAuth;
 
-// console.info('[hooks.server.ts] running once');
+// checking for necesary env variables
+export async function init() {
+	if (!env.APP_ENV) throw new Error('APP_ENV is not set');
+	if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+}
+
+console.info('[hooks.server.ts] running once');
 export const isProd = env.APP_ENV === 'production';
 if (isProd) {
+	init();
 	// console.info('[hooks.server.ts] syncing db');
 	// console.info('... syncing');
 	// const res = await client.sync();

@@ -8,9 +8,6 @@ import fs from 'fs';
 
 console.info('index.ts');
 
-if (!env.APP_ENV) throw new Error('APP_ENV is not set');
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-
 console.log(`Node environment=${env.NODE_ENV}`);
 console.log(`App environment=${env.APP_ENV}`);
 console.log(`Database url=${env.DATABASE_URL}`);
