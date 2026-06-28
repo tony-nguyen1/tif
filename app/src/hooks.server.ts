@@ -31,6 +31,14 @@ export const handle: Handle = handleAuth;
 export async function init() {
 	if (!env.APP_ENV) throw new Error('APP_ENV is not set');
 	if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+	if (
+		!(env.DATABASE_URL != 'production') &&
+		!(env.DATABASE_URL != 'production') &&
+		!(env.DATABASE_URL != 'production')
+	)
+		throw new Error(
+			`APP_ENV environment variable not set properly. Choose either: development, test or production`
+		);
 }
 
 console.info('[hooks.server.ts] running once');

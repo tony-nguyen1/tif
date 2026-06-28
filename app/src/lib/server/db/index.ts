@@ -23,14 +23,9 @@ if (dev) {
 		url: env.DATABASE_URL
 	});
 } else {
-	// running preview, built/optimized version
-	if (isDev) {
-		// for debugging purposes
-		console.info(`Using Turso file database`);
-		tmpClient = createClient({
-			url: env.DATABASE_URL
-		});
-	} else if (isTest) {
+	// !dev means we are running preview
+	// or the built/optimized version
+	if (isTest) {
 		// for e2e tests
 		const filePath = env.DATABASE_URL!.replace('file:', '');
 		if (fs.existsSync(filePath)) {
@@ -64,9 +59,12 @@ if (dev) {
 			authToken: env.DATABASE_AUTH_TOKEN
 		});
 	} else {
-		throw new Error(
-			`APP_ENV environment variable not set properly. Choose either: development, test or production`
-		);
+		// default case, here for compiler purpose
+		// and should be used for debugging purposes
+		console.info(`Using Turso file database`);
+		tmpClient = createClient({
+			url: env.DATABASE_URL
+		});
 	}
 }
 
