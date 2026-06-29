@@ -83,7 +83,7 @@ jobs:
       - name: Start app
         run: docker compose -f docker-compose.test.yml --env-file .env.test up -d
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
@@ -91,13 +91,29 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run e2e tests
         run: npm run test:e2e:ci
+      - name: Run Lighthouse CI
+        run: npx lhci autorun
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --env-file .env.test down
   publish:
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: app/playwright-report/
+          retention-days: 7
     runs-on: ubuntu-latest
     environment: test
     needs: [e2e-test]
+  publish:
+    runs-on: ubuntu-latest
+    environment: test
+    defaults:
+      run:
+        working-directory: app
     steps:
       - name: Docker Login
         uses: docker/login-action@v4.2.0
