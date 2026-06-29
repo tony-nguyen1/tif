@@ -69,7 +69,7 @@ jobs:
           echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env.test
           echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
       - name: Build Docker image
-        run: docker build -t my-image .
+        run: docker build -t nemless/nyx:${{ github.sha }} .
       - name: Start app
         run: docker compose -f docker-compose.test.yml --env-file .env.test up -d
       # - name: Setup test database
@@ -81,3 +81,10 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --env-file .env.test down
+      - name: Docker Login
+        uses: docker/login-action@v4.2.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push Docker image onto Docker Hub
+        run: docker push nemless/nyx:${{ github.sha }}
