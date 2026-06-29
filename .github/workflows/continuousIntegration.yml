@@ -98,7 +98,6 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --env-file .env.test down
-  publish:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
