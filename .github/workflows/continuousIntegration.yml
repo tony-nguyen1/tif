@@ -104,15 +104,23 @@ jobs:
           name: playwright-report
           path: app/playwright-report/
           retention-days: 7
+  scan:
     runs-on: ubuntu-latest
     environment: test
     needs: [e2e-test]
+    steps:
+      - uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: nemless/nyx:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1 # fails the job
   publish:
     runs-on: ubuntu-latest
     environment: test
     defaults:
       run:
         working-directory: app
+    needs: [scan]
     steps:
       - name: Docker Login
         uses: docker/login-action@v4.2.0
