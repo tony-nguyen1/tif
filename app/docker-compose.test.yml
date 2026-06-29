@@ -1,6 +1,6 @@
 services:
   app:
-    image: my-image
+    image: nemless/nyx
     ports:
       - '${HOST_PORT}:3000'
     env_file:
