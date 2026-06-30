@@ -15,11 +15,10 @@ FROM node:22-slim
 
 WORKDIR /app
 
-COPY --from=builder app/build ./build
-COPY --from=builder app/node_modules ./node_modules
-COPY --from=builder app/package*.json ./
-COPY --from=builder app/drizzle ./drizzle
-
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/drizzle ./drizzle
 # RUN npm ci --omit=dev
 
 EXPOSE 3000
