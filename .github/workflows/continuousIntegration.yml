@@ -69,10 +69,12 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Generate .env file
+        run: |
+          echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env.test
       - name: Generate .env.test file
         run: |
           echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
-          echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env.test
           echo "APP_ENV=${{ vars.APP_ENV }}" >> .env.test
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v4.1.0
