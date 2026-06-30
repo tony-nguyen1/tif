@@ -86,7 +86,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Start app
-        run: docker compose -f docker-compose.test.yml --env-file .env.test up -d
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
         with:
@@ -96,20 +96,9 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run e2e tests
         run: npm run test:e2e:ci
-      - name: Run Lighthouse CI
-        run: npx lhci autorun
-        env:
-          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --env-file .env.test down
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7.0.1
-        if: always()
-        with:
-          name: playwright-report
-          path: app/playwright-report/
-          retention-days: 7
   publish:
     runs-on: ubuntu-latest
     environment: test

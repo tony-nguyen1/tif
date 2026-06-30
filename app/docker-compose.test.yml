@@ -1,9 +1,5 @@
 services:
   app:
     image: nemless/nyx
-    ports:
-      - '${HOST_PORT}:3000'
     env_file:
       - .env.test
-    environment:
-      - ORIGIN=http://localhost:${HOST_PORT}
