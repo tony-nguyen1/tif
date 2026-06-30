@@ -5,5 +5,3 @@ services:
       - '${HOST_PORT}:3000'
     environment:
       - ORIGIN=http://localhost:${HOST_PORT}
-    env_file:
-      - .env

@@ -71,7 +71,7 @@ jobs:
         run: npm ci
       - name: Generate .env file
         run: |
-          echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env.test
+          echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env
       - name: Generate .env.test file
         run: |
           echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env.test
