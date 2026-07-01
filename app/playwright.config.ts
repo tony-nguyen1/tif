@@ -4,6 +4,7 @@ const port = process.env.HOST_PORT!;
 const origin = process.env.ORIGIN ?? `http://localhost:${port}`;
 
 export default defineConfig({
+	reporter: process.env.CI ? 'github' : 'list',
 	use: {
 		headless: true,
 		viewport: { width: 1280, height: 720 },

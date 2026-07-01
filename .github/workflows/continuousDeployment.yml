@@ -87,6 +87,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint, unit-tests]
     environment: test
+    env:
+      CI: true
     defaults:
       run:
         working-directory: app
@@ -224,16 +226,16 @@ jobs:
       - name: Upload compose files to server
         run: |
           rsync -az -e ssh ./docker-compose.yml ./docker-compose.production.yml \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/
       - name: Upload .env.production to server
-        run: rsync -az -e ssh ./.env.production ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+        run: rsync -az -e ssh ./.env.production ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/
       - name: Upload .env to server
-        run: rsync -az -e ssh ./.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+        run: rsync -az -e ssh ./.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/
       - name: Pull the released image on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
+            "cd ~/github_actions/nyx/ && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
       - name: Recreate containers on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up -d"
+            "cd ~/github_actions/nyx/ && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up -d"

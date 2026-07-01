@@ -1,5 +1,5 @@
 services:
   app:
-    image: nemless/nyx
+    image: nemless/nyx:${IMAGE_TAG}
     env_file:
       - .env.production
