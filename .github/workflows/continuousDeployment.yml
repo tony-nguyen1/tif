@@ -7,83 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "npm"
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        run: cd app && npm ci
-
-      - name: Run prettier & eslint
-        run: cd app && npm run lint
-
-  build:
-    runs-on: ubuntu-latest
-    needs: lint
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-      DATABASE_REPLICA: ${{ secrets.DATABASE_REPLICA }}
-      DATABASE_SYNC: ${{ secrets.DATABASE_SYNC }}
-      APP_ENV: ${{ secrets.APP_ENV }}
-    outputs:
-      APP_VERSION: ${{ steps.version.outputs.APP_VERSION }}
-      COMMIT_SHA: ${{ steps.sha.outputs.COMMIT_SHA }}
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: "0"
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "npm"
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        run: cd app && npm ci
-
-      - name: Build app
-        run: cd app && npm run build
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-build
-          retention-days: 3
-          path: |
-            app/build
-            app/ecosystem.config.cjs
-            app/svelte.config.js
-            app/package.json
-            app/package-lock.json
-            app/node_modules
-            app/script
-            app/.svelte-kit
-
-      - name: Output tag version
-        id: version
-        run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          echo "APP_VERSION=$VERSION"
-          echo "APP_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-      - name: Output sha
-        id: sha
-        run: |
-          echo "COMMIT_SHA=${GITHUB_SHA::7}"
-          echo "COMMIT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
-  release:
+  bump-git-version:
     runs-on: ubuntu-latest
     needs: build
     permissions:
@@ -113,78 +37,74 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
-
-  getlatestTag:
+  bump-dockerhub-version:
     runs-on: ubuntu-latest
-    needs: release
-    outputs:
-      APP_VERSION: ${{ steps.version.outputs.APP_VERSION }}
-      COMMIT_SHA: ${{ steps.sha.outputs.COMMIT_SHA }}
+    needs: [bump-version]
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4.2.0
         with:
-          fetch-depth: "0"
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Output tag version
-        id: version
+      - name: Pull and tag Docker image
         run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          echo "APP_VERSION=$VERSION"
-          echo "APP_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          docker pull nemless/nyx:${{ github.sha }}
+          docker tag nemless/nyx:${{ github.sha }} nemless/nyx:latest
 
-      - name: Output sha
-        id: sha
+      - name: Push latest tag
         run: |
-          echo "COMMIT_SHA=${GITHUB_SHA::7}"
-          echo "COMMIT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
+          docker push nemless/nyx:latest
+      - name: Creating release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          files: |
+            # ... todo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   deploy:
     runs-on: ubuntu-latest
-    needs: [getlatestTag]
+    needs: [release]
     environment: production
-
+    defaults:
+      run:
+        working-directory: app
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-build
-          path: app
-
-      - name: List downloaded files
-        run: ls -R app
-
+      - uses: actions/checkout@v6
       - name: Add deployment SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+          echo "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 
       - name: Generate .env.production
-        run: |
-          cd app 
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
-          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
-          echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
-          echo "DATABASE_SYNC=${{ secrets.DATABASE_SYNC }}" >> .env.production
-          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env.production
-          echo "BUILD_DATE=$(date -u +"%Y-%m-%d")" >> .env.production
-          ls -l .env.production
-
-      - env:
+        env:
           APP_VERSION: ${{ needs.getlatestTag.outputs.APP_VERSION }}
           COMMIT_SHA: ${{ needs.getlatestTag.outputs.COMMIT_SHA }}
-        working-directory: app
         run: |
-          pwd
-          echo "$APP_VERSION ($COMMIT_SHA)"
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
+          echo "DATABASE_AUTH_TOKEN=${{ secrets.DATABASE_AUTH_TOKEN }}" >> .env.production
+          # echo "DATABASE_REPLICA=${{ secrets.DATABASE_REPLICA }}" >> .env.production
+          # echo "DATABASE_SYNC=${{ secrets.DATABASE_SYNC }}" >> .env.production
+
+          echo "APP_ENV=${{ vars.APP_ENV }}" >> .env
+
+          echo "BUILD_DATE=$(date -u +"%Y-%m-%d")" >> .env.production
           echo "APP_VERSION=$APP_VERSION" >> .env.production
           echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
-          ls -l .env.production
 
-      - name: Upload build to server
-        run: rsync -az --progress -e ssh ./app/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+      - name: Upload Docker compose file to server
+        run: rsync -az --progress -e ssh ./docker-compose.test.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+      - name: Upload .env.production file to server
+        run: rsync -az --progress -e ssh ./.env.production ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
+      - name: Upload .env file to server
+        run: rsync -az --progress -e ssh ./.env.production ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/github_actions/nyx/app/
 
-      - name: Restart server
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && source ~/.nvm/nvm.sh && pm2 start ecosystem.config.cjs && pm2 show nyx"
+      - name: Download latest image from Docker Hub
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up && docker pull nemless/nyx:latest"
+
+      - name: Start the server
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ~/github_actions/nyx/app && sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up"
