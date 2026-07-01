@@ -5,6 +5,7 @@ const origin = process.env.ORIGIN ?? `http://localhost:${port}`;
 console.log(origin);
 
 export default defineConfig({
+	reporter: 'github',
 	use: {
 		headless: true,
 		viewport: { width: 1280, height: 720 },
