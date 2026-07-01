@@ -99,7 +99,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: |
+          npx wait-on http://localhost:${{ vars.HOST_PORT }}
+          npx playwright install --with-deps
       - name: Run e2e tests
         run: npm run test:e2e:ci
       - name: Tear down
