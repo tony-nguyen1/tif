@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 const port = process.env.HOST_PORT!;
 const origin = process.env.ORIGIN ?? `http://localhost:${port}`;
+console.log(origin);
 
 export default defineConfig({
 	use: {
