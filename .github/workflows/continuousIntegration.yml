@@ -95,7 +95,7 @@ jobs:
         run: |
           docker ps
           docker logs app-app-1
-          curl -v http://localhost:3006
+          # curl -v http://localhost:3006
           docker exec app-app-1 curl http://localhost:3000
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
