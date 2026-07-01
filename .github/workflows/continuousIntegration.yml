@@ -96,8 +96,8 @@ jobs:
         run: |
           docker ps
           docker logs app-app-1
-          # curl -v http://localhost:3006
-          docker exec app-app-1 curl http://localhost:3000
+          curl -v http://localhost:${{ vars.HOST_PORT }}
+          # docker exec app-app-1 curl http://localhost:3000
       - name: Cache Playwright browsers
         uses: actions/cache@v6.1.0
         with:
@@ -108,8 +108,8 @@ jobs:
           npx playwright install --with-deps
       - name: Run e2e tests
         run: |
-          npm i wait-on
-          npx wait-on http://localhost:${{ vars.HOST_PORT }}
+          # npm i wait-on
+          # npx wait-on http://localhost:${{ vars.HOST_PORT }}
           npm run test:e2e:ci
       - name: Tear down
         if: always()
