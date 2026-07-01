@@ -232,8 +232,8 @@ jobs:
       - name: Pull the released image on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
+            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
       - name: Recreate containers on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up -d"
+            "cd ~/github_actions/nyx/app && IMAGE_TAG=${{ needs.release.outputs.version }} docker compose -f docker-compose.yml -f docker-compose.production.yml up -d"
