@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v7.2.0
         with:
           context: app # explicit path required here
-          push: false
+          push: true
           load: true
           tags: nemless/nyx:${{ github.sha }}
           cache-from: type=gha
