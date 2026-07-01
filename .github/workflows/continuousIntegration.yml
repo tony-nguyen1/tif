@@ -80,6 +80,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint, unit-tests]
     environment: test
+    env:
+      CI: true
     defaults:
       run:
         working-directory: app
