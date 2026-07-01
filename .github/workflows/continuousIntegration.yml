@@ -100,10 +100,12 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
       - name: Install Playwright
         run: |
-          npx wait-on http://localhost:${{ vars.HOST_PORT }}
           npx playwright install --with-deps
       - name: Run e2e tests
-        run: npm run test:e2e:ci
+        run: |
+          npm i wait-on
+          npx wait-on http://localhost:${{ vars.HOST_PORT }}
+          npm run test:e2e:ci
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --env-file .env.test down
