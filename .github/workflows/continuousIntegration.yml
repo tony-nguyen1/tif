@@ -87,6 +87,7 @@ jobs:
           tags: nemless/nyx:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/myimage.tar
       - name: Sanity check of the config
         run: docker compose -f docker-compose.yml -f docker-compose.test.yml config
       - name: Start app
