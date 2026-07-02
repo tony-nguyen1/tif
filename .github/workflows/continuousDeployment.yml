@@ -223,6 +223,7 @@ jobs:
       - name: Generate .env
         run: |
           echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env
+          echo "IMAGE_TAG=$APP_VERSION" >> .env
       - name: Upload compose files to server
         run: |
           rsync -az -e ssh ./docker-compose.yml ./docker-compose.production.yml \
@@ -234,8 +235,10 @@ jobs:
       - name: Pull the released image on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/ && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
+            "cd ~/github_actions/nyx/ docker compose -f docker-compose.yml -f docker-compose.production.yml pull"
       - name: Recreate containers on the server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ~/github_actions/nyx/ && IMAGE_TAG=${{ needs.release.outputs.version }} sudo docker compose -f docker-compose.yml -f docker-compose.production.yml up -d"
+            "cd ~/github_actions/nyx/ &&
+            docker compose -f docker-compose.yml -f docker-compose.production.yml up -d &&
+            docker ps | grep nyx"
