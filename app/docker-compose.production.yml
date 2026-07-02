@@ -3,3 +3,5 @@ services:
     image: nemless/nyx:${IMAGE_TAG}
     env_file:
       - .env.production
+    environment:
+      - ORIGIN=https://nyx.nguyentony.fr
