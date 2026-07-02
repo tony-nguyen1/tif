@@ -221,6 +221,8 @@ jobs:
           echo "APP_VERSION=$APP_VERSION" >> .env.production
           echo "COMMIT_SHA=$COMMIT_SHA" >> .env.production
       - name: Generate .env
+        env:
+          APP_VERSION: ${{ needs.release.outputs.version }}
         run: |
           echo "HOST_PORT=${{ vars.HOST_PORT }}" >> .env
           echo "IMAGE_TAG=$APP_VERSION" >> .env
